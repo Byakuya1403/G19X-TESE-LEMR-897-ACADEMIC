@@ -34,7 +34,7 @@ Abre http://localhost:5173. Vite redirige /api al backend.
 ## Implementado
 
 - Registro de presupuesto y gasto agregado por departamento/mes; unicidad departamento y periodo.
-- Dashboard y filtros conectados al backend; no hay datos ficticios automáticos.
+- Dashboard y filtros conectados al backend; invitados ven una demostración y los roles financieros acceden a datos guardados.
 - KPI: presupuesto, gasto, saldo y utilización. Moneda inicial MXN.
 - Importación CSV UTF-8 transaccional, máximo 2 MB y 10000 filas; errores o duplicados rechazan el archivo completo.
 - Proyección base: media de hasta tres meses completos para los mismos departamentos, anteriores o iguales al periodo seleccionado.
@@ -44,7 +44,7 @@ Abre http://localhost:5173. Vite redirige /api al backend.
 
 ## Límites y decisiones pendientes
 
-No hay autenticación, autorización, aprobaciones, auditoría, XLSX, escenarios guardados ni IA validada. No cargar datos financieros sensibles todavía ni publicar el servidor en internet. Las cifras agregadas no sustituyen un registro contable de movimientos. La proyección puede mezclar un mes incompleto con meses cerrados; se debe incorporar estado de cierre y evaluación temporal antes de usarla para decisiones.
+Se agregó autenticación y autorización por rol. Faltan aprobaciones, auditoría, XLSX, escenarios guardados e IA validada. No cargar datos financieros sensibles todavía ni publicar el servidor en internet. Las cifras agregadas no sustituyen un registro contable de movimientos. La proyección puede mezclar un mes incompleto con meses cerrados; se debe incorporar estado de cierre y evaluación temporal antes de usarla para decisiones.
 
 Los umbrales, fórmulas, moneda, KPI y cortes mensuales son supuestos provisionales. Faltan migraciones Alembic, control de concurrencia de importaciones, CRUD de departamentos y usuarios y manejo de conflictos en inserciones simultáneas. El esquema inicial se crea con create_all únicamente para desarrollo.
 
@@ -61,7 +61,7 @@ Documentación oficial:
 ## Próxima etapa
 
 1. Confirmar columnas y un histórico real anonimizado; definir cierre mensual y departamentos.
-2. Implementar login, roles y auditoría antes de aprobaciones o exposición externa.
+2. Incorporar auditoría, recuperación de contraseña y controles de producción antes de exposición externa.
 3. Agregar XLSX y migraciones; pruebas contra PostgreSQL.
 4. Evaluar predicciones con partición temporal y MAE/WAPE frente a la media base.
 5. Integrar Power BI según licencias y política de acceso.
@@ -73,3 +73,42 @@ Desde backend: `python -m pytest`. Desde frontend: `npm run build`.
 ### Resultado de esta entrega
 
 Compilación React correcta y 3 pruebas de API aprobadas sobre SQLite: cálculos/duplicados, rechazo atómico de CSV y presupuesto cero/exclusión de futuro. Docker y PostgreSQL no se ejecutaron en este entorno; su integración aún debe verificarse. No se realizó inspección visual en navegador.
+
+
+## v0.2 · Inicio de sesión sin cambiar la pantalla inicial
+
+Al abrir la plataforma aparece el dashboard con datos de demostración, claramente indicados. No se abre automáticamente el formulario de acceso. El botón **Iniciar sesión** de la esquina superior abre un diálogo; al ingresar se conserva el dashboard y se cargan los datos permitidos. Al cerrar sesión se vuelve a la demostración. Los registros reales nunca se devuelven a invitados.
+
+### Crear la primera cuenta
+
+Con Docker funcionando, desde la carpeta byakuyo:
+```
+docker compose exec backend python -m app.create_user administrador admin
+```
+Escribe una contraseña de 12 a 128 caracteres y confírmala. No aparece mientras la escribes. No existen contraseñas predeterminadas. Inicia sesión con `administrador`; en **Usuarios** crea las cuentas financieras. Alternativamente:
+```
+docker compose exec backend python -m app.create_user director director
+docker compose exec backend python -m app.create_user analista analyst
+```
+Sin Docker, desde backend y con el entorno activado, ejecuta `python -m app.create_user administrador admin`.
+
+### Permisos de esta entrega
+
+| Rol | Datos financieros reales | Registrar presupuesto | CSV | Simulación | Crear/listar cuentas |
+|---|---|---|---|---|---|
+| Invitado | No (solo demo) | No | No | No | No |
+| Director Financiero | Sí | Sí | No | Sí | No |
+| Analista Financiero | Sí | No | Sí | Sí | No |
+| Administrador | No (solo demo) | No | No | No | Sí |
+
+Los permisos se validan en FastAPI además de la interfaz. El administrador no obtiene acceso financiero por ser administrador. La asignación es por cuenta, no por selección en el formulario. La aprobación/ajuste de presupuestos del director sigue pendiente; no se muestra como implementada.
+
+### Sesiones y límites
+
+Contraseñas con PBKDF2-SHA256 y sal aleatoria; sesiones opacas de 8 horas persistidas en BD, almacenando solo hash del token. Cookie HttpOnly y SameSite=Strict; encabezado obligatorio en peticiones que modifican datos. Cierre de sesión revoca el token. Límite de 10 intentos de acceso por minuto/IP por proceso; con proxy local pueden compartir IP. Antes de producción: HTTPS y COOKIE_SECURE=true en backend, almacenamiento compartido para el límite de intentos, auditoría, recuperación/cambio de contraseña, migraciones y pruebas con PostgreSQL. No desplegar esta base local como solución de producción.
+
+### Actualizar una instalación previa
+
+Detén los contenedores, reemplaza el código con esta versión y conserva tu `.env`. Ejecuta `docker compose up --build` usando el mismo proyecto y volumen. No borres el volumen PostgreSQL. El backend crea las tablas nuevas sin eliminar presupuestos existentes; esta creación automática no sustituye migraciones de producción.
+
+Verificación v0.2: React compiló y 6 pruebas de API pasaron con SQLite, incluidos aislamiento de invitados, permisos, sesiones vencidas y rechazo de peticiones sin encabezado de protección. PostgreSQL/Docker y revisión visual en navegador siguen pendientes; el navegador de pruebas no estuvo disponible.
