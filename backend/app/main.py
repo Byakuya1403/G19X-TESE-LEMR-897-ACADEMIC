@@ -12,7 +12,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, Depends, File, HTTPException, UploadFile, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import Boolean, Float, ForeignKey, Numeric, String, UniqueConstraint, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
@@ -130,6 +130,10 @@ def list_users(session: DB, user: Administrator):
     return [dict(id=u.id, **public_user(u), active=u.active) for u in session.scalars(select(User)).all()]
 class UserInput(BaseModel):
     username: str = Field(pattern=r"^[a-z0-9._-]{3,100}$")
+    @field_validator("username", mode="before")
+    @classmethod
+    def normalize_username(cls, value):
+        return value.strip().lower() if isinstance(value, str) else value
     password: str = Field(min_length=12, max_length=128)
     role: str = Field(pattern=r"^(director|analyst|admin)$")
 @app.post("/api/users", status_code=201)

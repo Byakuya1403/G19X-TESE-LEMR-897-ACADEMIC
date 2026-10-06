@@ -82,3 +82,16 @@ def test_invalid_login_and_csrf(client):
     assert client.post('/api/budgets',json=item()).status_code==403
     assert client.post('/api/auth/logout').status_code==403
     assert client.post('/api/auth/login',json={'username':'director','password':'UnaClaveSegura2026'}).status_code==403
+
+
+def test_user_creation_normalization_and_errors(client):
+    client.post('/api/auth/login',json={'username':'admin','password':'UnaClaveSegura2026'})
+    payload={'username':'  Yosh.Test  ','password':'UnaClaveNueva2026','role':'analyst'}
+    response=client.post('/api/users',json=payload)
+    assert response.status_code==201
+    assert response.json()['username']=='yosh.test'
+    assert client.post('/api/users',json=payload).status_code==409
+    assert client.post('/api/users',json={**payload,'username':'otro','password':'corta'}).status_code==422
+    assert client.post('/api/users',json={**payload,'username':'nombre con espacios'}).status_code==422
+    client.post('/api/auth/logout')
+    assert client.post('/api/auth/login',json={'username':'YOSH.TEST','password':payload['password']}).status_code==200

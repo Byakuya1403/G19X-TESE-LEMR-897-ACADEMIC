@@ -112,3 +112,9 @@ Contraseñas con PBKDF2-SHA256 y sal aleatoria; sesiones opacas de 8 horas persi
 Detén los contenedores, reemplaza el código con esta versión y conserva tu `.env`. Ejecuta `docker compose up --build` usando el mismo proyecto y volumen. No borres el volumen PostgreSQL. El backend crea las tablas nuevas sin eliminar presupuestos existentes; esta creación automática no sustituye migraciones de producción.
 
 Verificación v0.2: React compiló y 6 pruebas de API pasaron con SQLite, incluidos aislamiento de invitados, permisos, sesiones vencidas y rechazo de peticiones sin encabezado de protección. PostgreSQL/Docker y revisión visual en navegador siguen pendientes; el navegador de pruebas no estuvo disponible.
+
+## v0.3 · Correcciones de Usuarios y textos
+
+Creación de cuentas: usuario normalizado a minúsculas, mensajes específicos, reglas visibles (3–100 caracteres para usuario y 12–128 para contraseña) y confirmación separada de la actualización de la lista. Cada pestaña tiene una descripción propia. Conserva .env y el volumen de datos; actualiza con docker compose up --build.
+
+Verificación v0.3: compilación React correcta; prueba del flujo del formulario correcta; 7 pruebas API sobre SQLite aprobadas, incluida creación de cuenta, duplicados, normalización y acceso con la nueva cuenta. Sin validación visual ni ejecución PostgreSQL en esta entrega.
