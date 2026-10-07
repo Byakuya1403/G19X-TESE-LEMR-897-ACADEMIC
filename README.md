@@ -1,120 +1,103 @@
-# Byakuyo · Plataforma de presupuesto corporativo
+# Plataforma de Presupuesto · v0.7
 
-Primera base ejecutable del PRD. Python + FastAPI + SQLAlchemy, PostgreSQL y React con Vite. **Entorno de desarrollo local; no es una versión de producción ni el MVP completo.**
+Python, FastAPI, React y PostgreSQL. Dashboard como pantalla inicial; login opcional desde el botón superior. Invitados ven demostración; director y analista ven datos reales; administrador gestiona cuentas. Versión de desarrollo local, no sistema de producción validado.
 
-## Ejecutar con Docker Desktop
+## Nueva instalación
 
-1. Extrae este proyecto en una carpeta.
-2. Copia `.env.example` a `.env` y sustituye la contraseña por una cadena alfanumérica larga.
-3. Ejecuta `docker compose up --build`.
-4. Abre http://localhost:8080. Documentación API: http://localhost:8000/docs.
-5. En Importaciones carga `examples/presupuestos.csv`; selecciona septiembre de 2026.
-
-La base PostgreSQL conserva los registros en un volumen. No ejecutar `docker compose down -v` si quieres conservarlos. Los puertos publicados se limitan a localhost.
-
-## Desarrollo sin Docker
-
-Backend (desde backend):
-```
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-Sin DATABASE_URL se usa SQLite para pruebas locales, no PostgreSQL. Para PostgreSQL configura `DATABASE_URL=postgresql+psycopg://usuario:clave@localhost:5432/byakuyo`.
-
-Frontend (desde frontend, segunda terminal):
-```
-npm ci
-npm run dev
-```
-Abre http://localhost:5173. Vite redirige /api al backend.
-
-## Implementado
-
-- Registro de presupuesto y gasto agregado por departamento/mes; unicidad departamento y periodo.
-- Dashboard y filtros conectados al backend; invitados ven una demostración y los roles financieros acceden a datos guardados.
-- KPI: presupuesto, gasto, saldo y utilización. Moneda inicial MXN.
-- Importación CSV UTF-8 transaccional, máximo 2 MB y 10000 filas; errores o duplicados rechazan el archivo completo.
-- Proyección base: media de hasta tres meses completos para los mismos departamentos, anteriores o iguales al periodo seleccionado.
-- What-If: ajustes separados de nómina y operación; inflación afecta solo operación.
-- Alertas: consumo >=90% informativo; sobrepresupuesto hasta 10% advertencia; superior a 10% crítico. Presupuesto cero y gasto positivo es crítico; cero/cero no calcula porcentaje.
-- Pantalla de estado de Power BI pendiente de configurar.
-
-## Límites y decisiones pendientes
-
-Se agregó autenticación y autorización por rol. Faltan aprobaciones, auditoría, XLSX, escenarios guardados e IA validada. No cargar datos financieros sensibles todavía ni publicar el servidor en internet. Las cifras agregadas no sustituyen un registro contable de movimientos. La proyección puede mezclar un mes incompleto con meses cerrados; se debe incorporar estado de cierre y evaluación temporal antes de usarla para decisiones.
-
-Los umbrales, fórmulas, moneda, KPI y cortes mensuales son supuestos provisionales. Faltan migraciones Alembic, control de concurrencia de importaciones, CRUD de departamentos y usuarios y manejo de conflictos en inserciones simultáneas. El esquema inicial se crea con create_all únicamente para desarrollo.
-
-## Power BI Embedded
-
-Antes de implementarlo hay que decidir entre **user owns data** (usuarios internos con identidad y permisos Microsoft) y **app owns data** (backend genera tokens). No son intercambiables en permisos/licencias.
-
-Para app owns data: aplicación Microsoft Entra, service principal habilitado, acceso al workspace, reporte publicado y capacidad para producción. Secretos y token de Entra solo en backend. La emisión de embed tokens debe exigir autenticación y permisos; añadir RLS si el acceso se limita por departamento. React usará powerbi-client-react después de configurar ese contrato. Los reportes leen PostgreSQL mediante un modelo semántico; definir Import/DirectQuery y gateway/red según el alojamiento. No existe PBIX ni integración activa en este paquete.
-
-Documentación oficial:
-- https://learn.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal
-- https://learn.microsoft.com/en-us/power-bi/guidance/powerbi-implementation-planning-usage-scenario-embed-for-your-customers
-
-## Próxima etapa
-
-1. Confirmar columnas y un histórico real anonimizado; definir cierre mensual y departamentos.
-2. Incorporar auditoría, recuperación de contraseña y controles de producción antes de exposición externa.
-3. Agregar XLSX y migraciones; pruebas contra PostgreSQL.
-4. Evaluar predicciones con partición temporal y MAE/WAPE frente a la media base.
-5. Integrar Power BI según licencias y política de acceso.
-
-## Verificación
-
-Desde backend: `python -m pytest`. Desde frontend: `npm run build`.
-
-### Resultado de esta entrega
-
-Compilación React correcta y 3 pruebas de API aprobadas sobre SQLite: cálculos/duplicados, rechazo atómico de CSV y presupuesto cero/exclusión de futuro. Docker y PostgreSQL no se ejecutaron en este entorno; su integración aún debe verificarse. No se realizó inspección visual en navegador.
-
-
-## v0.2 · Inicio de sesión sin cambiar la pantalla inicial
-
-Al abrir la plataforma aparece el dashboard con datos de demostración, claramente indicados. No se abre automáticamente el formulario de acceso. El botón **Iniciar sesión** de la esquina superior abre un diálogo; al ingresar se conserva el dashboard y se cargan los datos permitidos. Al cerrar sesión se vuelve a la demostración. Los registros reales nunca se devuelven a invitados.
-
-### Crear la primera cuenta
-
-Con Docker funcionando, desde la carpeta byakuyo:
+1. Extrae la carpeta `plataforma_presupuesto`.
+2. Copia `.env.example` a `.env` y cambia POSTGRES_PASSWORD por una cadena alfanumérica larga.
+3. Con Docker Desktop activo: `docker compose up -d --build`.
+4. Abre http://localhost:8080. No abrir index.html con doble clic.
+5. Crea la primera cuenta:
 ```
 docker compose exec backend python -m app.create_user administrador admin
 ```
-Escribe una contraseña de 12 a 128 caracteres y confírmala. No aparece mientras la escribes. No existen contraseñas predeterminadas. Inicia sesión con `administrador`; en **Usuarios** crea las cuentas financieras. Alternativamente:
+Escribe y confirma contraseña de 12 a 128 caracteres. Inicia sesión; en Usuarios crea una cuenta con rol Analista Financiero para importar y otra Director Financiero para consultar/simular y registrar presupuestos anteriores.
+
+## Importar el CSV empresarial
+
+En sesión de Analista, abre Importaciones y selecciona `examples/presupuesto_empresarial_2026.csv` o el original suministrado.
+
+1. Confirma la moneda verdadera; el archivo no la incluye. MXN en pantalla es una selección inicial, no una moneda detectada.
+2. Para este archivo, marca la reparación de columnas desplazadas: registros 132–136 traen el mes en Concepto.
+3. Pulsa Validar y previsualizar; se muestran las advertencias, primeras filas y cantidad pendiente.
+4. Confirma la importación. Se guardan 36 partidas en una transacción y se selecciona el último periodo disponible (marzo 2026 en este ejemplo).
+
+Formato obligatorio de esta versión: ID_Registro, Anio, Mes, Categoria, Subcategoria, Concepto, Presupuesto_Estimado, Gasto_Real, Diferencia_Varianza, Porcentaje_Ejecucion y Estado. CSV UTF-8 con coma, importes con punto decimal, máximo 2 MB/10000 filas. Estados Pendiente y Completado. No se acepta un CSV arbitrario ni XLSX todavía.
+
+La categoría Ingresos se interpreta como ingreso; cualquier otra como egreso. Esa clasificación se informa en la interfaz y debe ser válida para el origen. No se infieren departamentos. Nómina se identifica por subcategoría Nómina; demás egresos se consideran operación en la simulación (supuesto, no tratamiento contable de CAPEX).
+
+Pendiente con Gasto_Real=0 se guarda como resultado desconocido (NULL); un cero completado sí es conocido. No se aceptan pendientes con importe real no cero, negativos ni ajustes contables: requieren reglas específicas. Las varianzas y porcentajes recibidos se validan contra las cifras y se recalculan al consultar. Conservamos el JSON de cada fila original, avisos y autor de la carga.
+
+Duplicados: hash del archivo y clave año/ID/moneda. Una carga repetida o conflicto se rechaza completo; no sobrescribe partidas. Instalación por empresa y fuente homogénea; archivos de distintas fuentes con IDs coincidentes requieren una futura identificación de origen/versiones. No hay multiempresa ni mapeo universal.
+
+## Dashboard y simulación
+
+Vista Partidas del CSV: cuatro KPI de ingreso/egreso presupuestado/real, resultado neto, alertas por ingreso inferior al presupuesto o gasto superior, detalle por concepto, filtro de periodo/categoría/moneda. No se mezclan monedas. Los totales completos quedan pendientes si alguna partida del grupo lo está; los conocidos parciales se muestran aparte.
+
+Predicción de egresos: se ordenan los periodos por año y mes, se toma el máximo del histórico importado para la moneda elegida y se muestra su mes siguiente (incluido cambio de año). El filtro de periodo de consulta no cambia ese horizonte. Se calcula una media de hasta tres meses con todas sus partidas completadas; los pendientes no se convierten en ceros. No IA validada. La cobertura mensual puede variar y la columna Estado no certifica que el mes esté cerrado; antes de decisiones reales se requiere cierre mensual y evaluación temporal.
+
+Simulación solo sobre egresos completados de la selección; rechaza periodos pendientes. Ajuste salarial sobre Nómina; ajuste operativo e inflación sobre otros egresos. No es una predicción validada.
+
+La interfaz consulta únicamente partidas del CSV, sin selector de fuente. Los registros del formato anterior permanecen en la base y sus endpoints de compatibilidad siguen disponibles; no se eliminan ni se suman a las partidas nuevas.
+
+## Actualizar conservando datos y cuentas
+
+Cambió el nombre de la carpeta, la base por defecto y el volumen por defecto. Una instalación nueva no recupera automáticamente el volumen anterior. NO borres volúmenes ni ejecutes down -v.
+
+Opción A: conserva el volumen y la BD existentes. Antes de cambiar, anota el nombre real del volumen (`docker volume ls`) y los valores POSTGRES_DB y POSTGRES_USER del contenedor anterior. Copia la contraseña vigente a .env y configura POSTGRES_DB, POSTGRES_USER y POSTGRES_VOLUME con esos valores. Detén la instalación anterior con `docker compose down` (sin -v), luego inicia esta versión. No renombra físicamente la BD antigua; conserva su identidad por continuidad. El código y todos los nombres del paquete nuevo usan denominaciones neutras. Deberás volver a iniciar sesión porque cambió el nombre de cookie.
+
+Opción B: para usar una base con nombre nuevo y conservar datos, haz respaldo y restauración. En la carpeta anterior:
 ```
-docker compose exec backend python -m app.create_user director director
-docker compose exec backend python -m app.create_user analista analyst
+docker compose exec db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /tmp/respaldo.dump'
+docker compose cp db:/tmp/respaldo.dump ./respaldo.dump
+docker compose down
 ```
-Sin Docker, desde backend y con el entorno activado, ejecuta `python -m app.create_user administrador admin`.
+Conserva respaldo.dump y la carpeta anterior. En la carpeta nueva, configura .env para finanzas y un volumen NUEVO; inicia solamente PostgreSQL (no el backend todavía):
+```
+docker compose up -d db
+```
+Espera a que esté healthy y copia el respaldo a la carpeta nueva. Restaura en la BD nueva vacía:
+```
+docker compose cp respaldo.dump db:/tmp/respaldo.dump
+docker compose exec db pg_restore -U finanzas -d finanzas --no-owner --no-privileges /tmp/respaldo.dump
+docker compose up -d --build
+```
+Si la restauración da errores, no continúes como si hubiera terminado. Esta ruta requiere una base destino sin las tablas de la aplicación. No crea ni borra automáticamente tu instalación previa. Los presupuestos y cuentas anteriores quedan en sus tablas; las partidas nuevas se crean al arrancar el backend.
 
-### Permisos de esta entrega
+## Script SQL incluido
 
-| Rol | Datos financieros reales | Registrar presupuesto | CSV | Simulación | Crear/listar cuentas |
-|---|---|---|---|---|---|
-| Invitado | No (solo demo) | No | No | No | No |
-| Director Financiero | Sí | Sí | No | Sí | No |
-| Analista Financiero | Sí | No | Sí | Sí | No |
-| Administrador | No (solo demo) | No | No | No | Sí |
+`database/crear_base_datos.sql` crea la estructura exacta utilizada por esta versión, más vistas para consultas y Power BI. Sustituye la propuesta anterior de tablas normalizadas independientes: esta entrega persiste partidas en public.financial_entries y archivos en public.financial_imports. El backend crea las tablas faltantes al iniciar, así que no es obligatorio ejecutar SQL para la aplicación. Las vistas sí requieren ejecutarlo:
+```
+docker compose cp database/crear_base_datos.sql db:/tmp/crear_base_datos.sql
+docker compose exec db psql -U finanzas -d postgres -v ON_ERROR_STOP=1 -f /tmp/crear_base_datos.sql
+```
+Estas instrucciones SQL asumen la BD nueva finanzas. Si reutilizas otra BD, adapta la conexión del script o ejecuta solo BEGIN..COMMIT dentro de esa BD mediante pgAdmin. IF NOT EXISTS no aplica migraciones a tablas existentes.
 
-Los permisos se validan en FastAPI además de la interfaz. El administrador no obtiene acceso financiero por ser administrador. La asignación es por cuenta, no por selección en el formulario. La aprobación/ajuste de presupuestos del director sigue pendiente; no se muestra como implementada.
+## Desarrollo sin Docker
 
-### Sesiones y límites
+Backend: entorno virtual, `pip install -r requirements.txt`, `uvicorn app.main:app --reload`. Sin DATABASE_URL usa SQLite finanzas.db; para PostgreSQL configura DATABASE_URL. Frontend: `npm ci`, `npm run dev`, abre http://localhost:5173. API: http://localhost:8000/docs.
 
-Contraseñas con PBKDF2-SHA256 y sal aleatoria; sesiones opacas de 8 horas persistidas en BD, almacenando solo hash del token. Cookie HttpOnly y SameSite=Strict; encabezado obligatorio en peticiones que modifican datos. Cierre de sesión revoca el token. Límite de 10 intentos de acceso por minuto/IP por proceso; con proxy local pueden compartir IP. Antes de producción: HTTPS y COOKIE_SECURE=true en backend, almacenamiento compartido para el límite de intentos, auditoría, recuperación/cambio de contraseña, migraciones y pruebas con PostgreSQL. No desplegar esta base local como solución de producción.
+## Verificación y límites
 
-### Actualizar una instalación previa
+Compilación React correcta. Pruebas API con SQLite: importación de las 36 partidas, reparación solo autorizada, rechazo atómico, duplicados, monedas separadas, permisos, login y totales. Enero: ingresos 285600.00 y egresos 189120.50; febrero: 285000.00 y 203110.00; marzo: resultados pendientes. Estos importes son de prueba; la moneda debe confirmarse por el usuario.
 
-Detén los contenedores, reemplaza el código con esta versión y conserva tu `.env`. Ejecuta `docker compose up --build` usando el mismo proyecto y volumen. No borres el volumen PostgreSQL. El backend crea las tablas nuevas sin eliminar presupuestos existentes; esta creación automática no sustituye migraciones de producción.
+Docker/PostgreSQL y revisión visual con navegador no se ejecutaron aquí. SQL generado desde los modelos de la aplicación y validado sintácticamente. Power BI sigue pendiente de configuración. Faltan auditoría completa, recuperación de contraseña, cierre/aprobación y modelos de IA evaluados. Antes de producción: HTTPS/cookie Secure, permisos de servidor, pruebas PostgreSQL, migraciones, revisión de red, backups y evaluación de acceso/concurrencia. No hay capacidad multiempresa.
 
-Verificación v0.2: React compiló y 6 pruebas de API pasaron con SQLite, incluidos aislamiento de invitados, permisos, sesiones vencidas y rechazo de peticiones sin encabezado de protección. PostgreSQL/Docker y revisión visual en navegador siguen pendientes; el navegador de pruebas no estuvo disponible.
+## Cambios v0.7
 
-## v0.3 · Correcciones de Usuarios y textos
+Sin filtro de fuente ni vistas duplicadas. La tarjeta de predicción muestra mes/año objetivo, último periodo disponible y meses usados para el cálculo. Con el archivo empresarial: referencia marzo 2026, objetivo abril 2026, base enero y febrero completados. Estimación de egresos 196115.25 en la moneda elegida. El cálculo es una referencia estadística; no entrenamiento de IA. No requiere cambiar esquema SQL ni volver a importar el CSV.
 
-Creación de cuentas: usuario normalizado a minúsculas, mensajes específicos, reglas visibles (3–100 caracteres para usuario y 12–128 para contraseña) y confirmación separada de la actualización de la lista. Cada pestaña tiene una descripción propia. Conserva .env y el volumen de datos; actualiza con docker compose up --build.
+Verificación v0.7: React compiló; 10 pruebas API/funcionales sobre SQLite pasaron, incluida invariancia frente al orden de filas, cambio de año y horizonte independiente del filtro de consulta. Docker/PostgreSQL y revisión visual siguen pendientes.
 
-Verificación v0.3: compilación React correcta; prueba del flujo del formulario correcta; 7 pruebas API sobre SQLite aprobadas, incluida creación de cuenta, duplicados, normalización y acceso con la nueva cuenta. Sin validación visual ni ejecución PostgreSQL en esta entrega.
+## Diseño principal v0.7
+
+Se recuperó la composición inicial: histórico mensual con barras por categoría a la izquierda, predicción a la derecha y cuatro KPI debajo. El filtro superior de periodo limita el panel al mes seleccionado y actualiza KPI, alertas y detalle. La predicción conserva el horizonte del último mes importado. Las partidas pendientes tienen una barra diferenciada sin porcentaje engañoso de cero. No se restauró el selector de fuente, no se mezclan ingresos con consumo presupuestario y no se requieren cambios en la base.
+
+Verificación visual de composición por código y compilación React correcta; comprobación del histórico contra las 36 partidas: orden, totales por mes, filtros, pendientes y separación de ingresos. Sin revisión en navegador en esta entrega. Backend y esquema no cambiaron respecto a v0.5.
+
+## Corrección de filtros v0.7
+
+El panel izquierdo aplica el mes elegido y oculta los demás meses. El filtro de categoría ahora incluye Ingresos, identificado como ingreso, con importe recibido y porcentaje de cumplimiento; egresos usan importe utilizado y ejecución. Sin sumar ingresos como consumo ni marcar su cumplimiento superior a 100% como sobrepresupuesto. La predicción sigue siendo de egresos y conserva el horizonte siguiente al último mes importado. Si se selecciona solo Ingresos se explica que esa predicción no aplica. No hay cambios de esquema ni necesidad de reimportar.
+
+Verificación v0.7: compilación React correcta y comprobación de filtros combinados contra el CSV suministrado: enero/febrero/marzo aislados, ingreso de enero 285600 sobre 280000 (102%), pendientes, moneda y selección sin datos. Sin cambios de backend; no hubo revisión visual en navegador.

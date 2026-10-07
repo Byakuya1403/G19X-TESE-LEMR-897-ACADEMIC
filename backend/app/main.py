@@ -10,13 +10,14 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Annotated
 
-from fastapi import FastAPI, Depends, File, HTTPException, UploadFile, Request, Response
+from fastapi import FastAPI, Depends, File, HTTPException, UploadFile, Form, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import Boolean, Float, ForeignKey, Numeric, String, UniqueConstraint, create_engine, select
+from sqlalchemy import JSON, Integer, Boolean, Float, ForeignKey, Numeric, String, UniqueConstraint, create_engine, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
-engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///./byakuyo.db"))
+engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///./finanzas.db"))
 class Base(DeclarativeBase):
     pass
 class Budget(Base):
@@ -62,14 +63,14 @@ async def lifespan(app):
     Base.metadata.create_all(engine)
     yield
 
-app = FastAPI(title="Byakuyo · Presupuesto corporativo", version="0.1.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://localhost:8080"], allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-Byakuyo"], allow_credentials=True)
+app = FastAPI(title="Plataforma de Presupuesto · Presupuesto corporativo", version="0.5.0", lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://localhost:8080"], allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-App"], allow_credentials=True)
 def db():
     with Session(engine) as session:
         yield session
 DB = Annotated[Session, Depends(db)]
 def optional_user(request: Request, session: DB):
-    token = request.cookies.get("byakuyo_session")
+    token = request.cookies.get("finanzas_session")
     if not token: return None
     login = session.get(LoginSession, hashlib.sha256(token.encode()).hexdigest())
     if not login or login.expires <= time.time(): return None
@@ -80,7 +81,7 @@ def permitted(*roles):
     def verify(request: Request, user: CurrentUser):
         if not user: raise HTTPException(401, "Inicia sesión para continuar")
         if user.role not in roles: raise HTTPException(403, "Tu rol no tiene permiso para esta acción")
-        if request.method != "GET" and request.headers.get("X-Byakuyo") != "1":
+        if request.method != "GET" and request.headers.get("X-App") != "1":
             raise HTTPException(403, "Solicitud no válida")
         return user
     return verify
@@ -96,7 +97,7 @@ login_attempts = {}
 DUMMY_HASH = hash_password(secrets.token_urlsafe(32))
 @app.post("/api/auth/login")
 def login(data: LoginInput, request: Request, response: Response, session: DB):
-    if request.headers.get("X-Byakuyo") != "1": raise HTTPException(403, "Solicitud no válida")
+    if request.headers.get("X-App") != "1": raise HTTPException(403, "Solicitud no válida")
     key = request.client.host if request.client else "local"
     now = time.time()
     recent = [t for t in login_attempts.get(key, []) if now-t < 60]
@@ -105,25 +106,25 @@ def login(data: LoginInput, request: Request, response: Response, session: DB):
     user = session.scalar(select(User).where(User.username==data.username.strip().lower()))
     valid = check_password(data.password, user.password_hash if user else DUMMY_HASH)
     if not user or not user.active or not valid: raise HTTPException(401, "Usuario o contraseña incorrectos")
-    old_token = request.cookies.get("byakuyo_session")
+    old_token = request.cookies.get("finanzas_session")
     if old_token:
         old = session.get(LoginSession, hashlib.sha256(old_token.encode()).hexdigest())
         if old: session.delete(old)
     token = secrets.token_urlsafe(32)
     session.add(LoginSession(token_hash=hashlib.sha256(token.encode()).hexdigest(), user_id=user.id, expires=now+28800))
     session.commit()
-    response.set_cookie("byakuyo_session", token, max_age=28800, httponly=True, samesite="strict", secure=os.getenv("COOKIE_SECURE", "false").lower()=="true", path="/api")
+    response.set_cookie("finanzas_session", token, max_age=28800, httponly=True, samesite="strict", secure=os.getenv("COOKIE_SECURE", "false").lower()=="true", path="/api")
     return public_user(user)
 @app.get("/api/auth/me")
 def me(user: CurrentUser): return public_user(user) if user else None
 @app.post("/api/auth/logout")
 def logout(request: Request, response: Response, session: DB):
-    if request.headers.get("X-Byakuyo") != "1": raise HTTPException(403, "Solicitud no válida")
-    token = request.cookies.get("byakuyo_session")
+    if request.headers.get("X-App") != "1": raise HTTPException(403, "Solicitud no válida")
+    token = request.cookies.get("finanzas_session")
     if token:
         login = session.get(LoginSession, hashlib.sha256(token.encode()).hexdigest())
         if login: session.delete(login); session.commit()
-    response.delete_cookie("byakuyo_session", path="/api")
+    response.delete_cookie("finanzas_session", path="/api")
     return {"ok": True}
 @app.get("/api/users")
 def list_users(session: DB, user: Administrator):
@@ -248,3 +249,6 @@ async def import_csv(session: DB, user: Analyst, file: UploadFile = File(...)):
 @app.get("/api/powerbi/status")
 def powerbi():
     return {"configured":False, "message":"Pendiente: autenticación, Microsoft Entra, workspace, reporte y capacidad. La generación de tokens está deshabilitada hasta implementar autorización."}
+
+from .financial import install_financial
+install_financial(app, Base, engine, DB, CurrentUser, Analyst, Financial)

@@ -15,7 +15,7 @@ def client():
             for username,role in [('director','director'),('analista','analyst'),('admin','admin')]:
                 db.add(User(username=username,role=role,password_hash=hash_password('UnaClaveSegura2026')))
             db.commit()
-        c.headers['X-Byakuyo']='1'
+        c.headers['X-App']='1'
         c.post('/api/auth/login',json={'username':'director','password':'UnaClaveSegura2026'})
         yield c
 
@@ -78,7 +78,7 @@ def test_role_permissions_and_session(client):
 def test_invalid_login_and_csrf(client):
     assert client.post('/api/auth/login',json={'username':'director','password':'incorrecta'}).status_code==401
     assert client.get('/api/auth/me').json()['role']=='director'
-    client.headers.pop('X-Byakuyo')
+    client.headers.pop('X-App')
     assert client.post('/api/budgets',json=item()).status_code==403
     assert client.post('/api/auth/logout').status_code==403
     assert client.post('/api/auth/login',json={'username':'director','password':'UnaClaveSegura2026'}).status_code==403
@@ -95,3 +95,80 @@ def test_user_creation_normalization_and_errors(client):
     assert client.post('/api/users',json={**payload,'username':'nombre con espacios'}).status_code==422
     client.post('/api/auth/logout')
     assert client.post('/api/auth/login',json={'username':'YOSH.TEST','password':payload['password']}).status_code==200
+
+
+SAMPLE=Path(__file__).parents[2]/'examples/presupuesto_empresarial_2026.csv'
+def financial_login(client):
+    client.post('/api/auth/login',json={'username':'analista','password':'UnaClaveSegura2026'})
+def import_enterprise(client,content=None,repair=True,currency='MXN'):
+    return client.post('/api/financial/imports/csv',files={'file':('presupuesto.csv',content or SAMPLE.read_bytes(),'text/csv')},data={'currency':currency,'repair_shifted':str(repair).lower()})
+def test_enterprise_import_repair_and_reconciliation(client):
+    financial_login(client)
+    assert import_enterprise(client,repair=False).status_code==422
+    assert client.get('/api/financial/entries').json()==[]
+    preview=client.post('/api/financial/imports/preview',files={'file':('p.csv',SAMPLE.read_bytes())},data={'repair_shifted':'true'}).json()
+    assert preview['count']==36 and len(preview['warnings'])==5 and preview['pending']==10
+    result=import_enterprise(client)
+    assert result.status_code==201, result.text
+    assert result.json()['imported']==36
+    entries=client.get('/api/financial/entries').json()
+    repaired=next(e for e in entries if e['source_id']=='132')
+    assert repaired['period']=='2026-01' and repaired['category']=='Tecnología e Infraestructura'
+    for month,income,expense in [('01',285600,189120.5),('02',285000,203110)]:
+        d=client.get('/api/financial/dashboard',params={'period':'2026-'+month,'currency':'MXN'}).json()
+        assert d['income']['actual']==income and d['expense']['actual']==expense
+        assert d['balance']==income-expense
+    march=client.get('/api/financial/dashboard?period=2026-03&currency=MXN').json()
+    assert march['expense']['actual'] is None and march['balance'] is None
+    assert march['prediction']['months']==2
+    assert march['prediction']['reference_period']=='2026-03'
+    assert march['prediction']['next_period']=='2026-04'
+    jan=client.get('/api/financial/dashboard?period=2026-01&currency=MXN').json()
+    assert jan['prediction']==march['prediction']
+    assert march['prediction']['amount']==196115.25
+    assert client.post('/api/financial/simulations',json={'period':'2026-03','currency':'MXN'}).status_code==422
+    sim=client.post('/api/financial/simulations',json={'period':'2026-01','currency':'MXN'}).json()
+    assert sim['baseline']==189120.5 and sim['projected']==189120.5
+    assert import_enterprise(client).status_code==409
+    assert len(client.get('/api/financial/entries').json())==36
+    client.post('/api/auth/logout')
+    guest=client.get('/api/financial/entries').json()
+    assert all(e['source_id'] not in ('101','132') for e in guest)
+    assert client.post('/api/financial/imports/preview',files={'file':('p.csv',SAMPLE.read_bytes())}).status_code==401
+
+def test_enterprise_validation_is_atomic_and_role_enforced(client):
+    assert import_enterprise(client).status_code==403
+    financial_login(client)
+    content=SAMPLE.read_bytes().replace(b'6500.0,6500.0',b'-6500.0,6500.0',1)
+    assert import_enterprise(client,content=content).status_code==422
+    assert client.get('/api/financial/entries').json()==[]
+    assert import_enterprise(client,currency='pesos').status_code==422
+    assert import_enterprise(client,currency='USD').status_code==201
+    mxn=client.get('/api/financial/dashboard?period=2026-01&currency=MXN').json()
+    usd=client.get('/api/financial/dashboard?period=2026-01&currency=USD').json()
+    assert mxn['entries']==[] and usd['income']['actual']==285600
+    assert client.post('/api/financial/simulations',json={'period':'2026-01','currency':'USD','inflation':1000}).status_code==422
+
+
+def test_forecast_orders_months_and_changes_year():
+    from app.financial import forecast_expenses
+    from types import SimpleNamespace
+    from decimal import Decimal
+    rows=[SimpleNamespace(year=y,month=m,nature='expense',category='Operación',actual=Decimal(v) if v is not None else None) for y,m,v in [(2026,12,None),(2026,1,100),(2026,11,300)]]
+    forecast=forecast_expenses(rows)
+    assert forecast['reference_period']=='2026-12'
+    assert forecast['next_period']=='2027-01'
+    assert forecast['periods_available']==['2026-01','2026-11','2026-12']
+    assert forecast['periods_used']==['2026-01','2026-11']
+    assert forecast['amount']==200
+    assert forecast_expenses(list(reversed(rows)))==forecast
+    rows.append(SimpleNamespace(year=2027,month=1,nature='expense',category='Operación',actual=Decimal(500)))
+    assert forecast_expenses(rows)['next_period']=='2027-02'
+    assert forecast_expenses(rows)['amount']==300
+    # A category filter cannot move the dataset's horizon to another month.
+    assert forecast_expenses(rows,category='Sin datos')['next_period']=='2027-02'
+    assert forecast_expenses(rows,category='Sin datos')['amount'] is None
+    assert forecast_expenses([])['next_period'] is None
+    pending=[SimpleNamespace(year=2026,month=3,nature='expense',category='Operación',actual=None)]
+    assert forecast_expenses(pending)['next_period']=='2026-04'
+    assert forecast_expenses(pending)['amount'] is None

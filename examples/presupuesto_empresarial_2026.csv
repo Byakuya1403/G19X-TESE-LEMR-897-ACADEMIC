@@ -1,0 +1,37 @@
+﻿ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado
+101,2026,Enero,Ingresos,Ventas,Ventas de Productos - Línea A,150000.0,155200.0,-5200.0,103.47%,Completado
+102,2026,Enero,Ingresos,Ventas,Ventas de Productos - Línea B,85000.0,82400.0,2600.0,96.94%,Completado
+103,2026,Enero,Ingresos,Servicios,Consultoría y Soporte Técnico,45000.0,48000.0,-3000.0,106.67%,Completado
+104,2026,Febrero,Ingresos,Ventas,Ventas de Productos - Línea A,155000.0,149000.0,6000.0,96.13%,Completado
+105,2026,Febrero,Ingresos,Ventas,Ventas de Productos - Línea B,88000.0,91000.0,-3000.0,103.41%,Completado
+106,2026,Febrero,Ingresos,Servicios,Consultoría y Soporte Técnico,45000.0,45000.0,0.0,100.00%,Completado
+107,2026,Marzo,Ingresos,Ventas,Ventas de Productos - Línea A,160000.0,0.0,160000.0,0.00%,Pendiente
+108,2026,Marzo,Ingresos,Ventas,Ventas de Productos - Línea B,90000.0,0.0,90000.0,0.00%,Pendiente
+109,2026,Marzo,Ingresos,Servicios,Consultoría y Soporte Técnico,50000.0,0.0,50000.0,0.00%,Pendiente
+110,2026,Enero,Gastos Operativos,Nómina,Sueldos Personal Operativo,65000.0,65000.0,0.0,100.00%,Completado
+111,2026,Enero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42000.0,42000.0,0.0,100.00%,Completado
+112,2026,Enero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18500.0,18900.0,-400.0,102.16%,Completado
+113,2026,Enero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25000.0,25000.0,0.0,100.00%,Completado
+114,2026,Enero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4500.0,4820.5,-320.5,107.12%,Completado
+115,2026,Enero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3000.0,2750.0,250.0,91.67%,Completado
+116,2026,Febrero,Gastos Operativos,Nómina,Sueldos Personal Operativo,65000.0,65000.0,0.0,100.00%,Completado
+117,2026,Febrero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42000.0,42000.0,0.0,100.00%,Completado
+118,2026,Febrero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18500.0,18500.0,0.0,100.00%,Completado
+119,2026,Febrero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25000.0,25000.0,0.0,100.00%,Completado
+120,2026,Febrero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4500.0,4310.0,190.0,95.78%,Completado
+121,2026,Febrero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3000.0,3400.0,-400.0,113.33%,Completado
+122,2026,Marzo,Gastos Operativos,Nómina,Sueldos Personal Operativo,65000.0,0.0,65000.0,0.00%,Pendiente
+123,2026,Marzo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42000.0,0.0,42000.0,0.00%,Pendiente
+124,2026,Marzo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18500.0,0.0,18500.0,0.00%,Pendiente
+125,2026,Marzo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25000.0,0.0,25000.0,0.00%,Pendiente
+126,2026,Marzo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4500.0,0.0,4500.0,0.00%,Pendiente
+127,2026,Enero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12000.0,13450.0,-1450.0,112.08%,Completado
+128,2026,Enero,Marketing y Ventas,Publicidad,Eventos y Material Promocional,8000.0,7200.0,800.0,90.00%,Completado
+129,2026,Febrero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12000.0,11800.0,200.0,98.33%,Completado
+130,2026,Febrero,Marketing y Ventas,Publicidad,Eventos y Material Promocional,5000.0,5100.0,-100.0,102.00%,Completado
+131,2026,Marzo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),15000.0,0.0,15000.0,0.00%,Pendiente
+132,2026,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,Enero,6500.0,6500.0,0.0,100.00%,Completado
+133,2026,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,Enero,3500.0,3500.0,0.0,100.00%,Completado
+134,2026,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,Febrero,6500.0,6500.0,0.0,100.00%,Completado
+135,2026,Tecnología e Infraestructura,Hardware,Renovación de Laptops de Trabajo,Febrero,22000.0,21500.0,500.0,97.73%,Completado
+136,2026,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,Marzo,6500.0,0.0,6500.0,0.00%,Pendiente
