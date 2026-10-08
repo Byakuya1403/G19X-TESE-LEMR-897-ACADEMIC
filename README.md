@@ -101,3 +101,12 @@ Verificación visual de composición por código y compilación React correcta; 
 El panel izquierdo aplica el mes elegido y oculta los demás meses. El filtro de categoría ahora incluye Ingresos, identificado como ingreso, con importe recibido y porcentaje de cumplimiento; egresos usan importe utilizado y ejecución. Sin sumar ingresos como consumo ni marcar su cumplimiento superior a 100% como sobrepresupuesto. La predicción sigue siendo de egresos y conserva el horizonte siguiente al último mes importado. Si se selecciona solo Ingresos se explica que esa predicción no aplica. No hay cambios de esquema ni necesidad de reimportar.
 
 Verificación v0.7: compilación React correcta y comprobación de filtros combinados contra el CSV suministrado: enero/febrero/marzo aislados, ingreso de enero 285600 sobre 280000 (102%), pendientes, moneda y selección sin datos. Sin cambios de backend; no hubo revisión visual en navegador.
+
+
+## Simulación v0.8
+
+La simulación ahora guía en tres pasos: revisar la base real del mes y categoría, escribir ajustes porcentuales y comparar el resultado. Se reemplazaron las barras por campos numéricos con descripción, ejemplos y rangos. La base muestra nómina, otros egresos y total, excluyendo ingresos. Los grupos sin importe no permiten ajustes sin efecto. La inflación y el ajuste operativo se acumulan de forma multiplicativa; se muestra su efecto combinado.
+
+La comparación indica gasto real, gasto con ajustes y aumento o reducción en importe y porcentaje. Restablecer devuelve los ajustes a 0%; cambiar filtros descarta el escenario anterior. No se calcula con egresos pendientes ni selecciones sin gastos. El escenario no modifica el CSV ni los presupuestos y no es la predicción del siguiente mes. Se mantiene la fórmula del servidor y la composición del resumen. No requiere cambios SQL ni reimportar.
+
+Verificación v0.8: compilación React y comprobación de renderizado y base de simulación: separación de ingresos, moneda, categoría y periodo; nómina; bloqueo por pendientes o ausencia de gastos; tres campos numéricos con etiquetas y sin barras. Sin revisión visual en navegador ni nuevas pruebas de backend en esta entrega.
