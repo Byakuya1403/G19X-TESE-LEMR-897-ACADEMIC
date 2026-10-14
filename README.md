@@ -1,4 +1,4 @@
-# Plataforma de Presupuesto · v0.9
+# Plataforma de Presupuesto · v0.10
 
 Python, FastAPI, React y PostgreSQL. Dashboard como pantalla inicial; login desde el botón superior. Solo el enlace de invitación abre directamente la creación de contraseña. Invitados ven demostración; director y analista ven datos reales; administrador gestiona cuentas. Versión de desarrollo local, no sistema de producción validado.
 
@@ -159,3 +159,14 @@ Después ejecuta `docker compose up -d --build`. En Usuarios, pulsa Generar invi
 Compilación React correcta. 17 pruebas API con SQLite: compatibilidad previa, permisos, importación y simulación; invitaciones normalizadas, activación con contraseña y confirmación, caducidad, reenvío, rechazo de enlaces usados, bloqueo por pendientes, limitación de intentos, errores SMTP sin persistencia parcial y separación de SMTP frente al modo manual. El transporte se verificó con un SMTP simulado que comprueba STARTTLS y validación de certificados; no se enviaron correos reales. Los límites de intentos son por proceso y deben compartirse antes de escalar a varios servidores. También se comprobó la actualización desde una base SQLite con tablas anteriores: el arranque agregó las tablas de invitaciones y mantuvo usuarios, contraseñas y presupuestos. Ambos scripts SQL pasaron validación sintáctica PostgreSQL. No hubo ejecución Docker/PostgreSQL ni revisión visual en navegador.
 
 Referencia de diseño de tokens y enlaces: OWASP, [Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html). Se aplica a este flujo de activación; no implica que se haya implementado recuperación de contraseña.
+
+
+## Eliminar usuarios v0.10
+
+En Usuarios aparece Eliminar para las cuentas distintas de la sesión actual. La confirmación identifica el correo o usuario y permite cancelar. Al confirmar, el servidor borra en una transacción la cuenta, sus sesiones, su correo registrado y sus invitaciones; los enlaces pendientes dejan de ser válidos. La cuenta no puede iniciar sesión de nuevo. Los archivos importados, partidas y presupuestos anteriores se conservan junto con su autor histórico. El correo eliminado puede recibir una nueva invitación independiente.
+
+Solo un administrador autenticado puede eliminar. El servidor impide eliminar la propia cuenta, independientemente de lo que envíe el navegador, y mantiene al menos un administrador activo. En PostgreSQL se bloquean las filas de administradores para coordinar eliminaciones concurrentes y se sincronizan login y borrado sobre la fila del usuario. SQLite se utiliza solo para desarrollo y pruebas, sin comprobar concurrencia equivalente a PostgreSQL. Los errores se muestran dentro de la confirmación sin anunciar una eliminación falsa. No hay deshacer dentro de la aplicación.
+
+Actualizar desde v0.9: conservar `.env`, base y volumen, reemplazar el código y ejecutar `docker compose up -d --build`. No se requiere migración SQL ni volver a importar el CSV. Para quitar la cuenta inicial, primero activa el administrador por correo e inicia sesión con esa cuenta; entonces podrás eliminar la cuenta inicial desde Usuarios.
+
+Verificación v0.10: 21 pruebas API con SQLite correctas, incluyendo permisos de eliminación, protección de la propia cuenta, cierre de sesiones, conservación de las 36 partidas importadas, eliminación de invitaciones pendientes, reinvitación del mismo correo, usuario inexistente y eliminación de otro administrador sin perder el actual. Compilación React correcta y renderizado de la confirmación comprobado. No se realizaron pruebas PostgreSQL de concurrencia ni revisión visual con navegador.

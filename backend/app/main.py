@@ -13,7 +13,7 @@ from typing import Annotated
 from fastapi import FastAPI, Depends, File, HTTPException, UploadFile, Form, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import JSON, Integer, Boolean, Float, ForeignKey, Numeric, String, UniqueConstraint, create_engine, select
+from sqlalchemy import JSON, Integer, Boolean, Float, ForeignKey, Numeric, String, UniqueConstraint, create_engine, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
@@ -76,8 +76,8 @@ async def lifespan(app):
     Base.metadata.create_all(engine)
     yield
 
-app = FastAPI(title="Plataforma de Presupuesto · Presupuesto corporativo", version="0.9.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://localhost:8080"], allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-App"], allow_credentials=True)
+app = FastAPI(title="Plataforma de Presupuesto · Presupuesto corporativo", version="0.10.0", lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://localhost:8080"], allow_methods=["GET", "POST", "DELETE"], allow_headers=["Content-Type", "X-App"], allow_credentials=True)
 @app.middleware('http')
 async def private_auth_responses(request: Request, call_next):
     response = await call_next(request)
@@ -128,9 +128,9 @@ def login(data: LoginInput, request: Request, response: Response, session: DB):
         from .invitations import normalize_email
         try: identifier = normalize_email(identifier)
         except ValueError: pass
-        user = session.scalar(select(User).join(UserEmail).where(UserEmail.email==identifier, UserEmail.verified==True))
+        user = session.scalar(select(User).join(UserEmail).where(UserEmail.email==identifier, UserEmail.verified==True).with_for_update(of=User))
     else:
-        user = session.scalar(select(User).where(User.username==identifier))
+        user = session.scalar(select(User).where(User.username==identifier).with_for_update())
     valid = check_password(data.password, user.password_hash if user else DUMMY_HASH)
     if not user or not user.active or not valid: raise HTTPException(401, "Usuario o contraseña incorrectos")
     old_token = request.cookies.get("finanzas_session")
@@ -163,6 +163,25 @@ def list_users(session: DB, user: Administrator):
         result.append(dict(id=u.id, **public_user(u, session), active=u.active, status=status,
                            invitation_expires=invitation.expires if invitation else None))
     return result
+
+@app.delete('/api/users/{user_id}')
+def delete_user(user_id: int, session: DB, user: Administrator):
+    if user_id == user.id:
+        raise HTTPException(409, 'No puedes eliminar tu propia cuenta administrativa.')
+    # Serialize administrator deletions on PostgreSQL, including competing admins.
+    administrators = session.scalars(select(User).where(User.role=='admin', User.active==True)
+                                     .order_by(User.id).with_for_update().execution_options(populate_existing=True)).all()
+    if not any(a.id==user.id for a in administrators):
+        raise HTTPException(403, 'Tu cuenta ya no tiene acceso administrativo.')
+    target = session.scalar(select(User).where(User.id==user_id).with_for_update())
+    if not target: raise HTTPException(404, 'El usuario ya no existe.')
+    if target.role=='admin' and target.active and len(administrators)<=1:
+        raise HTTPException(409, 'Debe quedar al menos un administrador activo.')
+    for model in (LoginSession, UserInvitation, UserEmail):
+        session.execute(delete(model).where(model.user_id==user_id), execution_options={'synchronize_session':False})
+    session.delete(target)
+    session.commit()
+    return {'ok':True, 'deleted_id':user_id}
 class UserInput(BaseModel):
     username: str = Field(pattern=r"^[a-z0-9._-]{3,100}$")
     @field_validator("username", mode="before")

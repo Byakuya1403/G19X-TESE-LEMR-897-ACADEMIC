@@ -5,6 +5,7 @@ os.environ["DATABASE_URL"] = "sqlite:///" + str(Path(tempfile.mkdtemp())/"test.d
 from fastapi.testclient import TestClient
 from app.main import app, Base, engine, User, LoginSession, hash_password, login_attempts
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 import pytest
 @pytest.fixture()
 def client():
@@ -313,3 +314,60 @@ def test_smtp_uses_tls_and_only_sends_activation_link(monkeypatch):
     assert steps==['ehlo','tls','ehlo','auth'] and len(sent)==1
     assert sent[0]['To']=='persona@gmail.com'
     assert '#activar=token' in sent[0].get_content() and 'smtp-secret' not in sent[0].as_string()
+
+def test_delete_user_permissions_and_self_protection(client):
+    with Session(engine) as db:
+        target=db.scalar(select(User).where(User.username=='analista')).id
+        admin=db.scalar(select(User).where(User.username=='admin')).id
+    assert client.delete(f'/api/users/{target}').status_code==403
+    client.post('/api/auth/logout')
+    assert client.delete(f'/api/users/{target}').status_code==401
+    client.post('/api/auth/login',json={'username':'admin','password':'UnaClaveSegura2026'})
+    assert client.delete(f'/api/users/{admin}').status_code==409
+    assert client.get('/api/auth/me').json()['username']=='admin'
+    assert client.delete('/api/users/999999').status_code==404
+    client.headers.pop('X-App')
+    assert client.delete(f'/api/users/{target}').status_code==403
+
+def test_delete_active_user_revokes_sessions_preserves_financial_data(client):
+    import hashlib
+    financial_login(client)
+    assert import_enterprise(client).status_code==201
+    session_token=client.cookies.get('finanzas_session')
+    client.post('/api/auth/login',json={'username':'admin','password':'UnaClaveSegura2026'})
+    # Include a second outstanding session, not just the cookie replaced at login.
+    with Session(engine) as db:
+        target=db.scalar(select(User).where(User.username=='analista')).id
+        db.add(LoginSession(token_hash=hashlib.sha256(session_token.encode()).hexdigest(),user_id=target,expires=9999999999));db.commit()
+    assert client.delete(f'/api/users/{target}').status_code==200
+    assert not any(u['id']==target for u in client.get('/api/users').json())
+    with Session(engine) as db:
+        assert db.get(User,target) is None
+        assert db.scalar(select(LoginSession).where(LoginSession.user_id==target)) is None
+    assert client.delete(f'/api/users/{target}').status_code==404
+    assert client.post('/api/auth/login',json={'username':'analista','password':'UnaClaveSegura2026'}).status_code==401
+    client.post('/api/auth/login',json={'username':'director','password':'UnaClaveSegura2026'})
+    assert len(client.get('/api/financial/entries').json())==36
+    # Removed session cannot regain real financial access.
+    client.cookies.clear()
+    client.cookies.set('finanzas_session',session_token,path='/api')
+    assert client.get('/api/auth/me').json() is None
+
+def test_delete_pending_invitation_and_reinvite(invitation_client):
+    from app.main import UserEmail,UserInvitation
+    c=invitation_client;token=invitation(c)
+    target=next(u['id'] for u in c.get('/api/users').json() if u['email']=='persona@gmail.com')
+    assert c.delete(f'/api/users/{target}').status_code==200
+    with Session(engine) as db:
+        assert db.get(UserEmail,target) is None and db.get(UserInvitation,target) is None
+    assert c.post('/api/auth/activate',json=activate_payload(token)).status_code==400
+    new=invitation(c)
+    assert new!=token
+
+def test_delete_other_admin_keeps_current_admin(client):
+    client.post('/api/auth/login',json={'username':'admin','password':'UnaClaveSegura2026'})
+    assert client.post('/api/users',json={'username':'admin_dos','role':'admin','password':'OtraClaveSegura2026'}).status_code==201
+    target=next(u['id'] for u in client.get('/api/users').json() if u['username']=='admin_dos')
+    assert client.delete(f'/api/users/{target}').status_code==200
+    assert client.get('/api/auth/me').json()['username']=='admin'
+    assert len([u for u in client.get('/api/users').json() if u['role']=='admin' and u['active']])==1
