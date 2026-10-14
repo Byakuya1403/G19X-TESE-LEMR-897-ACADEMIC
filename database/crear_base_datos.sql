@@ -1,15 +1,13 @@
--- PLATAFORMA DE PRESUPUESTO v0.5 | PostgreSQL 16+
+-- PLATAFORMA DE PRESUPUESTO v0.9 | PostgreSQL 16+
 -- psql -U finanzas -d postgres -v ON_ERROR_STOP=1 -f crear_base_datos.sql
 -- En pgAdmin: crear finanzas y ejecutar solo BEGIN..COMMIT.
--- IF NOT EXISTS conserva tablas y datos; no aplica migraciones a tablas existentes.
--- public.budgets conserva el formato anterior; public.financial_entries contiene el nuevo CSV.
+-- Las tablas nuevas de invitaciones no modifican las tablas ni cuentas existentes.
 \set ON_ERROR_STOP on
 SELECT 'CREATE DATABASE finanzas ENCODING ''UTF8'' TEMPLATE template0'
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname='finanzas')
 \gexec
 \connect finanzas
 BEGIN;
-
 CREATE TABLE IF NOT EXISTS budgets (
 	id SERIAL NOT NULL, 
 	department VARCHAR(100) NOT NULL, 
@@ -19,9 +17,7 @@ CREATE TABLE IF NOT EXISTS budgets (
 	operating NUMERIC(16, 2) NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (department, period)
-)
-
-;
+);
 
 CREATE TABLE IF NOT EXISTS financial_imports (
 	id SERIAL NOT NULL, 
@@ -32,9 +28,7 @@ CREATE TABLE IF NOT EXISTS financial_imports (
 	warnings JSON NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (sha256)
-)
-
-;
+);
 
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL NOT NULL, 
@@ -44,9 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
 	active BOOLEAN NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (username)
-)
-
-;
+);
 
 CREATE TABLE IF NOT EXISTS financial_entries (
 	id SERIAL NOT NULL, 
@@ -72,9 +64,7 @@ CREATE TABLE IF NOT EXISTS financial_entries (
 	CHECK (nature IN ('income','expense')), 
 	CHECK ((status='pendiente' AND actual IS NULL) OR (status='completado' AND actual IS NOT NULL)), 
 	FOREIGN KEY(batch_id) REFERENCES financial_imports (id)
-)
-
-;
+);
 
 CREATE TABLE IF NOT EXISTS login_sessions (
 	token_hash VARCHAR(64) NOT NULL, 
@@ -82,9 +72,25 @@ CREATE TABLE IF NOT EXISTS login_sessions (
 	expires FLOAT NOT NULL, 
 	PRIMARY KEY (token_hash), 
 	FOREIGN KEY(user_id) REFERENCES users (id)
-)
+);
 
-;
+CREATE TABLE IF NOT EXISTS user_emails (
+	user_id INTEGER NOT NULL, 
+	email VARCHAR(254) NOT NULL, 
+	verified BOOLEAN NOT NULL, 
+	PRIMARY KEY (user_id), 
+	FOREIGN KEY(user_id) REFERENCES users (id), 
+	UNIQUE (email)
+);
+
+CREATE TABLE IF NOT EXISTS user_invitations (
+	user_id INTEGER NOT NULL, 
+	token_hash VARCHAR(64) NOT NULL, 
+	expires FLOAT NOT NULL, 
+	PRIMARY KEY (user_id), 
+	FOREIGN KEY(user_id) REFERENCES users (id), 
+	UNIQUE (token_hash)
+);
 
 CREATE OR REPLACE VIEW public.v_partidas_presupuesto AS
 SELECT id,year AS anio,month AS mes,currency AS moneda,
@@ -103,10 +109,7 @@ SELECT year AS anio,month AS mes,currency AS moneda,nature AS naturaleza,
 FROM public.financial_entries GROUP BY year,month,currency,nature;
 COMMIT;
 -- Primera cuenta: docker compose exec backend python -m app.create_user administrador admin
--- No hay cuentas ni datos precargados. Instalar por empresa: no hay aislamiento multiempresa.
--- No se interpreta el formato de movimientos contables; este CSV es de partidas agregadas.
--- Pendiente con Gasto_Real=0 se almacena como NULL. Completado con 0 es cero conocido.
--- Los porcentajes se recalculan; presupuestos con denominador cero devuelven NULL.
--- Categoria Ingresos = ingreso; otras categorias = egreso. Confirmar al importar.
--- Moneda elegida al cargar el archivo; departamento no se deduce de categoría.
--- La aplicación crea las tablas al arrancar; las vistas se crean ejecutando este SQL.
+-- Usuarios nuevos: invitaciones desde la plataforma. No hay contraseñas predeterminadas.
+-- Arrancar la aplicación crea las tablas faltantes sin borrar registros existentes.
+-- user_emails y user_invitations agregan activación por correo; token_hash nunca contiene el enlace original.
+-- Este sistema aún no proporciona aislamiento multiempresa.

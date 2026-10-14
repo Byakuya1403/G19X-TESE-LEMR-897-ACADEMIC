@@ -43,6 +43,18 @@ class LoginSession(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     expires: Mapped[float] = mapped_column(Float)
 
+class UserEmail(Base):
+    __tablename__ = "user_emails"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    email: Mapped[str] = mapped_column(String(254), unique=True)
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+class UserInvitation(Base):
+    __tablename__ = "user_invitations"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires: Mapped[float] = mapped_column(Float)
+
 def hash_password(password):
     salt = secrets.token_hex(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 600000).hex()
@@ -51,8 +63,9 @@ def check_password(password, encoded):
     salt, digest = encoded.split("$")
     actual = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 600000).hex()
     return hmac.compare_digest(actual, digest)
-def public_user(user):
-    return {"username": user.username, "role": user.role}
+def public_user(user, session=None):
+    contact = session.get(UserEmail, user.id) if session else None
+    return {"username": user.username, "email": contact.email if contact else None, "role": user.role}
 
 def demo_rows(period=None, department=None):
     data = [("Tecnología", 250000, 140000, 120000), ("Operaciones", 400000, 210000, 250000), ("Comercial", 180000, 98000, 60000)]
@@ -63,8 +76,15 @@ async def lifespan(app):
     Base.metadata.create_all(engine)
     yield
 
-app = FastAPI(title="Plataforma de Presupuesto · Presupuesto corporativo", version="0.5.0", lifespan=lifespan)
+app = FastAPI(title="Plataforma de Presupuesto · Presupuesto corporativo", version="0.9.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://localhost:8080"], allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-App"], allow_credentials=True)
+@app.middleware('http')
+async def private_auth_responses(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith(('/api/auth/', '/api/users')):
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['Referrer-Policy'] = 'no-referrer'
+    return response
 def db():
     with Session(engine) as session:
         yield session
@@ -90,7 +110,7 @@ Director = Annotated[User, Depends(permitted("director"))]
 Analyst = Annotated[User, Depends(permitted("analyst"))]
 Administrator = Annotated[User, Depends(permitted("admin"))]
 class LoginInput(BaseModel):
-    username: str = Field(min_length=1, max_length=100)
+    username: str = Field(min_length=1, max_length=254)
     password: str = Field(min_length=1, max_length=128)
 # Per-process throttle for local development. Use a shared store before scaling.
 login_attempts = {}
@@ -103,7 +123,14 @@ def login(data: LoginInput, request: Request, response: Response, session: DB):
     recent = [t for t in login_attempts.get(key, []) if now-t < 60]
     if len(recent)>=10: raise HTTPException(429, "Demasiados intentos. Espera un minuto")
     login_attempts[key] = recent+[now]
-    user = session.scalar(select(User).where(User.username==data.username.strip().lower()))
+    identifier = data.username.strip().lower()
+    if '@' in identifier:
+        from .invitations import normalize_email
+        try: identifier = normalize_email(identifier)
+        except ValueError: pass
+        user = session.scalar(select(User).join(UserEmail).where(UserEmail.email==identifier, UserEmail.verified==True))
+    else:
+        user = session.scalar(select(User).where(User.username==identifier))
     valid = check_password(data.password, user.password_hash if user else DUMMY_HASH)
     if not user or not user.active or not valid: raise HTTPException(401, "Usuario o contraseña incorrectos")
     old_token = request.cookies.get("finanzas_session")
@@ -114,9 +141,9 @@ def login(data: LoginInput, request: Request, response: Response, session: DB):
     session.add(LoginSession(token_hash=hashlib.sha256(token.encode()).hexdigest(), user_id=user.id, expires=now+28800))
     session.commit()
     response.set_cookie("finanzas_session", token, max_age=28800, httponly=True, samesite="strict", secure=os.getenv("COOKIE_SECURE", "false").lower()=="true", path="/api")
-    return public_user(user)
+    return public_user(user, session)
 @app.get("/api/auth/me")
-def me(user: CurrentUser): return public_user(user) if user else None
+def me(user: CurrentUser, session: DB): return public_user(user, session) if user else None
 @app.post("/api/auth/logout")
 def logout(request: Request, response: Response, session: DB):
     if request.headers.get("X-App") != "1": raise HTTPException(403, "Solicitud no válida")
@@ -128,7 +155,14 @@ def logout(request: Request, response: Response, session: DB):
     return {"ok": True}
 @app.get("/api/users")
 def list_users(session: DB, user: Administrator):
-    return [dict(id=u.id, **public_user(u), active=u.active) for u in session.scalars(select(User)).all()]
+    result = []
+    for u in session.scalars(select(User)).all():
+        contact = session.get(UserEmail, u.id)
+        invitation = session.get(UserInvitation, u.id)
+        status = 'active' if u.active else 'pending' if contact and not contact.verified else 'disabled'
+        result.append(dict(id=u.id, **public_user(u, session), active=u.active, status=status,
+                           invitation_expires=invitation.expires if invitation else None))
+    return result
 class UserInput(BaseModel):
     username: str = Field(pattern=r"^[a-z0-9._-]{3,100}$")
     @field_validator("username", mode="before")
@@ -252,3 +286,6 @@ def powerbi():
 
 from .financial import install_financial
 install_financial(app, Base, engine, DB, CurrentUser, Analyst, Financial)
+
+from .invitations import install_invitations
+install_invitations(app, DB, Administrator, User, UserEmail, UserInvitation, LoginSession, hash_password)
