@@ -1,130 +1,142 @@
-# Plataforma de Presupuesto · v0.11
+# Plataforma de Presupuesto
 
-Python, FastAPI, React y PostgreSQL. Dashboard como pantalla inicial; login desde el botón superior. Solo el enlace de invitación abre directamente la creación de contraseña. Invitados ven demostración; director y analista ven datos reales; administrador gestiona cuentas. Versión de desarrollo local, no sistema de producción validado.
+Aplicación para comparar el presupuesto estimado con los ingresos y egresos reales de una empresa a partir de archivos CSV. Centraliza las partidas por mes, categoría y moneda, señala desviaciones y permite explorar escenarios de gasto sin modificar los datos originales.
 
-## Nueva instalación
+El proyecto utiliza **React, Python, FastAPI y PostgreSQL**. Power BI Embedded forma parte de la integración prevista y todavía no está configurado. El historial de cambios y las notas de actualización están en [CHANGELOG.md](CHANGELOG.md).
 
-1. Extrae la carpeta `plataforma_presupuesto`.
-2. Copia `.env.example` a `.env` y cambia POSTGRES_PASSWORD por una cadena alfanumérica larga.
-3. Con Docker Desktop activo: `docker compose up -d --build`.
-4. Abre http://localhost:8080. No abrir index.html con doble clic.
-5. Crea la primera cuenta:
+## Qué problema resuelve
+
+La revisión de presupuestos en archivos separados dificulta identificar qué gastos excedieron lo previsto, qué ingresos quedaron por debajo de la meta y cuáles resultados siguen pendientes. La plataforma reúne esa información en una vista mensual y conserva el archivo de origen, las advertencias y el autor de cada importación.
+
+Sus funciones actuales son:
+
+- Importar y validar un formato definido de CSV empresarial antes de guardarlo.
+- Consultar partidas, presupuestos, resultados reales y alertas mediante filtros de mes, categoría y moneda.
+- Mostrar una estimación del gasto del mes siguiente al último periodo importado.
+- Simular ajustes de nómina, otros egresos e inflación sobre resultados completados.
+- Administrar cuentas por roles, invitaciones por correo, activación y eliminación de usuarios.
+
+La instalación está pensada para una empresa y una fuente de datos homogénea. No transforma cualquier CSV en una base de datos ni ofrece aislamiento multiempresa.
+
+## Arquitectura
+
+| Componente | Tecnología | Responsabilidad |
+| --- | --- | --- |
+| Interfaz | React y Vite | Navegación, filtros, formularios, dashboard y simulación |
+| Servidor web | Nginx en Docker | Sirve el frontend compilado y redirige `/api/` al backend |
+| API | Python 3.12 y FastAPI | Autenticación, permisos, validación, importaciones y cálculos |
+| Persistencia | PostgreSQL 16 y SQLAlchemy | Usuarios, sesiones, invitaciones, archivos y partidas financieras |
+| Envío de invitaciones | SMTP externo con TLS | Entrega los enlaces de activación cuando está configurado |
+
+En Docker, el navegador accede a Nginx en el puerto 8080. Las peticiones `/api/` pasan al servicio `backend:8000`, que consulta `db:5432` en la red de Compose. PostgreSQL no publica un puerto en el equipo anfitrión y sus datos persisten en el volumen `postgres_data`, cuyo nombre se configura con `POSTGRES_VOLUME`.
+
+En desarrollo sin contenedores, Vite sirve la interfaz en el puerto 5173 y redirige `/api` a `127.0.0.1:8000`. Si no se define `DATABASE_URL`, el backend utiliza SQLite para desarrollo y pruebas.
+
+### Organización del código
+
+| Ruta | Contenido |
+| --- | --- |
+| [frontend/src/main.jsx](frontend/src/main.jsx) | Montaje de React y estilos |
+| [frontend/src/App.jsx](frontend/src/App.jsx) | Coordinación de sesión, navegación, filtros y acciones |
+| [frontend/src/components](frontend/src/components) | Componentes `Dashboard`, `Importaciones` y `Login` |
+| [frontend/src/services/api.js](frontend/src/services/api.js) | Cliente HTTP, cookies y manejo de errores |
+| [frontend/src/utils/formatters.js](frontend/src/utils/formatters.js) | Formatos monetarios y de periodos |
+| [frontend/src/Simulation.jsx](frontend/src/Simulation.jsx) | Simulación de escenarios |
+| [frontend/src/Users.jsx](frontend/src/Users.jsx) | Invitación y eliminación de cuentas |
+| [frontend/src/Activation.jsx](frontend/src/Activation.jsx) | Creación de contraseña mediante invitación |
+| [backend/app/main.py](backend/app/main.py) | Aplicación, modelos de cuentas, sesiones y endpoints de compatibilidad |
+| [backend/app/financial.py](backend/app/financial.py) | Importaciones por partidas, indicadores y proyección |
+| [backend/app/invitations.py](backend/app/invitations.py) | Envío, caducidad, reenvío y activación de invitaciones |
+| [backend/tests/test_api.py](backend/tests/test_api.py) | Pruebas de la API |
+| [database](database) | Creación de estructura y actualización SQL de invitaciones |
+| [examples](examples) | Archivos CSV de referencia |
+
+## Instalación desde GitHub
+
+Necesitas Git y Docker con el complemento Compose v2; en Windows puedes usar Docker Desktop. Mantén Docker activo antes de ejecutar los comandos. No necesitas instalar Python ni Node.js en el equipo si utilizas la instalación completa con Docker.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/Byakuya1403/G19X-TESE-LEMR-897-ACADEMIC.git plataforma_presupuesto
+cd plataforma_presupuesto
 ```
+
+El último argumento de `git clone` fija el nombre de la carpeta local; puede diferir del nombre del repositorio remoto. Los siguientes comandos se ejecutan desde esa carpeta, donde se encuentra `compose.yaml`.
+
+### 2. Configurar el entorno
+
+Copia [.env.example](.env.example) a `.env`.
+
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Linux/macOS:
+
+```bash
+cp .env.example .env
+```
+
+Cambia `POSTGRES_PASSWORD` por una contraseña alfanumérica larga. Para probar las invitaciones en tu equipo sin configurar un servidor de correo, establece:
+
+```dotenv
+APP_PUBLIC_URL=http://localhost:8080
+COOKIE_SECURE=false
+INVITE_DELIVERY=manual
+```
+
+Conserva las demás variables del ejemplo. `.env` contiene la configuración privada y está excluido por `.gitignore`.
+
+### 3. Iniciar los servicios
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+| Recurso local | Dirección |
+| --- | --- |
+| Plataforma | [http://localhost:8080](http://localhost:8080) |
+| Documentación interactiva de la API | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| Esquema OpenAPI | [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json) |
+| Estado de la API | [http://localhost:8000/api/health](http://localhost:8000/api/health) |
+
+Abre la dirección de la plataforma en el navegador. Abrir `frontend/index.html` con doble clic no ejecuta React ni el backend.
+
+### 4. Crear el primer administrador
+
+No existen usuarios ni contraseñas predeterminados. Crea la cuenta inicial desde la terminal:
+
+```bash
 docker compose exec backend python -m app.create_user administrador admin
 ```
-Escribe y confirma contraseña de 12 a 128 caracteres. Esa cuenta inicial permite configurar el acceso; conserva su usuario para iniciar sesión. Después, en Usuarios, invita por correo a un Analista Financiero para importar y a un Director Financiero para consultar y simular. Configura primero el envío SMTP o el modo manual descritos abajo.
 
-## Importar el CSV empresarial
+Escribe y confirma una contraseña de 12 a 128 caracteres; no se muestra mientras la introduces. En la plataforma pulsa **Iniciar sesión** y utiliza `administrador` y esa contraseña.
 
-En sesión de Analista, abre Importaciones y selecciona `examples/presupuesto_empresarial_2026.csv` o el original suministrado.
+Esta cuenta inicial utiliza un nombre de usuario, sin correo asociado. Para administrar con un correo, invita tu dirección desde **Usuarios**, selecciona **Administrador** y completa la activación. Esto crea una cuenta independiente: no modifica la inicial. Si deseas eliminar la cuenta inicial, primero inicia sesión con el nuevo administrador por correo.
 
-1. Confirma la moneda verdadera; el archivo no la incluye. MXN en pantalla es una selección inicial, no una moneda detectada.
-2. Para este archivo, marca la reparación de columnas desplazadas: registros 132–136 traen el mes en Concepto.
-3. Pulsa Validar y previsualizar; se muestran las advertencias, primeras filas y cantidad pendiente.
-4. Confirma la importación. Se guardan 36 partidas en una transacción y se selecciona el último periodo disponible (marzo 2026 en este ejemplo).
+## Configuración
 
-Formato obligatorio de esta versión: ID_Registro, Anio, Mes, Categoria, Subcategoria, Concepto, Presupuesto_Estimado, Gasto_Real, Diferencia_Varianza, Porcentaje_Ejecucion y Estado. CSV UTF-8 con coma, importes con punto decimal, máximo 2 MB/10000 filas. Estados Pendiente y Completado. No se acepta un CSV arbitrario ni XLSX todavía.
+| Variable | Uso y valor inicial |
+| --- | --- |
+| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL; obligatoria en Compose. Cambia el valor de ejemplo |
+| `POSTGRES_DB` | Base de datos; `finanzas` |
+| `POSTGRES_USER` | Rol de PostgreSQL; `finanzas` |
+| `POSTGRES_VOLUME` | Volumen persistente; `presupuesto_postgres_data` |
+| `APP_PUBLIC_URL` | Dirección base de los enlaces de activación, sin rutas ni parámetros |
+| `COOKIE_SECURE` | `false` en localhost HTTP; `true` para publicación HTTPS |
+| `INVITE_DELIVERY` | `smtp` por defecto; usa `manual` para generar enlaces sin correo |
+| `SMTP_HOST`, `SMTP_FROM` | Servidor SMTP y dirección remitente |
+| `SMTP_PORT`, `SMTP_SECURITY` | `587` y `starttls` por defecto; también se admite `ssl` con su puerto |
+| `SMTP_USER`, `SMTP_PASSWORD` | Credenciales autorizadas por el proveedor SMTP, cuando sean necesarias |
+| `DATABASE_URL` | Conexión del backend. Compose la construye con las variables de PostgreSQL; fuera de Docker puedes definirla directamente |
 
-La categoría Ingresos se interpreta como ingreso; cualquier otra como egreso. Esa clasificación se informa en la interfaz y debe ser válida para el origen. No se infieren departamentos. Nómina se identifica por subcategoría Nómina; demás egresos se consideran operación en la simulación (supuesto, no tratamiento contable de CAPEX).
+### Invitaciones por correo
 
-Pendiente con Gasto_Real=0 se guarda como resultado desconocido (NULL); un cero completado sí es conocido. No se aceptan pendientes con importe real no cero, negativos ni ajustes contables: requieren reglas específicas. Las varianzas y porcentajes recibidos se validan contra las cifras y se recalculan al consultar. Conservamos el JSON de cada fila original, avisos y autor de la carga.
-
-Duplicados: hash del archivo y clave año/ID/moneda. Una carga repetida o conflicto se rechaza completo; no sobrescribe partidas. Instalación por empresa y fuente homogénea; archivos de distintas fuentes con IDs coincidentes requieren una futura identificación de origen/versiones. No hay multiempresa ni mapeo universal.
-
-## Dashboard y simulación
-
-Resumen y detalle de partidas del CSV: cuatro KPI de ingreso/egreso presupuestado/real, resultado neto, alertas por ingreso inferior al presupuesto o gasto superior, detalle por concepto, filtro de periodo/categoría/moneda. No se mezclan monedas. Los totales completos quedan pendientes si alguna partida del grupo lo está; los conocidos parciales se muestran aparte.
-
-Predicción de egresos: se ordenan los periodos por año y mes, se toma el máximo del histórico importado para la moneda elegida y se muestra su mes siguiente (incluido cambio de año). El filtro de periodo de consulta no cambia ese horizonte. Se calcula una media de hasta tres meses con todas sus partidas completadas; los pendientes no se convierten en ceros. No IA validada. La cobertura mensual puede variar y la columna Estado no certifica que el mes esté cerrado; antes de decisiones reales se requiere cierre mensual y evaluación temporal.
-
-Simulación solo sobre egresos completados de la selección; rechaza periodos pendientes. Ajuste salarial sobre Nómina; ajuste operativo e inflación sobre otros egresos. No es una predicción validada.
-
-La interfaz consulta únicamente partidas del CSV, sin selector de fuente. Los registros del formato anterior permanecen en la base y sus endpoints de compatibilidad siguen disponibles; no se eliminan ni se suman a las partidas nuevas.
-
-## Actualizar de v0.8 a v0.9
-
-Conserva `.env`, la base y el volumen actuales. Agrega las variables de correo de `.env.example` a tu `.env` y ejecuta `docker compose up -d --build`. El backend crea las dos tablas nuevas al arrancar; no se borra información, no se renombra la base, no se requiere reimportar el CSV y las cuentas anteriores conservan usuario y contraseña. La migración SQL opcional está en `database/009_invitaciones.sql` para ejecutarla en la base existente.
-
-## Actualizar desde las primeras versiones conservando datos y cuentas
-
-En el cambio de nombre anterior cambió el nombre de la carpeta, la base por defecto y el volumen por defecto. Una instalación nueva no recupera automáticamente el volumen anterior. NO borres volúmenes ni ejecutes down -v.
-
-Opción A: conserva el volumen y la BD existentes. Antes de cambiar, anota el nombre real del volumen (`docker volume ls`) y los valores POSTGRES_DB y POSTGRES_USER del contenedor anterior. Copia la contraseña vigente a .env y configura POSTGRES_DB, POSTGRES_USER y POSTGRES_VOLUME con esos valores. Detén la instalación anterior con `docker compose down` (sin -v), luego inicia esta versión. No renombra físicamente la BD antigua; conserva su identidad por continuidad. El código y todos los nombres del paquete nuevo usan denominaciones neutras. Deberás volver a iniciar sesión porque cambió el nombre de cookie.
-
-Opción B: para usar una base con nombre nuevo y conservar datos, haz respaldo y restauración. En la carpeta anterior:
-```
-docker compose exec db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /tmp/respaldo.dump'
-docker compose cp db:/tmp/respaldo.dump ./respaldo.dump
-docker compose down
-```
-Conserva respaldo.dump y la carpeta anterior. En la carpeta nueva, configura .env para finanzas y un volumen NUEVO; inicia solamente PostgreSQL (no el backend todavía):
-```
-docker compose up -d db
-```
-Espera a que esté healthy y copia el respaldo a la carpeta nueva. Restaura en la BD nueva vacía:
-```
-docker compose cp respaldo.dump db:/tmp/respaldo.dump
-docker compose exec db pg_restore -U finanzas -d finanzas --no-owner --no-privileges /tmp/respaldo.dump
-docker compose up -d --build
-```
-Si la restauración da errores, no continúes como si hubiera terminado. Esta ruta requiere una base destino sin las tablas de la aplicación. No crea ni borra automáticamente tu instalación previa. Los presupuestos y cuentas anteriores quedan en sus tablas; las partidas nuevas se crean al arrancar el backend.
-
-## Script SQL incluido
-
-`database/crear_base_datos.sql` crea la estructura exacta utilizada por esta versión, más vistas para consultas y Power BI. Sustituye la propuesta anterior de tablas normalizadas independientes: esta entrega persiste partidas en public.financial_entries y archivos en public.financial_imports. El backend crea las tablas faltantes al iniciar, así que no es obligatorio ejecutar SQL para la aplicación. Las vistas sí requieren ejecutarlo:
-```
-docker compose cp database/crear_base_datos.sql db:/tmp/crear_base_datos.sql
-docker compose exec db psql -U finanzas -d postgres -v ON_ERROR_STOP=1 -f /tmp/crear_base_datos.sql
-```
-Estas instrucciones SQL asumen la BD nueva finanzas. Si reutilizas otra BD, adapta la conexión del script o ejecuta solo BEGIN..COMMIT dentro de esa BD mediante pgAdmin. IF NOT EXISTS no aplica migraciones a tablas existentes.
-
-## Desarrollo sin Docker
-
-Backend: entorno virtual, `pip install -r requirements.txt`, `uvicorn app.main:app --reload`. Sin DATABASE_URL usa SQLite finanzas.db; para PostgreSQL configura DATABASE_URL. Frontend: `npm ci`, `npm run dev`, abre http://localhost:5173. API: http://localhost:8000/docs.
-
-## Verificación y límites
-
-Compilación React correcta. Pruebas API con SQLite: importación de las 36 partidas, reparación solo autorizada, rechazo atómico, duplicados, monedas separadas, permisos, login y totales. Enero: ingresos 285600.00 y egresos 189120.50; febrero: 285000.00 y 203110.00; marzo: resultados pendientes. Estos importes son de prueba; la moneda debe confirmarse por el usuario.
-
-Docker/PostgreSQL y revisión visual con navegador no se ejecutaron aquí. SQL generado desde los modelos de la aplicación y validado sintácticamente. Power BI sigue pendiente de configuración. Faltan auditoría completa, recuperación de contraseña, cierre/aprobación y modelos de IA evaluados. Antes de producción: HTTPS/cookie Secure, permisos de servidor, pruebas PostgreSQL, migraciones, revisión de red, backups y evaluación de acceso/concurrencia. No hay capacidad multiempresa.
-
-## Cambios v0.7
-
-Sin filtro de fuente ni vistas duplicadas. La tarjeta de predicción muestra mes/año objetivo, último periodo disponible y meses usados para el cálculo. Con el archivo empresarial: referencia marzo 2026, objetivo abril 2026, base enero y febrero completados. Estimación de egresos 196115.25 en la moneda elegida. El cálculo es una referencia estadística; no entrenamiento de IA. No requiere cambiar esquema SQL ni volver a importar el CSV.
-
-Verificación v0.7: React compiló; 10 pruebas API/funcionales sobre SQLite pasaron, incluida invariancia frente al orden de filas, cambio de año y horizonte independiente del filtro de consulta. Docker/PostgreSQL y revisión visual siguen pendientes.
-
-## Diseño principal v0.7
-
-Se recuperó la composición inicial: histórico mensual con barras por categoría a la izquierda, predicción a la derecha y cuatro KPI debajo. El filtro superior de periodo limita el panel al mes seleccionado y actualiza KPI, alertas y detalle. La predicción conserva el horizonte del último mes importado. Las partidas pendientes tienen una barra diferenciada sin porcentaje engañoso de cero. No se restauró el selector de fuente, no se mezclan ingresos con consumo presupuestario y no se requieren cambios en la base.
-
-Verificación visual de composición por código y compilación React correcta; comprobación del histórico contra las 36 partidas: orden, totales por mes, filtros, pendientes y separación de ingresos. Sin revisión en navegador en esta entrega. Backend y esquema no cambiaron respecto a v0.5.
-
-## Corrección de filtros v0.7
-
-El panel izquierdo aplica el mes elegido y oculta los demás meses. El filtro de categoría ahora incluye Ingresos, identificado como ingreso, con importe recibido y porcentaje de cumplimiento; egresos usan importe utilizado y ejecución. Sin sumar ingresos como consumo ni marcar su cumplimiento superior a 100% como sobrepresupuesto. La predicción sigue siendo de egresos y conserva el horizonte siguiente al último mes importado. Si se selecciona solo Ingresos se explica que esa predicción no aplica. No hay cambios de esquema ni necesidad de reimportar.
-
-Verificación v0.7: compilación React correcta y comprobación de filtros combinados contra el CSV suministrado: enero/febrero/marzo aislados, ingreso de enero 285600 sobre 280000 (102%), pendientes, moneda y selección sin datos. Sin cambios de backend; no hubo revisión visual en navegador.
-
-
-## Simulación v0.8
-
-La simulación ahora guía en tres pasos: revisar la base real del mes y categoría, escribir ajustes porcentuales y comparar el resultado. Se reemplazaron las barras por campos numéricos con descripción, ejemplos y rangos. La base muestra nómina, otros egresos y total, excluyendo ingresos. Los grupos sin importe no permiten ajustes sin efecto. La inflación y el ajuste operativo se acumulan de forma multiplicativa; se muestra su efecto combinado.
-
-La comparación indica gasto real, gasto con ajustes y aumento o reducción en importe y porcentaje. Restablecer devuelve los ajustes a 0%; cambiar filtros descarta el escenario anterior. No se calcula con egresos pendientes ni selecciones sin gastos. El escenario no modifica el CSV ni los presupuestos y no es la predicción del siguiente mes. Se mantiene la fórmula del servidor y la composición del resumen. No requiere cambios SQL ni reimportar.
-
-Verificación v0.8: compilación React y comprobación de renderizado y base de simulación: separación de ingresos, moneda, categoría y periodo; nómina; bloqueo por pendientes o ausencia de gastos; tres campos numéricos con etiquetas y sin barras. Sin revisión visual en navegador ni nuevas pruebas de backend en esta entrega.
-
-
-## Invitaciones por correo y activación v0.9
-
-El administrador registra el correo y asigna un rol desde Usuarios. La cuenta queda pendiente, sin una contraseña compartida. El destinatario abre el enlace de activación, define y confirma su contraseña (12–128 caracteres) y luego inicia sesión con el correo. No debe escribir la contraseña de su buzón. Se aceptan correos personales y empresariales; las direcciones se normalizan a minúsculas y los dominios internacionales a ASCII. No se permiten nombres visibles ni direcciones con caracteres de control. No hay registro público.
-
-La invitación vence en 24 horas, usa un token aleatorio de 256 bits cuyo hash es lo único guardado en SQL y se consume al confirmar la contraseña. Abrir o previsualizar el enlace no activa la cuenta. Reenviar genera un enlace nuevo e invalida el anterior; un fallo SMTP mantiene el enlace anterior y no deja cuentas nuevas incompletas. Las cuentas activadas no pueden reactivar su contraseña mediante una invitación. La recuperación de contraseñas y la asociación de correos a cuentas anteriores aún requieren una función separada; no se convierten automáticamente las cuentas existentes.
-
-### Envío automático por SMTP
-
-Agrega estos campos a tu `.env`, utilizando el servidor y credenciales autorizados por tu proveedor. Los valores siguientes son marcadores de ejemplo, no una cuenta de correo lista para enviar:
+Para enviar correos reales, configura los campos SMTP y cambia `INVITE_DELIVERY` a `smtp`. Ejemplo de estructura; sustituye los valores por los de tu servicio:
 
 ```dotenv
 APP_PUBLIC_URL=https://presupuesto.tu-dominio.com
@@ -134,58 +146,211 @@ SMTP_HOST=smtp.tu-proveedor.com
 SMTP_PORT=587
 SMTP_SECURITY=starttls
 SMTP_FROM=presupuesto@tu-dominio.com
-SMTP_USER=usuario-smtp
-SMTP_PASSWORD=credencial-smtp
+SMTP_USER=usuario-autorizado
+SMTP_PASSWORD=credencial-del-servicio
 ```
 
-Para TLS implícito configura `SMTP_SECURITY=ssl` y el puerto correspondiente, normalmente 465. No se admite transporte SMTP sin cifrado. Este cliente usa autenticación SMTP convencional; si tu empresa exige OAuth para enviar, debe adaptarse el envío o utilizarse un relay autorizado. La contraseña SMTP pertenece al servidor y no se entrega al navegador ni al destinatario. No subas `.env` al repositorio. El proveedor debe aceptar el remitente y el envío; que la conexión esté configurada no garantiza que el mensaje llegue a la bandeja principal. La pantalla solo confirma que el servidor lo aceptó, y permite reenviar si hace falta.
+El cliente admite STARTTLS y TLS implícito (`SMTP_SECURITY=ssl`, normalmente puerto 465); no admite SMTP sin cifrado. Utiliza autenticación SMTP convencional: un proveedor que exija OAuth necesita una adaptación o un relay autorizado. La interfaz informa si el servidor aceptó el envío; eso no garantiza que el mensaje llegue a la bandeja principal.
 
-`APP_PUBLIC_URL` debe ser la dirección pública real que los usuarios pueden abrir, sin rutas ni parámetros. Se genera desde configuración fija, nunca desde el Host de una solicitud. Debes desplegar la plataforma con HTTPS para destinatarios remotos y mantener los permisos de acceso del sitio. El Compose incluido sigue escuchando solo en localhost; no configura dominio, certificados ni publicación externa. Cambiar la URL en `.env` no despliega la plataforma.
+La plataforma puede enviar correo aunque se ejecute localmente. Sin embargo, un enlace con `localhost` solo abre la plataforma en el equipo del destinatario: para otras personas debes configurar una dirección que realmente puedan alcanzar. El Compose incluido escucha únicamente en `127.0.0.1`; no configura dominio, certificados ni publicación externa. Cambiar `APP_PUBLIC_URL` no publica el sitio.
 
-### Prueba sin servidor de correo
+## Roles y permisos
 
-Para probar en tu equipo cambia o agrega:
+| Perfil | Consulta | Acciones |
+| --- | --- | --- |
+| Visitante, sin sesión | Resumen con datos de demostración | Abrir el inicio de sesión |
+| Administrador (`admin`) | Resumen de demostración y cuentas | Invitar, reenviar invitaciones y eliminar otros usuarios |
+| Analista Financiero (`analyst`) | Datos reales, partidas, simulación y estado de Power BI | Validar e importar CSV y calcular escenarios |
+| Director Financiero (`director`) | Datos reales, partidas, simulación y estado de Power BI | Calcular escenarios; no importa CSV desde la interfaz |
 
-```dotenv
-APP_PUBLIC_URL=http://localhost:8080
-COOKIE_SECURE=false
-INVITE_DELIVERY=manual
+El rol administrativo no habilita por sí mismo el acceso a datos financieros reales. Los permisos se comprueban en el servidor. Los endpoints del formato anterior tienen permisos propios, indicados en la sección de API.
+
+### Activar y eliminar cuentas
+
+El administrador introduce correo y rol en **Usuarios**. En modo SMTP se envía la invitación; en modo manual se muestra un enlace privado que puede abrirse en una ventana de incógnito para probar. La cuenta permanece pendiente hasta que el destinatario define y confirma su contraseña.
+
+El enlace caduca en 24 horas y es de un solo uso. Abrirlo o previsualizarlo no lo consume; confirmar la contraseña sí. Reenviar genera un enlace nuevo e invalida el anterior. Se almacena el hash del token, no el enlace original. Tras activarse, el usuario inicia sesión con su correo y la contraseña elegida. Si recarga la pantalla de activación, debe volver a abrir el enlace original porque el token se retira de la barra de dirección.
+
+**Eliminar** requiere confirmación y borra la cuenta, sus sesiones, su correo y sus invitaciones. Conserva los archivos importados, presupuestos y partidas anteriores. No permite eliminar la propia cuenta administrativa y no ofrece deshacer dentro de la aplicación.
+
+## Uso de la plataforma
+
+### Importar partidas desde CSV
+
+Inicia sesión como Analista y abre **Importaciones**:
+
+1. Selecciona la moneda real del archivo; no se detecta automáticamente.
+2. Selecciona el CSV y, únicamente si corresponde, confirma la reparación de columnas desplazadas.
+3. Pulsa **Validar y previsualizar** y revisa filas, advertencias y resultados pendientes.
+4. Confirma la importación. Se guardan todas las partidas en una transacción y se selecciona el último periodo del archivo.
+
+El ejemplo [presupuesto_empresarial_2026.csv](examples/presupuesto_empresarial_2026.csv) contiene 36 partidas de enero a marzo de 2026. Los registros 132–136 tienen las columnas de texto desplazadas y requieren confirmar su reparación. Los registros de marzo están pendientes.
+
+El contrato aceptado es CSV UTF-8, separado por comas, con importes de hasta dos decimales y punto decimal, sin separadores de miles. El límite es 2 MB y 10 000 partidas. Debe contener exactamente estas columnas, sin columnas adicionales; su orden puede variar:
+
+```text
+ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado
 ```
 
-Después ejecuta `docker compose up -d --build`. En Usuarios, pulsa Generar invitación, copia el enlace privado y ábrelo en una ventana de incógnito para crear la contraseña. Inicia sesión con ese correo. Este modo no envía ningún mensaje y lo indica en pantalla; el enlace solo se muestra al administrador al generarlo. Si recargas la pantalla de creación de contraseña, vuelve a abrir el enlace original; el token se retira de la barra de dirección. Un enlace con localhost sirve únicamente en el equipo donde se ejecuta la plataforma: no lo envíes a otra persona esperando que acceda desde su casa.
+Reglas de interpretación:
 
-### Verificación y alcance de la actualización
+- `Mes` utiliza nombres de meses en español; los periodos se ordenan por año y mes.
+- `Categoria=Ingresos` representa ingresos; las demás categorías representan egresos. Confirma que esta regla corresponda a tu fuente.
+- `Subcategoria=Nómina` identifica nómina para simular; los demás egresos se consideran operación. No se deducen departamentos.
+- `Estado=Pendiente` requiere `Gasto_Real=0` y se guarda como resultado desconocido (`NULL`). `Completado` con importe cero sí representa un cero conocido.
+- Se rechazan importes negativos, valores no finitos, varianzas inconsistentes, porcentajes que no corresponden a los importes y duplicados por ID/año dentro del archivo.
+- Un archivo ya importado se rechaza por su hash. También se rechazan conflictos de año/ID/moneda con partidas existentes; no se sobrescriben ni se guardan filas parciales.
 
-Compilación React correcta. 17 pruebas API con SQLite: compatibilidad previa, permisos, importación y simulación; invitaciones normalizadas, activación con contraseña y confirmación, caducidad, reenvío, rechazo de enlaces usados, bloqueo por pendientes, limitación de intentos, errores SMTP sin persistencia parcial y separación de SMTP frente al modo manual. El transporte se verificó con un SMTP simulado que comprueba STARTTLS y validación de certificados; no se enviaron correos reales. Los límites de intentos son por proceso y deben compartirse antes de escalar a varios servidores. También se comprobó la actualización desde una base SQLite con tablas anteriores: el arranque agregó las tablas de invitaciones y mantuvo usuarios, contraseñas y presupuestos. Ambos scripts SQL pasaron validación sintáctica PostgreSQL. No hubo ejecución Docker/PostgreSQL ni revisión visual en navegador.
+La varianza recibida debe coincidir con presupuesto menos gasto real; los porcentajes se validan contra los importes. La plataforma recalcula esos valores al consultar y conserva la fila original como JSON. No se admiten XLSX, movimientos contables arbitrarios ni mapeo automático entre formatos.
 
-Referencia de diseño de tokens y enlaces: OWASP, [Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html). Se aplica a este flujo de activación; no implica que se haya implementado recuperación de contraseña.
+### Consultar resultados y proyección
 
+**Resumen** muestra únicamente el mes seleccionado, sus categorías, cuatro indicadores de ingresos/egresos presupuestados y reales, resultado del periodo y alertas. **Presupuestos** contiene el detalle por concepto. Los filtros de categoría y moneda acotan la consulta; no se suman monedas diferentes. Si hay partidas pendientes, el total real del grupo se muestra pendiente y se informa por separado lo conocido.
 
-## Eliminar usuarios v0.10
+La proyección estima egresos para el mes siguiente al máximo periodo importado de la moneda seleccionada, incluso al cambiar de año. El filtro del mes que estás consultando no modifica ese horizonte. Se calcula la media de hasta tres meses con resultados de egresos completos para la selección; no convierte pendientes en ceros. Es una referencia estadística, no un modelo de IA entrenado o validado. Cambios de cobertura entre meses pueden afectar su interpretación.
 
-En Usuarios aparece Eliminar para las cuentas distintas de la sesión actual. La confirmación identifica el correo o usuario y permite cancelar. Al confirmar, el servidor borra en una transacción la cuenta, sus sesiones, su correo registrado y sus invitaciones; los enlaces pendientes dejan de ser válidos. La cuenta no puede iniciar sesión de nuevo. Los archivos importados, partidas y presupuestos anteriores se conservan junto con su autor histórico. El correo eliminado puede recibir una nueva invitación independiente.
+### Simular escenarios
 
-Solo un administrador autenticado puede eliminar. El servidor impide eliminar la propia cuenta, independientemente de lo que envíe el navegador, y mantiene al menos un administrador activo. En PostgreSQL se bloquean las filas de administradores para coordinar eliminaciones concurrentes y se sincronizan login y borrado sobre la fila del usuario. SQLite se utiliza solo para desarrollo y pruebas, sin comprobar concurrencia equivalente a PostgreSQL. Los errores se muestran dentro de la confirmación sin anunciar una eliminación falsa. No hay deshacer dentro de la aplicación.
+En **Simulación**, revisa la base real del mes y categoría, define los porcentajes y compara el resultado. Los ajustes permitidos son nómina de −30% a +30%, otros egresos de −50% a +50% y precios/inflación de −10% a +30%.
 
-Actualizar desde v0.9: conservar `.env`, base y volumen, reemplazar el código y ejecutar `docker compose up -d --build`. No se requiere migración SQL ni volver a importar el CSV. Para quitar la cuenta inicial, primero activa el administrador por correo e inicia sesión con esa cuenta; entonces podrás eliminar la cuenta inicial desde Usuarios.
+La fórmula es `nómina × (1 + ajuste salarial) + otros egresos × (1 + ajuste operativo) × (1 + inflación)`, expresando los porcentajes como fracciones. Los dos ajustes sobre otros egresos se acumulan de forma multiplicativa. Se rechazan selecciones con egresos pendientes o sin gastos. Calcular no modifica el CSV ni guarda cambios en el presupuesto; tampoco constituye la proyección del siguiente mes.
 
-Verificación v0.10: 21 pruebas API con SQLite correctas, incluyendo permisos de eliminación, protección de la propia cuenta, cierre de sesiones, conservación de las 36 partidas importadas, eliminación de invitaciones pendientes, reinvitación del mismo correo, usuario inexistente y eliminación de otro administrador sin perder el actual. Compilación React correcta y renderizado de la confirmación comprobado. No se realizaron pruebas PostgreSQL de concurrencia ni revisión visual con navegador.
+## API y endpoints
 
+La API utiliza el prefijo `/api`. El frontend envía la cookie de sesión HttpOnly `finanzas_session` y el encabezado `X-App: 1` en las peticiones. Los endpoints protegidos que modifican datos, login, logout y activación comprueban ese encabezado. La sesión tiene una vigencia de ocho horas. Los límites de intentos actuales se aplican por proceso.
 
-## Organización del frontend v0.11
+Consulta los detalles de parámetros y esquemas disponibles en [Swagger UI](http://localhost:8000/docs). Algunos endpoints financieros reciben un objeto JSON genérico; se describen sus campos debajo de la tabla.
 
-Refactorización sin cambios intencionados en la interfaz ni en los flujos. `frontend/src/main.jsx` contiene únicamente el montaje de React y la importación de estilos. `App.jsx` coordina sesión, navegación, filtros, consulta de datos y acciones. Los estados de importación se mantienen en App para conservar la selección al cambiar de pestaña.
+### Sesión y cuentas
 
-| Archivo dentro de frontend/src | Responsabilidad |
-| --- | --- |
-| components/Dashboard.jsx | Histórico mensual, predicción, indicadores y alertas |
-| components/Importaciones.jsx | Formulario CSV, confirmación de reparación y previsualización |
-| components/Login.jsx | Diálogo y formulario de inicio de sesión |
-| services/api.js | Peticiones, cookies, encabezados, multipart y errores de validación |
-| utils/formatters.js | Formato monetario y nombres de los meses |
-| constants.js | Descripciones de pestañas y nombres de roles |
-| Simulation.jsx, Activation.jsx, Users.jsx | Componentes existentes, ahora formateados |
+| Método | Endpoint | Acceso | Función |
+| --- | --- | --- | --- |
+| POST | `/api/auth/login` | Público | Inicia sesión con `username` (correo o usuario anterior) y `password` |
+| GET | `/api/auth/me` | Público | Devuelve la cuenta de la sesión o `null` |
+| POST | `/api/auth/logout` | Público | Invalida la sesión actual |
+| POST | `/api/auth/invitation/validate` | Poseedor del enlace | Comprueba `token` sin consumirlo |
+| POST | `/api/auth/activate` | Poseedor del enlace | Recibe `token`, `password` y `confirmation`; activa la cuenta |
+| GET | `/api/users` | Administrador | Lista cuentas y estados de activación |
+| GET | `/api/users/invitation-settings` | Administrador | Informa el modo y la configuración de invitaciones |
+| POST | `/api/users/invitations` | Administrador | Invita mediante JSON con `email` y `role` |
+| POST | `/api/users/{user_id}/invitation` | Administrador | Reenvía o regenera una invitación pendiente |
+| DELETE | `/api/users/{user_id}` | Administrador | Elimina otra cuenta y sus accesos asociados |
+| POST | `/api/users` | Administrador | Compatibilidad: crea cuenta con `username`, `password` y `role`; la interfaz actual utiliza invitaciones |
 
-Las funciones y el JSX están distribuidos en líneas con sangría; api() separa la preparación de la petición, la lectura de la respuesta y el manejo de errores. Se añadió Prettier como dependencia de desarrollo con versión fija. Dentro de frontend puedes ejecutar `npm ci`, `npm run format` para aplicar el formato y `npm run format:check` para comprobarlo. No se cambió el backend, el esquema SQL ni las credenciales. Para actualizar, conserva `.env`, reemplaza los archivos y reconstruye con `docker compose up -d --build`; no reimportes el CSV.
+### Finanzas por partidas
 
-Verificación v0.11: `npm run build` y `npm run format:check` correctos. Diez comparaciones de renderizado con v0.10 resultaron idénticas: dashboard con ingresos, pendientes, filtros y selección vacía; importaciones vacías, con previsualización y durante carga; login normal y con error. Cinco comparaciones de api() preservaron respuestas, errores de validación, cookies, X-App y envío multipart. No hubo revisión visual en navegador ni se repitieron pruebas de backend, que no cambió.
+| Método | Endpoint | Acceso | Función |
+| --- | --- | --- | --- |
+| POST | `/api/financial/imports/preview` | Analista | Previsualiza multipart con `file` y `repair_shifted` opcional |
+| POST | `/api/financial/imports/csv` | Analista | Importa multipart con `file`, `currency` y `repair_shifted` opcional |
+| GET | `/api/financial/entries` | Público con demostración; financiero con datos reales | Lista partidas con periodo, categoría, concepto e importes |
+| GET | `/api/financial/dashboard` | Público con demostración; financiero con datos reales | Recibe `period=YYYY-MM`, `currency` (MXN por defecto) y `category` opcional |
+| POST | `/api/financial/simulations` | Director o Analista | Calcula el escenario sobre egresos completados |
+
+El JSON de simulación requiere `period` y `currency`; acepta `department` como nombre del filtro de **categoría** por compatibilidad, además de `payroll`, `operating` e `inflation` como porcentajes (cero por defecto). No envíes `category` en ese endpoint esperando que filtre.
+
+### Estado e integración
+
+| Método | Endpoint | Acceso | Función |
+| --- | --- | --- | --- |
+| GET | `/api/health` | Público | Estado de la API |
+| GET | `/api/powerbi/status` | Público | Informa que Power BI no está configurado |
+
+### Formato anterior: compatibilidad
+
+Estos endpoints operan sobre `budgets`, con campos `department`, `period`, `amount`, `payroll` y `operating`. Sus registros no se mezclan con las partidas del CSV actual.
+
+| Método | Endpoint | Acceso | Función |
+| --- | --- | --- | --- |
+| GET | `/api/budgets` | Público con demostración; financiero con datos reales | Consulta presupuestos del formato anterior |
+| POST | `/api/budgets` | Director | Crea un presupuesto anterior |
+| GET | `/api/dashboard` | Público con demostración; financiero con datos reales | Resumen anterior con `period` y `department` opcional |
+| POST | `/api/simulations` | Director o Analista | Simulación del formato anterior |
+| POST | `/api/imports/csv` | Analista | Importa CSV anterior: `department,period,amount,payroll,operating` |
+
+Los errores habituales son 401 (sin sesión), 403 (sin permiso o encabezado requerido), 404 (sin recurso/datos), 409 (conflicto), 413 (archivo demasiado grande), 422 (validación), 429 (límite de intentos), 502 (SMTP rechazado) y 503 (configuración de invitaciones incompleta).
+
+## Base de datos y scripts SQL
+
+La aplicación crea las tablas faltantes al arrancar: `users`, `login_sessions`, `user_emails`, `user_invitations`, `financial_imports`, `financial_entries` y `budgets`. Este mecanismo no sustituye un sistema de migraciones para modificar columnas existentes.
+
+[database/crear_base_datos.sql](database/crear_base_datos.sql) contiene la estructura PostgreSQL y las vistas `v_partidas_presupuesto` y `v_resumen_partidas`, útiles para consultas e integración posterior con reportes. Las vistas requieren ejecutar el SQL; las tablas pueden crearse desde el arranque de la API.
+
+Con los nombres predeterminados `finanzas`, ejecuta desde la raíz del repositorio:
+
+```bash
+docker compose cp database/crear_base_datos.sql db:/tmp/crear_base_datos.sql
+docker compose exec db psql -U finanzas -d postgres -v ON_ERROR_STOP=1 -f /tmp/crear_base_datos.sql
+```
+
+El script contiene comandos propios de `psql`, crea la base `finanzas` si no existe y se conecta a ella. Si usas otra base o rol, adapta también el script; cambiar solo `-U` no cambia la base definida dentro. En pgAdmin crea o selecciona la base correcta y ejecuta únicamente el bloque `BEGIN`–`COMMIT`.
+
+[database/009_invitaciones.sql](database/009_invitaciones.sql) agrega las dos tablas de invitaciones a una base existente. Las notas históricas de actualización están en [CHANGELOG.md](CHANGELOG.md).
+
+## Desarrollo y comprobaciones
+
+Para trabajar sin contenedores necesitas Python 3.12 y Node.js 22 como referencias de los Dockerfiles. Desde la raíz, crea un entorno virtual:
+
+```bash
+python -m venv .venv
+```
+
+Actívalo con `.venv\Scripts\Activate.ps1` en PowerShell o `source .venv/bin/activate` en Linux/macOS. Antes de iniciar el backend, configura `APP_PUBLIC_URL=http://localhost:5173` e `INVITE_DELIVERY=manual` en `.env` para probar invitaciones en Vite. Después:
+
+```bash
+cd backend
+python -m pip install -r requirements.txt
+python -m app.create_user administrador admin
+uvicorn app.main:app --reload --env-file ../.env
+```
+
+El comando de creación de usuario y Uvicorn deben usar la misma `DATABASE_URL`, definida en el entorno antes de ambos comandos si deseas PostgreSQL; sin ella ambos utilizan SQLite en la carpeta backend. El módulo `create_user` no lee `.env` automáticamente. Las variables `POSTGRES_*` de `.env` tampoco construyen por sí solas `DATABASE_URL` fuera de Compose. No crees otra vez el administrador si ya existe.
+
+En otra terminal, desde la raíz:
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Abre [http://localhost:5173](http://localhost:5173). Las variables de correo se cargan mediante `--env-file` al arrancar Uvicorn.
+
+Comandos de comprobación, ejecutados en las carpetas indicadas:
+
+| Carpeta | Comando | Propósito |
+| --- | --- | --- |
+| `frontend` | `npm run build` | Compilar la interfaz |
+| `frontend` | `npm run format:check` | Comprobar formato del JavaScript/JSX |
+| `frontend` | `npm run format` | Aplicar Prettier |
+| `backend` | `python -m pytest -q` | Ejecutar pruebas de API con SQLite |
+
+Las verificaciones realizadas por entrega y sus límites están documentados en [CHANGELOG.md](CHANGELOG.md). Las pruebas con SQLite no sustituyen la validación de PostgreSQL, concurrencia y envío real de correo.
+
+## Actualizar, respaldar y detener
+
+En una copia clonada, conserva `.env` y los valores de base, usuario y volumen vigentes. Con el árbol de trabajo preparado para actualizar:
+
+```bash
+git pull --ff-only
+docker compose up -d --build
+```
+
+Comprueba los cambios de configuración y migraciones descritos en [CHANGELOG.md](CHANGELOG.md). No necesitas reimportar los mismos archivos para actualizar el código.
+
+Para generar un respaldo con las credenciales del contenedor:
+
+```bash
+docker compose exec db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /tmp/presupuesto.dump'
+docker compose cp db:/tmp/presupuesto.dump ./presupuesto.dump
+```
+
+Guarda el respaldo fuera del repositorio. Para detener los servicios conservando datos utiliza `docker compose down`. No agregues `-v` si quieres conservar el volumen. Cambiar `POSTGRES_DB`, `POSTGRES_USER` o `POSTGRES_VOLUME` no renombra ni migra una base existente; consulta las notas de migración en el changelog.
+
+Si un servicio falla, revisa `docker compose ps` y `docker compose logs backend db frontend`. En Usuarios, un aviso de SMTP incompleto impide invitar por correo hasta configurar el envío o seleccionar modo manual.
+
+## Alcance actual
+
+Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La predicción es estadística y aún no se ha evaluado como modelo de IA. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
+
+La publicación para usuarios remotos requiere una configuración de HTTPS, acceso de red y correo distinta de la instalación local incluida. Los límites de intentos son por proceso y requieren almacenamiento compartido antes de escalar a varios servidores.
