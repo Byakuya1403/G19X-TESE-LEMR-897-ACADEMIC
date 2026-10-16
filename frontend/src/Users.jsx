@@ -1,15 +1,286 @@
-import React,{useEffect,useState,useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
-export default function Users({request,roles,currentUser}) {
- const [users,setUsers]=useState([]),[settings,setSettings]=useState(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[invitation,setInvitation]=useState(null),[notice,setNotice]=useState('');
- const [deleting,setDeleting]=useState(null),[deleteError,setDeleteError]=useState('');
- const confirmation=useRef(null);
- useEffect(()=>{if(deleting)confirmation.current?.showModal();else confirmation.current?.close();},[deleting]);
- function cancelDelete(){if(!busy){setDeleting(null);setDeleteError('');}}
- async function remove(){if(!deleting||busy)return;const target=deleting;setBusy(true);setDeleteError('');setError('');setNotice('');try{await request(`/users/${target.id}`,{method:'DELETE'});setUsers(v=>v.filter(u=>u.id!==target.id));if(invitation?.email===target.email)setInvitation(null);setNotice(`Cuenta ${target.email||target.username} eliminada.`);setDeleting(null);try{await refresh();}catch{setError('La cuenta se eliminó, pero no se pudo actualizar la lista completa. Recarga la página.');}}catch(e){setDeleteError(e.message);}finally{setBusy(false);}}
- async function refresh(){setUsers(await request('/users'));}
- useEffect(()=>{let active=true;Promise.all([request('/users'),request('/users/invitation-settings')]).then(([u,s])=>{if(active){setUsers(u);setSettings(s);}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false};},[request]);
- async function send(e,id){e?.preventDefault();const form=e?.currentTarget;const values=form?Object.fromEntries(new FormData(form)):null;setBusy(true);setError('');setInvitation(null);setNotice('');try{const res=await request(id?`/users/${id}/invitation`:'/users/invitations',{method:'POST',body:id?undefined:JSON.stringify(values)});setInvitation(res);setNotice(res.delivery==='smtp'?`El servidor de correo aceptó la invitación para ${res.email}. Revisa también la carpeta de spam.`:`Enlace generado para ${res.email}. No se envió ningún correo.`);form?.reset();try{await refresh();}catch{setError('La invitación se generó, pero no se pudo actualizar la lista. Recarga la página.');}}catch(e){setError(e.message);}finally{setBusy(false);}}
- async function copy(){try{await navigator.clipboard.writeText(invitation.activation_url);setNotice('Enlace copiado. Compártelo solo con el destinatario.');}catch{setNotice('Selecciona y copia el enlace del cuadro.');}}
- return <article className="panel"><h2>Administración de usuarios</h2><p className="muted">Registra un correo personal o empresarial y asigna su rol. Cada persona recibirá un enlace para crear su propia contraseña. No se le asigna una contraseña inicial.</p>{settings&&<p className={settings.configured?'note':'error'}>{settings.message}</p>}{loading&&<p role="status">Cargando cuentas…</p>}<form className="invite-form" onSubmit={e=>send(e)}><fieldset disabled={busy||loading||!settings?.configured}><label>Correo electrónico<input name="email" type="email" maxLength={254} autoComplete="email" placeholder="persona@empresa.com" required/></label><label>Rol<select name="role">{Object.entries(roles).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><button>{busy?'Procesando…':settings?.mode==='manual'?'Generar invitación':'Enviar invitación'}</button></fieldset></form>{error&&<p className="error" role="alert">{error}</p>}{notice&&<p className="notice" role="status">{notice}</p>}{invitation&&<div className="invitation-details"><p className="muted">El enlace caduca el {new Date(invitation.expires*1000).toLocaleString('es-MX')} y solo se usa una vez.</p>{invitation.activation_url&&<><label>Enlace privado de activación<input readOnly value={invitation.activation_url} onFocus={e=>e.target.select()}/></label><button className="secondary" onClick={copy}>Copiar enlace</button></>}</div>}<div className="tablewrap"><table><thead><tr><th>Correo / usuario</th><th>Rol</th><th>Estado</th><th>Invitación</th><th>Acciones</th></tr></thead><tbody>{users.map(u=><tr key={u.id}><td>{u.email||u.username}</td><td>{roles[u.role]}</td><td>{u.status==='pending'?(u.invitation_expires*1000<Date.now()?'Invitación vencida':'Pendiente de activación'):u.active?'Activo':'Inactivo'}</td><td>{u.status==='pending'?<button disabled={busy||!settings?.configured} onClick={()=>send(null,u.id)}>Reenviar invitación</button>:u.email?'Activación completada':'Cuenta anterior'}</td><td>{u.username===currentUser.username?<span className="muted">Tu cuenta</span>:<button className="delete-button" disabled={busy} aria-label={`Eliminar a ${u.email||u.username}`} onClick={()=>{setDeleteError('');setDeleting(u);}}>Eliminar</button>}</td></tr>)}</tbody></table></div><p className="note">Reenviar genera un enlace nuevo e invalida el anterior. El destinatario entra con su correo después de activarse. No hay registro público: solo el administrador puede invitar y asignar permisos.</p><dialog ref={confirmation} className="delete-dialog" aria-labelledby="delete-title" onCancel={e=>{e.preventDefault();cancelDelete();}}><h2 id="delete-title">Eliminar usuario</h2><p>¿Eliminar la cuenta de <b>{deleting?.email||deleting?.username}</b>?</p><p className="muted">Se borrarán su cuenta, sesiones e invitaciones. Sus presupuestos y archivos importados se conservarán. Esta acción no se puede deshacer desde la plataforma.</p>{deleteError&&<p role="alert" className="error">{deleteError}</p>}<div className="scenario-actions"><button className="secondary" disabled={busy} autoFocus onClick={cancelDelete}>Cancelar</button><button className="delete-button" disabled={busy} onClick={remove}>{busy?'Eliminando…':'Eliminar definitivamente'}</button></div></dialog></article>;
+export default function Users({ request, roles, currentUser }) {
+  const [users, setUsers] = useState([]),
+    [settings, setSettings] = useState(null),
+    [loading, setLoading] = useState(true),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState(''),
+    [invitation, setInvitation] = useState(null),
+    [notice, setNotice] = useState('');
+  const [deleting, setDeleting] = useState(null),
+    [deleteError, setDeleteError] = useState('');
+  const confirmation = useRef(null);
+  useEffect(() => {
+    if (deleting) confirmation.current?.showModal();
+    else confirmation.current?.close();
+  }, [deleting]);
+  function cancelDelete() {
+    if (!busy) {
+      setDeleting(null);
+      setDeleteError('');
+    }
+  }
+  async function remove() {
+    if (!deleting || busy) return;
+    const target = deleting;
+    setBusy(true);
+    setDeleteError('');
+    setError('');
+    setNotice('');
+    try {
+      await request(`/users/${target.id}`, { method: 'DELETE' });
+      setUsers((v) => v.filter((u) => u.id !== target.id));
+      if (invitation?.email === target.email) setInvitation(null);
+      setNotice(`Cuenta ${target.email || target.username} eliminada.`);
+      setDeleting(null);
+      try {
+        await refresh();
+      } catch {
+        setError(
+          'La cuenta se eliminó, pero no se pudo actualizar la lista completa. Recarga la página.',
+        );
+      }
+    } catch (e) {
+      setDeleteError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function refresh() {
+    setUsers(await request('/users'));
+  }
+  useEffect(() => {
+    let active = true;
+    Promise.all([request('/users'), request('/users/invitation-settings')])
+      .then(([u, s]) => {
+        if (active) {
+          setUsers(u);
+          setSettings(s);
+        }
+      })
+      .catch((e) => {
+        if (active) setError(e.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [request]);
+  async function send(e, id) {
+    e?.preventDefault();
+    const form = e?.currentTarget;
+    const values = form ? Object.fromEntries(new FormData(form)) : null;
+    setBusy(true);
+    setError('');
+    setInvitation(null);
+    setNotice('');
+    try {
+      const res = await request(id ? `/users/${id}/invitation` : '/users/invitations', {
+        method: 'POST',
+        body: id ? undefined : JSON.stringify(values),
+      });
+      setInvitation(res);
+      setNotice(
+        res.delivery === 'smtp'
+          ? `El servidor de correo aceptó la invitación para ${res.email}. Revisa también la carpeta de spam.`
+          : `Enlace generado para ${res.email}. No se envió ningún correo.`,
+      );
+      form?.reset();
+      try {
+        await refresh();
+      } catch {
+        setError(
+          'La invitación se generó, pero no se pudo actualizar la lista. Recarga la página.',
+        );
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(invitation.activation_url);
+      setNotice('Enlace copiado. Compártelo solo con el destinatario.');
+    } catch {
+      setNotice('Selecciona y copia el enlace del cuadro.');
+    }
+  }
+  return (
+    <article className="panel">
+      <h2>Administración de usuarios</h2>
+      <p className="muted">
+        Registra un correo personal o empresarial y asigna su rol. Cada persona recibirá un enlace
+        para crear su propia contraseña. No se le asigna una contraseña inicial.
+      </p>
+      {settings && <p className={settings.configured ? 'note' : 'error'}>{settings.message}</p>}
+      {loading && <p role="status">Cargando cuentas…</p>}
+      <form className="invite-form" onSubmit={(e) => send(e)}>
+        <fieldset disabled={busy || loading || !settings?.configured}>
+          <label>
+            Correo electrónico
+            <input
+              name="email"
+              type="email"
+              maxLength={254}
+              autoComplete="email"
+              placeholder="persona@empresa.com"
+              required
+            />
+          </label>
+          <label>
+            Rol
+            <select name="role">
+              {Object.entries(roles).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button>
+            {busy
+              ? 'Procesando…'
+              : settings?.mode === 'manual'
+                ? 'Generar invitación'
+                : 'Enviar invitación'}
+          </button>
+        </fieldset>
+      </form>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      {notice && (
+        <p className="notice" role="status">
+          {notice}
+        </p>
+      )}
+      {invitation && (
+        <div className="invitation-details">
+          <p className="muted">
+            El enlace caduca el {new Date(invitation.expires * 1000).toLocaleString('es-MX')} y solo
+            se usa una vez.
+          </p>
+          {invitation.activation_url && (
+            <>
+              <label>
+                Enlace privado de activación
+                <input
+                  readOnly
+                  value={invitation.activation_url}
+                  onFocus={(e) => e.target.select()}
+                />
+              </label>
+              <button className="secondary" onClick={copy}>
+                Copiar enlace
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      <div className="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Correo / usuario</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Invitación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td>{u.email || u.username}</td>
+                <td>{roles[u.role]}</td>
+                <td>
+                  {u.status === 'pending'
+                    ? u.invitation_expires * 1000 < Date.now()
+                      ? 'Invitación vencida'
+                      : 'Pendiente de activación'
+                    : u.active
+                      ? 'Activo'
+                      : 'Inactivo'}
+                </td>
+                <td>
+                  {u.status === 'pending' ? (
+                    <button
+                      disabled={busy || !settings?.configured}
+                      onClick={() => send(null, u.id)}
+                    >
+                      Reenviar invitación
+                    </button>
+                  ) : u.email ? (
+                    'Activación completada'
+                  ) : (
+                    'Cuenta anterior'
+                  )}
+                </td>
+                <td>
+                  {u.username === currentUser.username ? (
+                    <span className="muted">Tu cuenta</span>
+                  ) : (
+                    <button
+                      className="delete-button"
+                      disabled={busy}
+                      aria-label={`Eliminar a ${u.email || u.username}`}
+                      onClick={() => {
+                        setDeleteError('');
+                        setDeleting(u);
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="note">
+        Reenviar genera un enlace nuevo e invalida el anterior. El destinatario entra con su correo
+        después de activarse. No hay registro público: solo el administrador puede invitar y asignar
+        permisos.
+      </p>
+      <dialog
+        ref={confirmation}
+        className="delete-dialog"
+        aria-labelledby="delete-title"
+        onCancel={(e) => {
+          e.preventDefault();
+          cancelDelete();
+        }}
+      >
+        <h2 id="delete-title">Eliminar usuario</h2>
+        <p>
+          ¿Eliminar la cuenta de <b>{deleting?.email || deleting?.username}</b>?
+        </p>
+        <p className="muted">
+          Se borrarán su cuenta, sesiones e invitaciones. Sus presupuestos y archivos importados se
+          conservarán. Esta acción no se puede deshacer desde la plataforma.
+        </p>
+        {deleteError && (
+          <p role="alert" className="error">
+            {deleteError}
+          </p>
+        )}
+        <div className="scenario-actions">
+          <button className="secondary" disabled={busy} autoFocus onClick={cancelDelete}>
+            Cancelar
+          </button>
+          <button className="delete-button" disabled={busy} onClick={remove}>
+            {busy ? 'Eliminando…' : 'Eliminar definitivamente'}
+          </button>
+        </div>
+      </dialog>
+    </article>
+  );
 }

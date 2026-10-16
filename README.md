@@ -1,4 +1,4 @@
-# Plataforma de Presupuesto · v0.10
+# Plataforma de Presupuesto · v0.11
 
 Python, FastAPI, React y PostgreSQL. Dashboard como pantalla inicial; login desde el botón superior. Solo el enlace de invitación abre directamente la creación de contraseña. Invitados ven demostración; director y analista ven datos reales; administrador gestiona cuentas. Versión de desarrollo local, no sistema de producción validado.
 
@@ -170,3 +170,22 @@ Solo un administrador autenticado puede eliminar. El servidor impide eliminar la
 Actualizar desde v0.9: conservar `.env`, base y volumen, reemplazar el código y ejecutar `docker compose up -d --build`. No se requiere migración SQL ni volver a importar el CSV. Para quitar la cuenta inicial, primero activa el administrador por correo e inicia sesión con esa cuenta; entonces podrás eliminar la cuenta inicial desde Usuarios.
 
 Verificación v0.10: 21 pruebas API con SQLite correctas, incluyendo permisos de eliminación, protección de la propia cuenta, cierre de sesiones, conservación de las 36 partidas importadas, eliminación de invitaciones pendientes, reinvitación del mismo correo, usuario inexistente y eliminación de otro administrador sin perder el actual. Compilación React correcta y renderizado de la confirmación comprobado. No se realizaron pruebas PostgreSQL de concurrencia ni revisión visual con navegador.
+
+
+## Organización del frontend v0.11
+
+Refactorización sin cambios intencionados en la interfaz ni en los flujos. `frontend/src/main.jsx` contiene únicamente el montaje de React y la importación de estilos. `App.jsx` coordina sesión, navegación, filtros, consulta de datos y acciones. Los estados de importación se mantienen en App para conservar la selección al cambiar de pestaña.
+
+| Archivo dentro de frontend/src | Responsabilidad |
+| --- | --- |
+| components/Dashboard.jsx | Histórico mensual, predicción, indicadores y alertas |
+| components/Importaciones.jsx | Formulario CSV, confirmación de reparación y previsualización |
+| components/Login.jsx | Diálogo y formulario de inicio de sesión |
+| services/api.js | Peticiones, cookies, encabezados, multipart y errores de validación |
+| utils/formatters.js | Formato monetario y nombres de los meses |
+| constants.js | Descripciones de pestañas y nombres de roles |
+| Simulation.jsx, Activation.jsx, Users.jsx | Componentes existentes, ahora formateados |
+
+Las funciones y el JSX están distribuidos en líneas con sangría; api() separa la preparación de la petición, la lectura de la respuesta y el manejo de errores. Se añadió Prettier como dependencia de desarrollo con versión fija. Dentro de frontend puedes ejecutar `npm ci`, `npm run format` para aplicar el formato y `npm run format:check` para comprobarlo. No se cambió el backend, el esquema SQL ni las credenciales. Para actualizar, conserva `.env`, reemplaza los archivos y reconstruye con `docker compose up -d --build`; no reimportes el CSV.
+
+Verificación v0.11: `npm run build` y `npm run format:check` correctos. Diez comparaciones de renderizado con v0.10 resultaron idénticas: dashboard con ingresos, pendientes, filtros y selección vacía; importaciones vacías, con previsualización y durante carga; login normal y con error. Cinco comparaciones de api() preservaron respuestas, errores de validación, cookies, X-App y envío multipart. No hubo revisión visual en navegador ni se repitieron pruebas de backend, que no cambió.
