@@ -4,6 +4,24 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.13 — Retirada de la API financiera anterior
+
+### Eliminado
+
+- Cinco operaciones del formato anterior: `GET /api/budgets`, `POST /api/budgets`, `GET /api/dashboard`, `POST /api/simulations` y `POST /api/imports/csv`.
+- Router `backend/app/routers/legacy.py`, su registro, los contratos `BudgetInput`, `Scenario`, el alias `Money` y la dependencia exclusiva `Director`.
+- Listado de endpoints anteriores en el README vigente; el historial conserva su referencia para explicar la retirada.
+
+### Comportamiento y actualización
+
+Las rutas retiradas responden 404 y no aparecen en OpenAPI. La API `/api/financial/*` mantiene los mismos contratos y permisos. Los presupuestos anteriores permanecen en `budgets`, sin API de consulta: no se borran tablas ni registros, ni se incorporan automáticamente al formato nuevo. Se conserva el modelo de esa tabla histórica; no se requiere SQL adicional ni volver a importar CSV. La creación administrativa de cuentas `POST /api/users` sigue disponible y no forma parte del router financiero retirado.
+
+Eliminar el archivo local `backend/app/routers/legacy.py` si actualizas mediante copia de archivos; un cambio aplicado desde Git registrará su eliminación. Después reconstruir con `docker compose up -d --build`, conservando `.env` y el volumen actual. Cualquier consumidor que aún llamara a esas rutas debe utilizar el contrato por partidas; no se ofrecen redirecciones porque los formatos de datos son diferentes.
+
+### Verificación
+
+Las pruebas financieras, de permisos y de validación utilizan `/api/financial/*`. Se comprueba la respuesta 404 y ausencia de OpenAPI de las cinco operaciones retiradas, además de la conservación de los datos históricos. Resultado: 27 pruebas API con SQLite correctas; compilación y formato del frontend correctos. Los 18 contratos vigentes y el DDL de las siete tablas se compararon con v0.12 y permanecen iguales. El README coincide con OpenAPI. No se ejecutaron pruebas Docker/PostgreSQL ni revisión visual con navegador.
+
 ## v0.12 — Backend por responsabilidades
 
 ### Cambios

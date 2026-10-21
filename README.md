@@ -47,9 +47,9 @@ En desarrollo sin contenedores, Vite sirve la interfaz en el puerto 5173 y redir
 | [backend/app/main.py](backend/app/main.py) | Composición de la aplicación, middleware y registro de routers |
 | [backend/app/database.py](backend/app/database.py) | Base declarativa, conexión y dependencia de sesión SQLAlchemy |
 | [backend/app/models.py](backend/app/models.py) | Los siete modelos persistentes, sin cambios de esquema |
-| [backend/app/schemas.py](backend/app/schemas.py) | Contratos de entrada de sesión, cuentas y formato anterior |
+| [backend/app/schemas.py](backend/app/schemas.py) | Contratos de entrada de sesión y cuentas |
 | [backend/app/security.py](backend/app/security.py) | Hash de contraseñas, sesión actual y autorización por roles |
-| [backend/app/routers](backend/app/routers) | Rutas de autenticación, usuarios, estado y compatibilidad |
+| [backend/app/routers](backend/app/routers) | Rutas de autenticación, usuarios y estado |
 | [backend/app/financial.py](backend/app/financial.py) | Importaciones por partidas, indicadores y proyección |
 | [backend/app/invitations.py](backend/app/invitations.py) | Envío, caducidad, reenvío y activación de invitaciones |
 | [backend/tests/test_api.py](backend/tests/test_api.py) | Pruebas de la API |
@@ -168,7 +168,7 @@ La plataforma puede enviar correo aunque se ejecute localmente. Sin embargo, un 
 | Analista Financiero (`analyst`) | Datos reales, partidas, simulación y estado de Power BI | Validar e importar CSV y calcular escenarios |
 | Director Financiero (`director`) | Datos reales, partidas, simulación y estado de Power BI | Calcular escenarios; no importa CSV desde la interfaz |
 
-El rol administrativo no habilita por sí mismo el acceso a datos financieros reales. Los permisos se comprueban en el servidor. Los endpoints del formato anterior tienen permisos propios, indicados en la sección de API.
+El rol administrativo no habilita por sí mismo el acceso a datos financieros reales. Los permisos se comprueban en el servidor. Los endpoints disponibles se detallan en la sección de API.
 
 ### Activar y eliminar cuentas
 
@@ -261,17 +261,11 @@ El JSON de simulación requiere `period` y `currency`; acepta `department` como 
 | GET | `/api/health` | Público | Estado de la API |
 | GET | `/api/powerbi/status` | Público | Informa que Power BI no está configurado |
 
-### Formato anterior: compatibilidad
+### API financiera vigente
 
-Estos endpoints están aislados en `backend/app/routers/legacy.py` y marcados como obsoletos (`deprecated`) en OpenAPI. Se conservan para no romper clientes existentes, sin fecha de retirada definida. La interfaz actual consulta `/api/financial/*`. Los endpoints anteriores operan sobre `budgets`, con campos `department`, `period`, `amount`, `payroll` y `operating`. Sus registros no se mezclan con las partidas del CSV actual.
+La interfaz utiliza únicamente `/api/financial/*`. Los endpoints financieros del formato anterior fueron retirados y ya no aparecen en OpenAPI. Sus URL devuelven 404. El detalle de la retirada está en [CHANGELOG.md](CHANGELOG.md).
 
-| Método | Endpoint | Acceso | Función |
-| --- | --- | --- | --- |
-| GET | `/api/budgets` | Público con demostración; financiero con datos reales | Consulta presupuestos del formato anterior |
-| POST | `/api/budgets` | Director | Crea un presupuesto anterior |
-| GET | `/api/dashboard` | Público con demostración; financiero con datos reales | Resumen anterior con `period` y `department` opcional |
-| POST | `/api/simulations` | Director o Analista | Simulación del formato anterior |
-| POST | `/api/imports/csv` | Analista | Importa CSV anterior: `department,period,amount,payroll,operating` |
+La tabla histórica `budgets` se conserva en la base, sin rutas de acceso en esta API, para evitar borrar datos existentes. No se mezcla con `financial_entries`. Esta actualización no ejecuta `DROP TABLE` ni migra sus registros automáticamente.
 
 Los errores habituales son 401 (sin sesión), 403 (sin permiso o encabezado requerido), 404 (sin recurso/datos), 409 (conflicto), 413 (archivo demasiado grande), 422 (validación), 429 (límite de intentos), 502 (SMTP rechazado) y 503 (configuración de invitaciones incompleta).
 

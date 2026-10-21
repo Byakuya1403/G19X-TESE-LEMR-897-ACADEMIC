@@ -63,6 +63,5 @@ def permitted(*roles):
 
 
 Financial = Annotated[User, Depends(permitted("director", "analyst"))]
-Director = Annotated[User, Depends(permitted("director"))]
 Analyst = Annotated[User, Depends(permitted("analyst"))]
 Administrator = Annotated[User, Depends(permitted("admin"))]

@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
-from .routers import auth, users, legacy, system
+from .routers import auth, users, system
 from . import financial, invitations
 
 
@@ -16,7 +16,7 @@ async def lifespan(app):
 
 app = FastAPI(
     title="Plataforma de Presupuesto · Presupuesto corporativo",
-    version="0.12.0",
+    version="0.13.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -42,7 +42,6 @@ for router in (
     users.router,
     financial.router,
     invitations.router,
-    legacy.router,
     system.router,
 ):
     app.include_router(router)
