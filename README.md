@@ -13,6 +13,7 @@ Sus funciones actuales son:
 - Importar y validar un formato definido de CSV empresarial antes de guardarlo.
 - Consultar partidas, presupuestos, resultados reales y alertas mediante filtros de mes, categoría y moneda.
 - Mostrar una estimación del gasto del mes siguiente al último periodo importado.
+- Predecir el presupuesto asignado a egresos del siguiente mes mediante regresión lineal local, cuando existe un histórico suficiente.
 - Simular ajustes de nómina, otros egresos e inflación sobre resultados completados.
 - Administrar cuentas por roles, invitaciones por correo, activación y eliminación de usuarios.
 
@@ -38,7 +39,7 @@ En desarrollo sin contenedores, Vite sirve la interfaz en el puerto 5173 y redir
 | --- | --- |
 | [frontend/src/main.jsx](frontend/src/main.jsx) | Montaje de React y estilos |
 | [frontend/src/App.jsx](frontend/src/App.jsx) | Coordinación de sesión, navegación, filtros y acciones |
-| [frontend/src/components](frontend/src/components) | Componentes `Dashboard`, `Importaciones` y `Login` |
+| [frontend/src/components](frontend/src/components) | `Dashboard`, `Importaciones`, `Login`, `BudgetForecast` y `BudgetTrendChart` |
 | [frontend/src/services/api.js](frontend/src/services/api.js) | Cliente HTTP, cookies y manejo de errores |
 | [frontend/src/utils/formatters.js](frontend/src/utils/formatters.js) | Formatos monetarios y de periodos |
 | [frontend/src/Simulation.jsx](frontend/src/Simulation.jsx) | Simulación de escenarios |
@@ -50,9 +51,11 @@ En desarrollo sin contenedores, Vite sirve la interfaz en el puerto 5173 y redir
 | [backend/app/schemas.py](backend/app/schemas.py) | Contratos de entrada de sesión y cuentas |
 | [backend/app/security.py](backend/app/security.py) | Hash de contraseñas, sesión actual y autorización por roles |
 | [backend/app/routers](backend/app/routers) | Rutas de autenticación, usuarios y estado |
-| [backend/app/financial.py](backend/app/financial.py) | Importaciones por partidas, indicadores y proyección |
+| [backend/app/financial.py](backend/app/financial.py) | Importaciones por partidas, indicadores y proyección de gasto real |
+| [backend/app/forecast.py](backend/app/forecast.py) | Regresión lineal de presupuestos asignados, evaluación temporal y endpoint protegido |
 | [backend/app/invitations.py](backend/app/invitations.py) | Envío, caducidad, reenvío y activación de invitaciones |
-| [backend/tests/test_api.py](backend/tests/test_api.py) | Pruebas de la API |
+| [backend/tests](backend/tests) | Pruebas de API, aislamiento y pronóstico; configuración SQLite compartida |
+| [frontend/tests/budgetForecast.test.js](frontend/tests/budgetForecast.test.js) | Pruebas de renderizado del pronóstico y continuidad del dashboard |
 | [database](database) | Creación de estructura y actualización SQL de invitaciones |
 | [examples](examples) | Archivos CSV de referencia |
 
@@ -214,6 +217,28 @@ La varianza recibida debe coincidir con presupuesto menos gasto real; los porcen
 
 La proyección estima egresos para el mes siguiente al máximo periodo importado de la moneda seleccionada, incluso al cambiar de año. El filtro del mes que estás consultando no modifica ese horizonte. Se calcula la media de hasta tres meses con resultados de egresos completos para la selección; no convierte pendientes en ceros. Es una referencia estadística, no un modelo de IA entrenado o validado. Cambios de cobertura entre meses pueden afectar su interpretación.
 
+### Predicción inteligente de presupuesto
+
+Esta sección adicional de **Resumen** predice el **presupuesto de egresos asignado**, usando `financial_entries.budget` (columna `Presupuesto_Estimado` del CSV). No utiliza `actual`/`Gasto_Real` como objetivo y no suma ingresos con egresos. Conserva todos los paneles existentes, incluida la proyección estadística de gasto real descrita arriba; son dos cálculos distintos.
+
+**Periodo y filtros.** El mes seleccionado es el mes base y el objetivo es su mes siguiente, incluso al cambiar de año. Solo se utilizan registros de meses anteriores al objetivo. Moneda y categoría provienen de los filtros actuales; no se convierten ni mezclan monedas. Con una categoría de ingresos no se genera este pronóstico de egresos. La tarjeta muestra el archivo analizado, el periodo objetivo, el presupuesto base, el importe estimado, la variación porcentual, el modelo, los meses analizados y el MAE cuando puede evaluarse.
+
+**Conjuntos de datos.** La relación de origen disponible es `Entry.batch_id → ImportBatch.id`. No existe un identificador que permita demostrar que archivos separados pertenecen a la misma serie. Por eso cada importación se analiza independientemente. Con un único archivo elegible se selecciona automáticamente; con varios aparece un selector dentro de la nueva sección, sin alterar los filtros ni los indicadores del resto del resumen. La API nunca suma esas importaciones para entrenar. Un archivo debe contener por sí mismo el histórico necesario. Varios archivos con un solo mes no forman automáticamente una serie; el proyecto todavía no tiene actualización o unión de importaciones por identidad de origen.
+
+**Requisitos de los datos.** Se requieren al menos seis meses consecutivos y se analizan como máximo los últimos 24 meses hasta el periodo base. Todas las partidas de egresos de ese intervalo deben estar `Completado` y tener la misma cobertura mensual: categoría, subcategoría, concepto y cantidad de partidas por combinación. Los ID de registro pueden variar entre meses. Son condiciones conservadoras para reducir cambios de cobertura y meses parciales; **no certifican un cierre contable**, porque ese dato no existe en el modelo actual. El presupuesto ya es conocido aunque un resultado esté pendiente, pero esta primera versión no publica un pronóstico con ese histórico pendiente.
+
+No se rellenan meses ausentes con ceros. Se cuenta una sola vez la misma fila de origen; un duplicado con valores inconsistentes invalida la serie. No se usan la tabla histórica `budgets`, datos de demostración ni servicios externos. El CSV de ejemplo tiene tres meses y partidas pendientes: permite verificar el mensaje de no disponibilidad, pero no un entrenamiento suficiente. No se agregan datos de prueba a la plataforma para producir una cifra.
+
+**Modelo y evaluación.** `scikit-learn` ajusta `LinearRegression` sobre el número de mes transcurrido y la suma mensual de presupuestos. Se evalúan los tres últimos meses mediante origen móvil: para cada mes evaluado se entrena exclusivamente con los anteriores. El MAE se compara con la referencia de repetir el presupuesto del mes previo. Después de evaluar se reentrena con todo el intervalo elegible para predecir su mes siguiente.
+
+El criterio de publicación actual rechaza una regresión cuyo MAE supere al de la referencia por más de un centavo o supere el máximo entre un centavo y el 30% del presupuesto medio de los meses de validación. El umbral es una **política inicial de elegibilidad**, no un porcentaje de precisión ni una garantía calibrada para una empresa. No se calcula ni presenta R² como confianza. La regresión no modela estacionalidad. Las métricas históricas no garantizan resultados futuros.
+
+Se redondean importes a dos decimales. Una salida no finita se rechaza; una tendencia negativa se limita a cero y se informa explícitamente. Si el presupuesto base es cero, la variación porcentual se devuelve como `null`, sin división por cero. El presupuesto base mostrado corresponde al último mes elegible del intervalo, que debe coincidir con el periodo seleccionado.
+
+**Gráfica y actualización.** La gráfica SVG añade histórico registrado y un segmento discontinuo con rombo para la estimación. Incluye títulos con valores exactos, leyenda y tabla accesible; con una serie no elegible solo muestra registros existentes. No había biblioteca de gráficas en el proyecto, por lo que no se añadió otra dependencia de frontend. El servidor consulta y entrena con los datos persistidos en cada petición, sin caché de predicciones. La sección vuelve a consultar al cambiar filtros, elegir importación o actualizar los datos de Resumen; las respuestas anteriores canceladas no sustituyen una selección nueva.
+
+**Referencia técnica:** [LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html), [MAE](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) y [evaluación de series temporales](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-split), documentación oficial de scikit-learn.
+
 ### Simular escenarios
 
 En **Simulación**, revisa la base real del mes y categoría, define los porcentajes y compara el resultado. Los ajustes permitidos son nómina de −30% a +30%, otros egresos de −50% a +50% y precios/inflación de −10% a +30%.
@@ -253,6 +278,25 @@ Consulta los detalles de parámetros y esquemas disponibles en [Swagger UI](http
 | POST | `/api/financial/simulations` | Director o Analista | Calcula el escenario sobre egresos completados |
 
 El JSON de simulación requiere `period` y `currency`; acepta `department` como nombre del filtro de **categoría** por compatibilidad, además de `payroll`, `operating` e `inflation` como porcentajes (cero por defecto). No envíes `category` en ese endpoint esperando que filtre.
+
+### Pronóstico de presupuesto
+
+| Método | Endpoint | Acceso | Función |
+| --- | --- | --- | --- |
+| GET | `/api/forecast/budget` | Director o Analista | Predice presupuesto de egresos a partir de una sola importación real |
+
+Parámetros de consulta:
+
+| Parámetro | Uso |
+| --- | --- |
+| `currency` | Código de tres letras mayúsculas; `MXN` por defecto |
+| `category` | Categoría exacta opcional; si se omite, suma las categorías de egresos de esa importación |
+| `period` | Mes base `YYYY-MM`, entre 1900 y 9999. Si se omite, toma el máximo periodo de la selección |
+| `batch_id` | ID de importación opcional. Es necesario seleccionar uno si hay varios conjuntos elegibles |
+
+Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses pendientes o ausentes, cobertura variable, mala evaluación o selección ambigua. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. `conjuntos_disponibles` enumera los archivos que pueden seleccionarse. Una importación inexistente produce 404; filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
+
+La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `batch_id`, `historial`, `evaluacion` y advertencias. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
 
 ### Estado e integración
 
@@ -322,6 +366,7 @@ Comandos de comprobación, ejecutados en las carpetas indicadas:
 | `frontend` | `npm run build` | Compilar la interfaz |
 | `frontend` | `npm run format:check` | Comprobar formato del JavaScript/JSX |
 | `frontend` | `npm run format` | Aplicar Prettier |
+| `frontend` | `npm test` | Comprobar estados del pronóstico, gráfica y continuidad de los paneles |
 | `backend` | `python -m pytest -q` | Ejecutar pruebas de API con SQLite |
 
 Las verificaciones realizadas por entrega y sus límites están documentados en [CHANGELOG.md](CHANGELOG.md). Las pruebas con SQLite no sustituyen la validación de PostgreSQL, concurrencia y envío real de correo.
@@ -350,6 +395,47 @@ Si un servicio falla, revisa `docker compose ps` y `docker compose logs backend 
 
 ## Alcance actual
 
-Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La predicción es estadística y aún no se ha evaluado como modelo de IA. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
+Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La proyección de gasto real conserva su media estadística; el pronóstico de presupuesto usa regresión lineal con evaluación temporal cuando la serie es elegible. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
 
 La publicación para usuarios remotos requiere una configuración de HTTPS, acceso de red y correo distinta de la instalación local incluida. Los límites de intentos son por proceso y requieren almacenamiento compartido antes de escalar a varios servidores.
+
+
+## Verificar la predicción de presupuesto
+
+La única dependencia directa nueva es `scikit-learn>=1.5,<2` en `backend/requirements.txt`; instala sus dependencias numéricas transitivas. La implementación se comprobó con scikit-learn 1.9.1. No hay cambios de tablas ni migraciones SQL y no se requieren claves de IA.
+
+1. Conserva `.env`, base y volumen. Actualiza el código y ejecuta `docker compose up -d --build` para instalar scikit-learn y compilar la interfaz. No vuelvas a importar un archivo ya guardado.
+2. Inicia sesión como Director o Analista y entra a Resumen. Con el ejemplo existente debes ver un mensaje informativo, porque tres meses con pendientes no cumplen los criterios.
+3. Para obtener una cifra, importa como Analista un histórico **real** de al menos seis meses consecutivos, con partidas completadas y cobertura comparable dentro del mismo archivo. Selecciona el último mes de ese histórico y su moneda/categoría. Si hay varios archivos, elige uno en la nueva tarjeta. No cambies ID de archivos existentes para forzar una unión entre conjuntos.
+4. Comprueba que el periodo objetivo sea el mes siguiente, que el presupuesto base coincida con las partidas asignadas y que el punto estimado esté separado visualmente de los valores registrados. Cambiar a un periodo anterior debe excluir todos los datos posteriores de este nuevo pronóstico.
+5. Puedes comprobar la respuesta en Swagger, con una sesión financiera iniciada en el navegador usando el mismo host (`localhost`, sin alternar con `127.0.0.1`). Las pruebas automáticas no requieren un histórico real ni un servidor de correo y utilizan exclusivamente fixtures aisladas.
+
+Desde `backend`, con las dependencias instaladas:
+
+```bash
+python -m pytest -q
+```
+
+Desde `frontend`:
+
+```bash
+npm ci
+npm test
+npm run build
+npm run format:check
+```
+
+La verificación de esta entrega incluye 49 pruebas de backend con SQLite y seis pruebas de renderizado de frontend. No sustituye pruebas Docker/PostgreSQL, revisión visual en navegador ni evaluación financiera con datos de producción. El código de login, roles, modelos SQL, importación y Simulación se comparó con la entrega anterior y permanece sin cambios.
+
+### Archivos de la entrega de IA
+
+| Acción | Archivos | Propósito |
+| --- | --- | --- |
+| Creados | `backend/app/forecast.py` | Agregación, elegibilidad, regresión, evaluación y endpoint |
+| Creados | `frontend/src/components/BudgetForecast.jsx`, `frontend/src/components/BudgetTrendChart.jsx` | Consulta, estados de la tarjeta y gráfica |
+| Creados | `backend/tests/conftest.py`, `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Fixtures aisladas y pruebas automáticas |
+| Modificados | `backend/app/main.py`, `backend/requirements.txt` | Registro del router, versión e instalación de scikit-learn |
+| Modificados | `frontend/src/components/Dashboard.jsx`, `frontend/src/styles.css` | Integración visual adicional |
+| Modificados | `frontend/package.json`, `frontend/src/App.jsx` | Comando de pruebas e indicador de versión |
+| Modificados | `backend/tests/test_api.py` | Reutilización de la fixture común; conserva las pruebas existentes |
+| Modificados | `README.md`, `CHANGELOG.md` | Funcionamiento, límites, actualización y verificación |

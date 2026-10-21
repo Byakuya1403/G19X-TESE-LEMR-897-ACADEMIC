@@ -4,6 +4,31 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.14 — Predicción mensual de presupuestos
+
+### Añadido
+
+- `backend/app/forecast.py`: agregación mensual del presupuesto asignado a egresos y `LinearRegression` local de scikit-learn. Se utiliza `financial_entries.budget`, no el gasto real.
+- `GET /api/forecast/budget` protegido por los permisos financieros existentes, con filtros de periodo, moneda, categoría e importación y respuesta tipada.
+- Aislamiento por `batch_id`; selección explícita si hay varios conjuntos. No se deducen relaciones entre archivos ni se mezclan ingresos con egresos.
+- Ventana de seis a 24 meses consecutivos, con partidas completadas y cobertura comparable. Rechazo de meses faltantes, registros inválidos y duplicados inconsistentes.
+- Evaluación de los últimos tres meses por origen móvil, MAE y referencia del mes anterior. Se rechaza una regresión peor que esa referencia o con error relativo por encima de la política inicial del 30%, con tolerancia mínima de un centavo. No se publican porcentajes de confianza.
+- Límite no negativo explícito, variación porcentual nula con base cero y rechazo de resultados no finitos.
+- Nueva sección de Resumen, componentes `BudgetForecast` y `BudgetTrendChart`, gráfica SVG con histórico, estimación diferenciada y tabla accesible. Sin nueva biblioteca de gráficas.
+- Pruebas del modelo, endpoint, importación CSV, aislamiento, filtros, respuesta insuficiente y renderizado. Fixtures comunes del backend en `tests/conftest.py`.
+
+### Conservado
+
+Los paneles anteriores y la proyección estadística de gasto real se mantienen. El mes elegido acota solo el nuevo pronóstico al mes siguiente; no modifica el horizonte de la proyección anterior. Se conservaron sin cambios login, roles, importaciones, Simulación y modelos SQL. No se incorporaron recomendaciones, LLM, chatbots ni servicios externos de IA.
+
+### Dependencias y actualización
+
+Se agregó `scikit-learn>=1.5,<2` (comprobado con 1.9.1). Conservar `.env` y el volumen, actualizar el código y reconstruir con `docker compose up -d --build`. No ejecutar migraciones ni reimportar archivos existentes. Cada archivo debe contener por sí mismo un histórico suficiente; esta versión no agrega una función de actualización/unión de importaciones. El ejemplo de tres meses con pendientes muestra no disponibilidad y no produce una cifra inventada.
+
+### Verificación y límites
+
+49 pruebas de backend con SQLite y seis de frontend correctas; compilación y formato correctos. Se comprobaron ausencia de fuga temporal, agrupación por año/mes, cambio de año, separación de presupuesto frente a gasto real, deduplicación, aislamiento por importación/moneda/categoría, refresco tras importación, permisos, insuficiencia, calidad deficiente y continuidad de los paneles previos. No hubo ejecución Docker/PostgreSQL ni revisión visual con navegador. Estado Completado y cobertura homogénea son proxies de elegibilidad, no cierre contable certificado; el modelo no estima estacionalidad y el umbral de error no constituye una garantía de precisión.
+
 ## v0.13 — Retirada de la API financiera anterior
 
 ### Eliminado

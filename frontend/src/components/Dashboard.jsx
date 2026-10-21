@@ -1,6 +1,7 @@
 import React from 'react';
 import { budgetHistory } from '../budgetHistory';
 import { formatMoney, monthLabel } from '../utils/formatters';
+import BudgetForecast from './BudgetForecast';
 
 export default function Dashboard({
   data,
@@ -173,6 +174,13 @@ export default function Dashboard({
           <p className="muted">Sin desviaciones desfavorables en las partidas completadas.</p>
         )}
       </article>
+      <BudgetForecast
+        currency={currency}
+        category={category}
+        period={period}
+        user={user}
+        entries={entries}
+      />
     </>
   );
 }
