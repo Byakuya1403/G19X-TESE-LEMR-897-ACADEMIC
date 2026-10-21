@@ -1,7 +1,7 @@
 import React from 'react';
 import { budgetHistory } from '../budgetHistory';
 import { formatMoney, monthLabel } from '../utils/formatters';
-import BudgetForecast from './BudgetForecast';
+import { BudgetForecastSummary, BudgetForecastView, useBudgetForecast } from './BudgetForecast';
 
 export default function Dashboard({
   data,
@@ -14,14 +14,7 @@ export default function Dashboard({
   onImport,
 }) {
   const history = budgetHistory(entries, currency, category, period);
-  const incomeSelected =
-    Boolean(category) &&
-    entries.some(
-      (r) => r.currency === currency && r.category === category && r.nature === 'income',
-    ) &&
-    !entries.some(
-      (r) => r.currency === currency && r.category === category && r.nature === 'expense',
-    );
+  const forecast = useBudgetForecast({ currency, category, period, user, entries });
   function money(value) {
     return formatMoney(value, currency);
   }
@@ -112,30 +105,7 @@ export default function Dashboard({
             )}
           </div>
         </article>
-        <article className="forecast">
-          <p className="eyebrow">PREDICCIÓN DEL SIGUIENTE MES</p>
-          <h3>{monthLabel(data.prediction.next_period)}</h3>
-          <h2>
-            {incomeSelected
-              ? 'Solo egresos'
-              : data.prediction.amount === null
-                ? 'Sin datos completados'
-                : money(data.prediction.amount)}
-          </h2>
-          <p>
-            {incomeSelected
-              ? 'La predicción actual estima egresos. Selecciona una categoría de gastos o «Todos» para consultarla.'
-              : 'Gasto proyectado de referencia'}
-          </p>
-          <div className="forecastnote">
-            {data.prediction.method}
-            <br />
-            {data.prediction.months} meses usados:{' '}
-            {data.prediction.periods_used.map(monthLabel).join(', ') || 'ninguno'}
-            <br />
-            Último periodo del archivo: {monthLabel(data.prediction.reference_period)}
-          </div>
-        </article>
+        <BudgetForecastSummary {...forecast} />
       </div>
       <div className="kpis">
         {[
@@ -174,13 +144,7 @@ export default function Dashboard({
           <p className="muted">Sin desviaciones desfavorables en las partidas completadas.</p>
         )}
       </article>
-      <BudgetForecast
-        currency={currency}
-        category={category}
-        period={period}
-        user={user}
-        entries={entries}
-      />
+      <BudgetForecastView {...forecast} />
     </>
   );
 }

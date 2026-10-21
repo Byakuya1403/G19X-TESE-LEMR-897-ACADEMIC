@@ -7,6 +7,7 @@ import { createServer } from 'vite';
 let server;
 let View;
 let Dashboard;
+let Summary;
 before(async () => {
   server = await createServer({
     optimizeDeps: { noDiscovery: true, include: [] },
@@ -14,9 +15,13 @@ before(async () => {
     appType: 'custom',
   });
   View = (await server.ssrLoadModule('/src/components/BudgetForecast.jsx')).BudgetForecastView;
+  Summary = (await server.ssrLoadModule('/src/components/BudgetForecast.jsx'))
+    .BudgetForecastSummary;
   Dashboard = (await server.ssrLoadModule('/src/components/Dashboard.jsx')).default;
 });
-after(async () => { await server?.close(); });
+after(async () => {
+  await server?.close();
+});
 
 // Test-only values. The actual component obtains every amount from the API.
 function result(overrides = {}) {
@@ -29,20 +34,28 @@ function result(overrides = {}) {
     presupuesto_estimado: 1600,
     variacion_porcentual: 6.67,
     meses_analizados: 6,
-    conjuntos_disponibles: [],
+    registros_analizados: 6,
+    importaciones_analizadas: 6,
     advertencias: [],
     evaluacion: { mae: 0, mae_referencia: 100, meses_validacion: 3 },
     historial: Array.from({ length: 6 }, (_, i) => ({
-      periodo: `2026-0${i + 1}`, presupuesto: 1000 + i * 100, completo: true,
+      periodo: `2026-0${i + 1}`,
+      presupuesto: 1000 + i * 100,
+      completo: true,
     })),
     ...overrides,
   };
 }
 function render(props = {}) {
-  return renderToStaticMarkup(React.createElement(View, {
-    result: result(), financial: true, loading: false, error: '',
-    batchId: '', onBatchChange: () => {}, ...props,
-  }));
+  return renderToStaticMarkup(
+    React.createElement(View, {
+      result: result(),
+      financial: true,
+      loading: false,
+      error: '',
+      ...props,
+    }),
+  );
 }
 
 test('renders amounts, variation, model, MAE and separate estimated chart point', () => {
@@ -60,17 +73,57 @@ test('renders amounts, variation, model, MAE and separate estimated chart point'
 });
 
 test('insufficient history shows no invented forecast or projected chart segment', () => {
-  const html = render({ result: result({ disponible: false, presupuesto_estimado: null, mensaje: 'Histórico insuficiente.' }) });
+  const html = render({
+    result: result({
+      disponible: false,
+      presupuesto_estimado: null,
+      mensaje: 'Histórico insuficiente.',
+    }),
+  });
   assert.ok(html.includes('Predicción no disponible.'));
   assert.ok(html.includes('Histórico insuficiente.'));
   assert.ok(!html.includes('trend-projected') && !html.includes('trend-diamond'));
   assert.ok(!html.includes('Variación respecto al presupuesto anterior'));
 });
 
-test('multiple imports are explicitly selected without changing the parent filters', () => {
-  const html = render({ result: result({ disponible: false, conjuntos_disponibles: [{ id: 1, nombre: 'primero.csv' }, { id: 2, nombre: 'segundo.csv' }] }) });
-  assert.ok(html.includes('primero.csv') && html.includes('segundo.csv'));
-  assert.ok(html.includes('Solo afecta esta sección'));
+test('uses cumulative database history without any CSV selector', () => {
+  const html = render();
+  assert.ok(html.includes('histórico guardado en la base de datos'));
+  assert.ok(html.includes('6 importaciones'));
+  assert.ok(!html.includes('<select') && !html.includes('Archivo analizado'));
+});
+
+test('original summary card uses the same ML result and never the old spending average', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(Summary, {
+      result: result(),
+      financial: true,
+      loading: false,
+      error: '',
+    }),
+  );
+  assert.ok(html.includes('$1,600.00'));
+  assert.ok(html.includes('julio de 2026'));
+  assert.ok(html.includes('+6.67 %'));
+  assert.ok(html.includes('Fuente: base de datos'));
+  assert.ok(!html.includes('Gasto proyectado de referencia'));
+  for (const props of [
+    { financial: false },
+    { loading: true },
+    { error: 'Error' },
+    { result: result({ disponible: false, mensaje: 'Histórico insuficiente' }) },
+  ]) {
+    const unavailable = renderToStaticMarkup(
+      React.createElement(Summary, {
+        result: result(),
+        financial: true,
+        loading: false,
+        error: '',
+        ...props,
+      }),
+    );
+    assert.ok(!unavailable.includes('$1,600.00'));
+  }
 });
 
 test('guest, loading and network errors do not display stale estimates', () => {
@@ -87,19 +140,44 @@ test('zero baseline never displays NaN or Infinity as a variation', () => {
   assert.ok(!html.includes('NaN') && !html.includes('Infinity'));
 });
 
-test('dashboard preserves original panels and appends the independent budget section', () => {
-  const html = renderToStaticMarkup(React.createElement(Dashboard, {
-    entries: [], currency: 'MXN', category: '', period: '2026-01', user: null,
-    onPeriodChange: () => {}, onImport: () => {},
-    data: {
-      income: { budget: 0, actual: null, pending: 0 },
-      expense: { budget: 0, actual: null, pending: 0 },
-      balance: null, alerts: [],
-      prediction: { next_period: null, amount: null, method: 'Referencia', months: 0, periods_used: [], reference_period: null },
-    },
-  }));
-  for (const label of ['Presupuestos mensuales', 'PREDICCIÓN DEL SIGUIENTE MES', 'Ingresos presupuestados', 'Egresos reales', 'Centro de alertas', 'Predicción inteligente de presupuesto']) {
+test('dashboard preserves panels and connects the original card to the budget forecast', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(Dashboard, {
+      entries: [],
+      currency: 'MXN',
+      category: '',
+      period: '2026-01',
+      user: null,
+      onPeriodChange: () => {},
+      onImport: () => {},
+      data: {
+        income: { budget: 0, actual: null, pending: 0 },
+        expense: { budget: 0, actual: null, pending: 0 },
+        balance: null,
+        alerts: [],
+        prediction: {
+          next_period: null,
+          amount: 999999,
+          method: 'Referencia',
+          months: 0,
+          periods_used: [],
+          reference_period: null,
+        },
+      },
+    }),
+  );
+  for (const label of [
+    'Presupuestos mensuales',
+    'PREDICCIÓN DEL SIGUIENTE MES',
+    'Ingresos presupuestados',
+    'Egresos reales',
+    'Centro de alertas',
+    'Predicción inteligente de presupuesto',
+  ]) {
     assert.ok(html.includes(label), label);
   }
-  assert.ok(html.indexOf('Centro de alertas') < html.indexOf('Predicción inteligente de presupuesto'));
+  assert.ok(!html.includes('999,999') && !html.includes('Gasto proyectado de referencia'));
+  assert.ok(
+    html.indexOf('Centro de alertas') < html.indexOf('Predicción inteligente de presupuesto'),
+  );
 });

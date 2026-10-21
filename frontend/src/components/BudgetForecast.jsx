@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import { formatMoney, monthLabel } from '../utils/formatters';
 import BudgetTrendChart from './BudgetTrendChart';
 
-export function BudgetForecastView({ result, loading, error, batchId, onBatchChange, financial }) {
+export function BudgetForecastView({ result, loading, error, financial }) {
   return (
     <article className="panel budget-forecast" aria-labelledby="budget-forecast-title">
       <div className="paneltitle">
@@ -20,20 +20,6 @@ export function BudgetForecastView({ result, loading, error, batchId, onBatchCha
         </p>
       ) : (
         <>
-          {result?.conjuntos_disponibles.length > 1 && (
-            <label className="forecast-dataset">
-              Archivo para esta predicción
-              <select value={batchId} onChange={(event) => onBatchChange(event.target.value)}>
-                <option value="">Selecciona una importación</option>
-                {result.conjuntos_disponibles.map((batch) => (
-                  <option key={batch.id} value={batch.id}>
-                    {batch.nombre} · #{batch.id}
-                  </option>
-                ))}
-              </select>
-              <small>Solo afecta esta sección. Los archivos no se suman entre sí.</small>
-            </label>
-          )}
           {loading && <p role="status">Analizando el histórico de presupuestos…</p>}
           {error && (
             <p className="error" role="alert">
@@ -42,16 +28,10 @@ export function BudgetForecastView({ result, loading, error, batchId, onBatchCha
           )}
           {result && !loading && !error && (
             <>
-              {result.batch_id && (
-                <p className="muted">
-                  Archivo analizado:{' '}
-                  {
-                    result.conjuntos_disponibles.find((batch) => batch.id === result.batch_id)
-                      ?.nombre
-                  }{' '}
-                  · #{result.batch_id}
-                </p>
-              )}
+              <p className="muted">
+                Fuente: histórico guardado en la base de datos · {result.registros_analizados}{' '}
+                partidas de {result.importaciones_analizadas} importaciones.
+              </p>
               {!result.disponible ? (
                 <p className="notice" role="status">
                   Predicción no disponible. {result.mensaje}
@@ -112,15 +92,7 @@ export function BudgetForecastView({ result, loading, error, batchId, onBatchCha
   );
 }
 
-export default function BudgetForecast({
-  currency,
-  category,
-  period,
-  user,
-  entries,
-  request = api,
-}) {
-  const [batchId, setBatchId] = useState('');
+export function useBudgetForecast({ currency, category, period, user, entries, request = api }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -134,7 +106,6 @@ export default function BudgetForecast({
     setError('');
     const query = new URLSearchParams({ currency, period });
     if (category) query.set('category', category);
-    if (batchId) query.set('batch_id', batchId);
     request('/forecast/budget?' + query, { signal: controller.signal })
       .then((value) => {
         if (active) setResult(value);
@@ -152,19 +123,48 @@ export default function BudgetForecast({
       active = false;
       controller.abort();
     };
-  }, [currency, category, period, batchId, financial, entries, request]);
+  }, [currency, category, period, financial, entries, request]);
 
+  return { result, loading, error, financial };
+}
+
+export function BudgetForecastSummary({ result, loading, error, financial }) {
+  const ready = financial && !loading && !error && result?.disponible;
   return (
-    <BudgetForecastView
-      result={result}
-      loading={loading}
-      error={error}
-      batchId={batchId}
-      onBatchChange={(value) => {
-        setBatchId(value);
-        setLoading(true);
-      }}
-      financial={financial}
-    />
+    <article className="forecast" aria-label="Predicción mensual de presupuesto">
+      <p className="eyebrow">PREDICCIÓN DEL SIGUIENTE MES</p>
+      <h3>
+        {financial && !loading && !error && result?.periodo_pronosticado
+          ? monthLabel(result.periodo_pronosticado)
+          : 'Presupuesto de egresos'}
+      </h3>
+      <h2>
+        {ready
+          ? formatMoney(result.presupuesto_estimado, result.moneda)
+          : 'Predicción no disponible'}
+      </h2>
+      <p>
+        {ready ? `Presupuesto estimado · ${result.moneda}` : 'Estimación mediante regresión lineal'}
+      </p>
+      {ready && (
+        <p>
+          Variación respecto al mes base:{' '}
+          {result.variacion_porcentual === null
+            ? 'No calculable con base cero'
+            : `${result.variacion_porcentual > 0 ? '+' : ''}${result.variacion_porcentual.toLocaleString('es-MX', { maximumFractionDigits: 2 })} %`}
+        </p>
+      )}
+      <div className="forecastnote" role="status">
+        {!financial
+          ? 'Inicia sesión con un rol financiero para consultar el histórico real.'
+          : loading
+            ? 'Analizando los presupuestos guardados…'
+            : error
+              ? error
+              : ready
+                ? `Regresión lineal · ${result.meses_analizados} meses analizados. Fuente: base de datos. Consulta la evaluación y la tendencia debajo.`
+                : result?.mensaje || 'Esperando el histórico almacenado.'}
+      </div>
+    </article>
   );
 }

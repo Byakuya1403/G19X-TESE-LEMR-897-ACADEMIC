@@ -466,7 +466,7 @@ export default function App() {
           )}
           <Login dialogRef={dialog} onSignIn={signIn} loginError={loginError} authBusy={authBusy} />
           <footer>
-            Plataforma de Presupuesto / v0.14{' '}
+            Plataforma de Presupuesto / v0.15{' '}
             <span>{data?.demo ? 'Vista de demostración' : 'Sesión financiera'}</span>
           </footer>
         </section>

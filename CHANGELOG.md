@@ -4,6 +4,26 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.15 — Forecast sobre el histórico acumulado en la base de datos
+
+### Corregido
+
+- La tarjeta verde de predicción del siguiente mes utiliza ahora `GET /api/forecast/budget`, igual que el detalle de regresión lineal y su gráfica. Una única consulta alimenta ambas vistas; ya no muestra la media anterior de gasto real.
+- El forecast agrupa las partidas guardadas en `financial_entries` de todas las importaciones del espacio financiero, por año, mes, moneda y categoría. Los archivos mensuales y las cargas complementarias construyen un histórico común.
+- Eliminados el selector de CSV, el filtro `batch_id` del forecast y la respuesta de selección ambigua. La procedencia se informa con el número de registros e importaciones analizados, sin exigir un archivo.
+- La deduplicación defensiva utiliza la clave global existente año/ID/moneda, independientemente de la importación. Se conservan el rechazo de hashes repetidos y conflictos por clave al importar; no se sobrescriben ni borran partidas.
+- Consulta SQL limitada a los últimos 24 meses aplicables. Se conservan seis meses mínimos, validación temporal con MAE, separación de monedas/ingresos y filtros de periodo/categoría.
+
+### Persistencia, actualización y límites
+
+Los CSV ya se guardaban en base de datos al confirmar la importación; se reutiliza esa persistencia. El forecast no lee CSV ni requiere conservar los archivos. `batch_id` mantiene la trazabilidad, sin aislar el entrenamiento. La instalación representa un espacio financiero común: no se incorpora separación por empresas ni identificación automática de duplicados con IDs distintos.
+
+No cambian las tablas SQL, el login, los roles ni Simulación. No hay dependencias nuevas. El campo de proyección estadística del dashboard financiero se conserva por compatibilidad de API, pero deja de alimentar la interfaz. Actualizar el código y ejecutar `docker compose up -d --build`, conservando `.env` y el volumen; no reimportar archivos existentes ni ejecutar migraciones.
+
+### Verificación
+
+**53 pruebas de backend con SQLite y siete de frontend correctas; compilación y formato correctos.** Pruebas de cargas mensuales desordenadas entre archivos, partidas complementarias, persistencia en sesiones SQL independientes, duplicados y conflictos, forecast sin parser CSV, actualización desde la base, filtros, evaluación temporal y ambas tarjetas. Se mantiene el límite de cobertura comparable y partidas completadas; no se certifica el cierre contable. La ejecución de Docker/PostgreSQL y la revisión visual con navegador deben validarse en el entorno de despliegue.
+
 ## v0.14 — Predicción mensual de presupuestos
 
 ### Añadido

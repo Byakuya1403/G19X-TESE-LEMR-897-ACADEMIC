@@ -159,7 +159,7 @@ def test_invalid_budgets_have_no_forecast(bad):
     )
 
 
-def test_income_currency_category_and_imports_are_separate():
+def test_income_currency_and_category_are_separate():
     rows = history()
     income = history()
     income[0].nature = "income"
@@ -167,10 +167,6 @@ def test_income_currency_category_and_imports_are_separate():
     assert predict_budget(rows, currency="USD")["codigo"] == "sin_datos"
     assert (
         predict_budget(rows, currency="MXN", category="Otra")["codigo"] == "sin_datos"
-    )
-    assert (
-        predict_budget(rows + history(batch_id=2), currency="MXN")["codigo"]
-        == "conjuntos_distintos"
     )
 
 
@@ -216,48 +212,31 @@ def test_endpoint_requires_financial_role_and_never_uses_guest_data(client):
     assert empty["codigo"] == "sin_datos" and empty["historial"] == []
 
 
-def test_endpoint_reads_persisted_budgets_and_refreshes_after_new_import(client):
-    batch = seed(history())
-    response = client.get(
-        "/api/forecast/budget", params={"period": "2026-06", "currency": "MXN"}
-    )
-    assert (
-        response.status_code == 200 and response.headers["cache-control"] == "no-store"
-    )
+def test_endpoint_accumulates_persisted_history_across_imports(client):
+    seed(history()[:3], filename="primer-trimestre.csv")
+    early = client.get("/api/forecast/budget").json()
+    assert early["codigo"] == "historico_insuficiente"
+    seed(history()[3:], filename="segundo-trimestre.csv")
+    response = client.get("/api/forecast/budget")
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
     data = response.json()
-    assert data["presupuesto_estimado"] == 1600 and data["batch_id"] == batch
-    # A later independent import requires selection instead of being added to the first.
-    second = seed(
-        history([2000, 2100, 2200, 2300, 2400, 2500], start=(2025, 1)),
-        filename="otra-serie.csv",
-    )
-    result = client.get("/api/forecast/budget").json()
-    assert (
-        result["codigo"] == "seleccion_requerida"
-        and len(result["conjuntos_disponibles"]) == 2
-    )
-    first_result = client.get("/api/forecast/budget", params={"batch_id": batch}).json()
-    second_result = client.get(
-        "/api/forecast/budget", params={"batch_id": second}
-    ).json()
-    assert first_result["presupuesto_estimado"] == 1600
-    assert second_result["presupuesto_estimado"] == 2600
-    # A new monthly entry in the same persisted series is immediately considered (no cache).
-    with Session(engine) as db:
-        row = history([1600], start=(2026, 7))[0]
-        values = vars(row).copy()
-        values["batch_id"] = batch
-        db.add(Entry(**values, original={"fixture": True}))
-        db.commit()
-    updated = client.get("/api/forecast/budget", params={"batch_id": batch}).json()
-    assert (
-        updated["periodo_pronosticado"] == "2026-08"
-        and updated["presupuesto_estimado"] == 1700
-    )
+    assert data["presupuesto_estimado"] == 1600
+    assert data["importaciones_analizadas"] == 2
+    assert data["registros_analizados"] == 6
+    assert data["origen"] == "base_de_datos"
+    assert "batch_id" not in data and "conjuntos_disponibles" not in data
+    seed(history([1600], start=(2026, 7)), filename="julio.csv")
+    updated = client.get("/api/forecast/budget").json()
+    assert updated["periodo_pronosticado"] == "2026-08"
+    assert updated["presupuesto_estimado"] == 1700
+    assert updated["importaciones_analizadas"] == 3
+    # The selected month remains a true temporal cutoff even after later imports.
+    assert client.get("/api/forecast/budget?period=2026-06").json() == data
 
 
 def test_endpoint_filters_and_input_validation(client):
-    batch = seed(history())
+    seed(history())
     assert (
         client.get("/api/forecast/budget?period=2026-04").json()["codigo"]
         == "historico_insuficiente"
@@ -269,56 +248,133 @@ def test_endpoint_filters_and_input_validation(client):
         client.get("/api/forecast/budget?category=Ingresos").json()["codigo"]
         == "sin_datos"
     )
-    assert client.get("/api/forecast/budget?batch_id=9999").status_code == 404
-    for query in ["period=2026-13", "period=2026-01-01", "currency=mxn", "batch_id=0"]:
+    for query in ["period=2026-13", "period=2026-01-01", "currency=mxn"]:
         assert client.get("/api/forecast/budget?" + query).status_code == 422
     # Asking for a missing base does not silently compare another month.
-    result = client.get(
-        "/api/forecast/budget", params={"period": "2026-07", "batch_id": batch}
-    ).json()
+    result = client.get("/api/forecast/budget", params={"period": "2026-07"}).json()
     assert result["codigo"] == "sin_mes_base"
 
 
-def test_real_csv_import_flow_recomputes_datasets_without_summing_them(client):
+def test_monthly_csv_uploads_persist_and_forecast_without_reading_files(
+    client, monkeypatch
+):
     client.post(
         "/api/auth/login",
         json={"username": "analista", "password": "UnaClaveSegura2026"},
     )
     columns = "ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado\n"
-    months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"]
-
-    def upload(prefix, base):
-        # Actual spending is zero in these fixtures; budgets are nonzero and increasing.
-        rows = [
-            f"{prefix}-{i},2026,{month},Servicios,Operación,Servicio mensual,{base+i*100},0,{base+i*100},0,Completado"
-            for i, month in enumerate(months)
-        ]
+    months = ["Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    files = {}
+    # Out-of-order uploads, one file per month, same shared financial history.
+    for i in [4, 0, 5, 1, 3, 2]:
+        amount = 1000 + i * 100
+        content = (
+            columns
+            + f"monthly-{i},2026,{months[i]},Servicios,Operación,Servicio mensual,{amount},0,{amount},0,Completado\n"
+        )
+        files[i] = content
         response = client.post(
             "/api/financial/imports/csv",
-            files={
-                "file": (f"{prefix}.csv", columns + "\n".join(rows) + "\n", "text/csv")
-            },
+            files={"file": (f"mes-{i}.csv", content, "text/csv")},
             data={"currency": "MXN"},
         )
         assert response.status_code == 201
-
-    upload("fixture-a", 1000)
-    first = client.get("/api/forecast/budget?period=2026-06").json()
-    assert first["disponible"] and first["presupuesto_estimado"] == 1600
-    upload("fixture-b", 2000)
-    ambiguous = client.get("/api/forecast/budget?period=2026-06").json()
-    assert ambiguous["codigo"] == "seleccion_requerida"
-    selected = next(
-        batch["id"]
-        for batch in ambiguous["conjuntos_disponibles"]
-        if batch["nombre"] == "fixture-b.csv"
+    # A fresh SQL session observes six committed entries, irrespective of upload order.
+    with Session(engine) as db:
+        assert len(db.scalars(select(Entry)).all()) == 6
+        assert len(db.scalars(select(ImportBatch)).all()) == 6
+    duplicate = client.post(
+        "/api/financial/imports/csv",
+        files={"file": ("copia.csv", files[0], "text/csv")},
+        data={"currency": "MXN"},
     )
-    new = client.get(
-        "/api/forecast/budget", params={"period": "2026-06", "batch_id": selected}
-    ).json()
-    assert new["presupuesto_estimado"] == 2600
-    old = client.get(
-        "/api/forecast/budget",
-        params={"period": "2026-06", "batch_id": first["batch_id"]},
-    ).json()
-    assert old["presupuesto_estimado"] == 1600
+    assert duplicate.status_code == 409
+    conflicting = files[0].replace(
+        "Servicio mensual,1000", "Servicio mensual corregido,1000"
+    )
+    conflict = client.post(
+        "/api/financial/imports/csv",
+        files={"file": ("mismo-id.csv", conflicting, "text/csv")},
+        data={"currency": "MXN"},
+    )
+    assert conflict.status_code == 409
+
+    def forbid_csv_read(*args, **kwargs):
+        raise AssertionError("El forecast no debe abrir ni parsear archivos CSV")
+
+    monkeypatch.setattr("app.financial.parse_file", forbid_csv_read)
+    data = client.get("/api/forecast/budget").json()
+    assert data["disponible"] and data["presupuesto_estimado"] == 1600
+    assert data["presupuesto_actual"] == 1500
+    assert data["periodo_pronosticado"] == "2027-01"
+    assert data["registros_analizados"] == 6
+    assert data["importaciones_analizadas"] == 6
+    assert [p["periodo"] for p in data["historial"]] == [
+        f"2026-{month:02}" for month in range(7, 13)
+    ]
+    # Nothing is retained from request uploads; subsequent SQL changes are the source.
+    with Session(engine) as db:
+        for row in db.scalars(select(Entry)):
+            row.budget += 100
+        db.commit()
+    updated = client.get("/api/forecast/budget").json()
+    assert updated["presupuesto_estimado"] == 1700
+
+
+def test_complementary_imports_sum_distinct_parts_in_the_same_month(client):
+    first = history()
+    second = history([100] * 6)
+    for row in second:
+        row.source_id += "-other"
+        row.concept = "Otro servicio"
+    seed(first, filename="servicio-a.csv")
+    seed(second, filename="servicio-b.csv")
+    data = client.get("/api/forecast/budget").json()
+    assert data["presupuesto_estimado"] == 1700
+    assert data["presupuesto_actual"] == 1600
+    assert data["importaciones_analizadas"] == 2
+    assert data["registros_analizados"] == 12
+
+
+def test_duplicate_identity_is_global_not_per_import():
+    rows = history()
+    duplicate = copy(rows[0])
+    duplicate.batch_id = 42
+    result = predict_budget(rows + [duplicate], currency="MXN")
+    assert result["presupuesto_estimado"] == 1600
+    assert result["registros_analizados"] == 6
+    duplicate.budget += 1
+    assert (
+        predict_budget(rows + [duplicate], currency="MXN")["codigo"]
+        == "datos_invalidos"
+    )
+
+
+def test_forecast_filters_currency_and_category_over_all_imports(client):
+    seed(history()[:3], filename="a.csv")
+    seed(history()[3:], filename="b.csv")
+    others = history([5000] * 6, currency="USD")
+    seed(others, filename="usd.csv")
+    extras = history([100] * 6)
+    for row in extras:
+        row.source_id += "-extra"
+        row.category = "Licencias"
+    seed(extras, filename="licencias.csv")
+    data = client.get("/api/forecast/budget?category=Servicios&currency=MXN").json()
+    assert data["presupuesto_estimado"] == 1600
+    assert data["importaciones_analizadas"] == 2
+    assert (
+        client.get("/api/forecast/budget?currency=USD").json()["presupuesto_estimado"]
+        == 5000
+    )
+    assert (
+        client.get("/api/forecast/budget?currency=MXN").json()["presupuesto_estimado"]
+        == 1700
+    )
+
+
+def test_forecast_contract_has_no_import_selector(client):
+    parameters = client.get("/openapi.json").json()["paths"]["/api/forecast/budget"][
+        "get"
+    ]["parameters"]
+    assert {p["name"] for p in parameters} == {"currency", "category", "period"}

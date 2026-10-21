@@ -1,4 +1,4 @@
-"""Pronóstico local de presupuestos de egresos, aislado por importación.
+"""Pronóstico local sobre el histórico de egresos persistido en la base de datos.
 
 Estado completado y cobertura homogénea son criterios de elegibilidad, no un
 cierre contable certificado. Nunca se utiliza el importe real como objetivo.
@@ -9,14 +9,14 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from math import isfinite
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Response
+from fastapi import APIRouter, Query, Response
 from pydantic import BaseModel, Field
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 from sqlalchemy import select
 
 from .database import DB
-from .models import Entry, ImportBatch
+from .models import Entry
 from .security import Financial
 
 MIN_MONTHS = 6
@@ -39,11 +39,6 @@ class Evaluation(BaseModel):
     metodo: str = "Origen móvil: hasta tres cortes, entrenando solo con el pasado"
 
 
-class Dataset(BaseModel):
-    id: int
-    nombre: str
-
-
 class BudgetForecastResponse(BaseModel):
     disponible: bool = False
     codigo: str = "sin_datos"
@@ -58,8 +53,9 @@ class BudgetForecastResponse(BaseModel):
     minimo_meses: int = MIN_MONTHS
     moneda: str
     naturaleza: str = "egresos"
-    batch_id: int | None = None
-    conjuntos_disponibles: list[Dataset] = Field(default_factory=list)
+    origen: str = "base_de_datos"
+    registros_analizados: int = 0
+    importaciones_analizadas: int = 0
     historial: list[HistoryPoint] = Field(default_factory=list)
     evaluacion: Evaluation | None = None
     ajuste_no_negativo: bool = False
@@ -84,7 +80,7 @@ def rounded(value):
 
 
 def predict_budget(records, *, currency, category=None, period=None):
-    """Función sin acceso a DB. Admite exactamente una importación por serie."""
+    """Agrupa las partidas persistidas de todas las importaciones del espacio financiero."""
     result = BudgetForecastResponse(moneda=currency, periodo_base=period).model_dump()
 
     def unavailable(code, message):
@@ -104,11 +100,6 @@ def predict_budget(records, *, currency, category=None, period=None):
         return unavailable(
             "sin_datos", "No hay presupuestos de egresos para estos filtros."
         )
-    if len({row.batch_id for row in selected}) != 1:
-        return unavailable(
-            "conjuntos_distintos", "No se pueden mezclar distintas importaciones."
-        )
-    result["batch_id"] = selected[0].batch_id
     base = (
         cutoff
         if cutoff is not None
@@ -133,7 +124,7 @@ def predict_budget(records, *, currency, category=None, period=None):
             if not amount.is_finite() or amount < 0 or not isfinite(float(amount)):
                 raise ValueError("Importe inválido")
             # The same persisted source row is counted once, never per join occurrence.
-            key = (row.batch_id, row.year, row.source_id, row.currency)
+            key = (row.year, row.source_id, row.currency)
             fingerprint = (
                 row.month,
                 row.category,
@@ -165,10 +156,14 @@ def predict_budget(records, *, currency, category=None, period=None):
         )
 
     result["meses_analizados"] = len(groups)
+    result["registros_analizados"] = len(seen)
+    result["importaciones_analizadas"] = len(
+        {row.batch_id for rows in groups.values() for row in rows}
+    )
     if base not in groups:
         return unavailable(
             "sin_mes_base",
-            "No hay partidas en el mes seleccionado para esta importación.",
+            "No hay partidas almacenadas en el mes seleccionado para estos filtros.",
         )
     if not all(point["completo"] for point in result["historial"]):
         return unavailable(
@@ -285,7 +280,6 @@ def budget_forecast(
     period: Annotated[
         str | None, Query(pattern=r"^(19\d{2}|[2-9]\d{3})-(0[1-9]|1[0-2])$")
     ] = None,
-    batch_id: Annotated[int | None, Query(gt=0)] = None,
 ):
     response.headers["Cache-Control"] = "no-store"
     query = select(Entry).where(Entry.currency == currency, Entry.nature == "expense")
@@ -293,32 +287,15 @@ def budget_forecast(
         query = query.where(Entry.category == category)
     if period:
         query = query.where(Entry.year * 12 + Entry.month - 1 <= month_number(period))
-    if batch_id is not None and db.get(ImportBatch, batch_id) is None:
-        raise HTTPException(404, "La importación solicitada no existe.")
-    batches = db.scalars(
-        select(ImportBatch)
-        .where(ImportBatch.id.in_(query.with_only_columns(Entry.batch_id)))
-        .order_by(ImportBatch.id)
-    ).all()
-    datasets = [dict(id=batch.id, nombre=batch.filename) for batch in batches]
-    if batch_id is None and len(batches) > 1:
-        return BudgetForecastResponse(
-            moneda=currency,
-            codigo="seleccion_requerida",
-            mensaje="Selecciona una importación para no mezclar conjuntos de datos.",
-            periodo_base=period,
-            conjuntos_disponibles=datasets,
-        )
-    chosen = batch_id if batch_id is not None else batches[0].id if batches else None
-    rows = (
-        db.scalars(
-            query.where(Entry.batch_id == chosen).order_by(
-                Entry.year, Entry.month, Entry.id
-            )
-        ).all()
-        if chosen is not None
-        else []
+    # batch_id preserves upload provenance, not the identity of a budget series.
+    # Read committed entries only: prediction never opens or parses an uploaded file.
+    latest = db.scalar(
+        query.with_only_columns(Entry.year * 12 + Entry.month - 1)
+        .order_by((Entry.year * 12 + Entry.month - 1).desc())
+        .limit(1)
     )
-    result = predict_budget(rows, currency=currency, category=category, period=period)
-    result.update(batch_id=chosen, conjuntos_disponibles=datasets)
-    return result
+    base = month_number(period) if period else latest
+    if base is not None:
+        query = query.where(Entry.year * 12 + Entry.month - 1 >= base - MAX_MONTHS + 1)
+    rows = db.scalars(query.order_by(Entry.year, Entry.month, Entry.id)).all()
+    return predict_budget(rows, currency=currency, category=category, period=period)
