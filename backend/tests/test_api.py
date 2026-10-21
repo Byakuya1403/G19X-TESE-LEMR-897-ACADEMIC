@@ -3,7 +3,11 @@ import tempfile
 from pathlib import Path
 os.environ["DATABASE_URL"] = "sqlite:///" + str(Path(tempfile.mkdtemp())/"test.db")
 from fastapi.testclient import TestClient
-from app.main import app, Base, engine, User, LoginSession, hash_password, login_attempts
+from app.main import app
+from app.database import Base, engine
+from app.models import User, LoginSession
+from app.security import hash_password
+from app.routers.auth import login_attempts
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import pytest
@@ -193,7 +197,7 @@ def activate_payload(token, **extra):
     return dict(token=token, password='MiContraseñaPersonal2026', confirmation='MiContraseñaPersonal2026', **extra)
 
 def test_email_invitation_activation_and_single_use(invitation_client):
-    from app.main import UserEmail, UserInvitation
+    from app.models import UserEmail, UserInvitation
     import hashlib
     c = invitation_client
     token = invitation(c, '  Persona@GMAIL.com ')
@@ -219,7 +223,7 @@ def test_email_invitation_activation_and_single_use(invitation_client):
     assert c.get('/api/users').status_code==403
 
 def test_invitation_expiry_resend_and_password_policy(invitation_client):
-    from app.main import UserInvitation
+    from app.models import UserInvitation
     c=invitation_client
     old=invitation(c)
     user=next(u for u in c.get('/api/users').json() if u['email']=='persona@gmail.com')
@@ -354,7 +358,7 @@ def test_delete_active_user_revokes_sessions_preserves_financial_data(client):
     assert client.get('/api/auth/me').json() is None
 
 def test_delete_pending_invitation_and_reinvite(invitation_client):
-    from app.main import UserEmail,UserInvitation
+    from app.models import UserEmail,UserInvitation
     c=invitation_client;token=invitation(c)
     target=next(u['id'] for u in c.get('/api/users').json() if u['email']=='persona@gmail.com')
     assert c.delete(f'/api/users/{target}').status_code==200
@@ -371,3 +375,14 @@ def test_delete_other_admin_keeps_current_admin(client):
     assert client.delete(f'/api/users/{target}').status_code==200
     assert client.get('/api/auth/me').json()['username']=='admin'
     assert len([u for u in client.get('/api/users').json() if u['role']=='admin' and u['active']])==1
+
+
+def test_legacy_routes_are_deprecated_without_deprecating_current_api(client):
+    paths = client.get('/openapi.json').json()['paths']
+    for path, method in [('/api/budgets','get'),('/api/budgets','post'),
+                         ('/api/dashboard','get'),('/api/simulations','post'),
+                         ('/api/imports/csv','post')]:
+        assert paths[path][method]['deprecated'] is True
+    for path, method in [('/api/auth/login','post'),('/api/users','get'),
+                         ('/api/financial/dashboard','get'),('/api/financial/simulations','post')]:
+        assert not paths[path][method].get('deprecated', False)

@@ -4,15 +4,28 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
-## Sin publicar
+## v0.12 — Backend por responsabilidades
 
-### Documentación
+### Cambios
 
-- README reescrito como documento del proyecto: problema, funciones, arquitectura, instalación, configuración, uso, roles, API y mantenimiento.
-- Instalación desde GitHub mediante clonación, en lugar de instrucciones para descomprimir una entrega.
-- Historial de versiones y notas de migración separados en este archivo.
-- Endpoints documentados a partir del código actual, incluidos los de compatibilidad.
-- Sin cambios en el frontend, backend ni esquema de datos en esta actualización documental.
+- `main.py` reducido a composición de FastAPI, ciclo de vida, middleware y registro de routers.
+- Conexión y sesiones en `database.py`; los siete modelos persistentes en `models.py`; contratos de entrada en `schemas.py`; contraseñas y autorización en `security.py`.
+- Rutas agrupadas en `routers/auth.py`, `routers/users.py`, `routers/system.py` y `routers/legacy.py`.
+- Finanzas e invitaciones usan `APIRouter` con dependencias compartidas, sin funciones de instalación ni modelos definidos dentro del registro de rutas.
+- Cinco operaciones del formato anterior marcadas `deprecated` en OpenAPI y conservadas para compatibilidad. No se cambia su autorización ni su comportamiento.
+- Backend formateado en bloques legibles. Actualizados los imports de la creación del administrador y las pruebas.
+- README y documentación de arquitectura actualizados. Se mantienen sus instrucciones de clonación y el historial separado de v0.7 a v0.11.
+
+### Actualización y verificación
+
+No hay cambios de esquema ni credenciales. Conservar `.env`, base y volumen; actualizar el código y reconstruir con `docker compose up -d --build`. No ejecutar SQL adicional ni volver a importar el CSV.
+
+Verificación: 22 pruebas API con SQLite; contrato OpenAPI de 23 operaciones equivalente al anterior salvo versión, etiquetas y deprecación; DDL PostgreSQL de las siete tablas idéntico. Funciones de seguridad equivalentes por comparación de AST y creación del administrador inicial comprobada. Se conservan validación, cookies, hashes, permisos y separación entre demostración y datos reales. Compilación y formato del frontend comprobados; solo cambió su indicador de versión. No hubo pruebas Docker/PostgreSQL de ejecución o concurrencia ni revisión visual en navegador.
+
+### Documentación integrada
+
+- README reescrito como documento del proyecto, con instalación mediante GitHub, problema, arquitectura, configuración, uso, roles y los 23 endpoints.
+- Notas de las entregas anteriores y migraciones trasladadas a CHANGELOG.md. La actualización documental previa no modificó código ni esquema.
 
 ## v0.11 — Organización del frontend
 

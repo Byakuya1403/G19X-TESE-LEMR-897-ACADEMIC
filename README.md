@@ -44,7 +44,12 @@ En desarrollo sin contenedores, Vite sirve la interfaz en el puerto 5173 y redir
 | [frontend/src/Simulation.jsx](frontend/src/Simulation.jsx) | Simulación de escenarios |
 | [frontend/src/Users.jsx](frontend/src/Users.jsx) | Invitación y eliminación de cuentas |
 | [frontend/src/Activation.jsx](frontend/src/Activation.jsx) | Creación de contraseña mediante invitación |
-| [backend/app/main.py](backend/app/main.py) | Aplicación, modelos de cuentas, sesiones y endpoints de compatibilidad |
+| [backend/app/main.py](backend/app/main.py) | Composición de la aplicación, middleware y registro de routers |
+| [backend/app/database.py](backend/app/database.py) | Base declarativa, conexión y dependencia de sesión SQLAlchemy |
+| [backend/app/models.py](backend/app/models.py) | Los siete modelos persistentes, sin cambios de esquema |
+| [backend/app/schemas.py](backend/app/schemas.py) | Contratos de entrada de sesión, cuentas y formato anterior |
+| [backend/app/security.py](backend/app/security.py) | Hash de contraseñas, sesión actual y autorización por roles |
+| [backend/app/routers](backend/app/routers) | Rutas de autenticación, usuarios, estado y compatibilidad |
 | [backend/app/financial.py](backend/app/financial.py) | Importaciones por partidas, indicadores y proyección |
 | [backend/app/invitations.py](backend/app/invitations.py) | Envío, caducidad, reenvío y activación de invitaciones |
 | [backend/tests/test_api.py](backend/tests/test_api.py) | Pruebas de la API |
@@ -258,7 +263,7 @@ El JSON de simulación requiere `period` y `currency`; acepta `department` como 
 
 ### Formato anterior: compatibilidad
 
-Estos endpoints operan sobre `budgets`, con campos `department`, `period`, `amount`, `payroll` y `operating`. Sus registros no se mezclan con las partidas del CSV actual.
+Estos endpoints están aislados en `backend/app/routers/legacy.py` y marcados como obsoletos (`deprecated`) en OpenAPI. Se conservan para no romper clientes existentes, sin fecha de retirada definida. La interfaz actual consulta `/api/financial/*`. Los endpoints anteriores operan sobre `budgets`, con campos `department`, `period`, `amount`, `payroll` y `operating`. Sus registros no se mezclan con las partidas del CSV actual.
 
 | Método | Endpoint | Acceso | Función |
 | --- | --- | --- | --- |
