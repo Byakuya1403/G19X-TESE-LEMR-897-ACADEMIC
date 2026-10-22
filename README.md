@@ -2,7 +2,7 @@
 
 Aplicación para comparar el presupuesto estimado con los ingresos y egresos reales de una empresa a partir de archivos CSV. Centraliza las partidas por mes, categoría y moneda, señala desviaciones y permite explorar escenarios de gasto sin modificar los datos originales.
 
-El proyecto utiliza **React, Python, FastAPI y PostgreSQL**. Power BI Embedded forma parte de la integración prevista y todavía no está configurado. El historial de cambios y las notas de actualización están en [CHANGELOG.md](CHANGELOG.md).
+El proyecto utiliza **React, Python, FastAPI y PostgreSQL**. **Power BI Embedded queda fuera del alcance de esta entrega por la limitación de tiempo disponible.** Su integración podrá evaluarse en una fase posterior. El historial de cambios y las notas de actualización están en [CHANGELOG.md](CHANGELOG.md).
 
 ## Desarrollo asistido por IA
 
@@ -174,8 +174,8 @@ La plataforma puede enviar correo aunque se ejecute localmente. Sin embargo, un 
 | --- | --- | --- |
 | Visitante, sin sesión | Resumen con datos de demostración | Abrir el inicio de sesión |
 | Administrador (`admin`) | Resumen de demostración y cuentas | Invitar, reenviar invitaciones y eliminar otros usuarios |
-| Analista Financiero (`analyst`) | Datos reales, partidas, simulación y estado de Power BI | Validar e importar CSV y calcular escenarios |
-| Director Financiero (`director`) | Datos reales, partidas, simulación y estado de Power BI | Calcular escenarios; no importa CSV desde la interfaz |
+| Analista Financiero (`analyst`) | Datos reales, partidas y simulación | Validar e importar CSV y calcular escenarios |
+| Director Financiero (`director`) | Datos reales, partidas y simulación | Calcular escenarios; no importa CSV desde la interfaz |
 
 El rol administrativo no habilita por sí mismo el acceso a datos financieros reales. Los permisos se comprueban en el servidor. Los endpoints disponibles se detallan en la sección de API.
 
@@ -332,7 +332,7 @@ La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_
 | Método | Endpoint | Acceso | Función |
 | --- | --- | --- | --- |
 | GET | `/api/health` | Público | Estado de la API |
-| GET | `/api/powerbi/status` | Público | Informa que Power BI no está configurado |
+| GET | `/api/powerbi/status` | Público | Marcador informativo de una integración fuera del alcance de esta entrega; no ofrece reportes |
 
 ### API financiera vigente
 
@@ -424,7 +424,9 @@ Si un servicio falla, revisa `docker compose ps` y `docker compose logs backend 
 
 ## Alcance actual
 
-Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La interfaz utiliza el pronóstico de presupuesto por regresión lineal con evaluación temporal cuando la serie es elegible. El dashboard financiero ya no devuelve `prediction`; el frontend consulta exclusivamente `/api/forecast/budget` para obtener el pronóstico. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
+**Power BI Embedded está fuera del alcance de esta entrega debido al tiempo disponible.** No se incluye la creación, publicación ni incrustación de reportes, la configuración de Microsoft Entra, licencias, capacidad o actualización mediante gateway. La pestaña Power BI y el endpoint `/api/powerbi/status` existentes son marcadores informativos y no constituyen una integración operativa. Las vistas SQL se conservan como base para una posible integración futura.
+
+La recuperación de contraseñas, la asociación de correos a cuentas anteriores, la auditoría completa y el cierre/aprobación mensual permanecen pendientes. La interfaz utiliza el pronóstico de presupuesto por regresión lineal con evaluación temporal cuando la serie es elegible. El dashboard financiero ya no devuelve `prediction`; el frontend consulta exclusivamente `/api/forecast/budget` para obtener el pronóstico. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
 
 La publicación para usuarios remotos requiere una configuración de HTTPS, acceso de red y correo distinta de la instalación local incluida. Los límites de intentos son por proceso y requieren almacenamiento compartido antes de escalar a varios servidores.
 
