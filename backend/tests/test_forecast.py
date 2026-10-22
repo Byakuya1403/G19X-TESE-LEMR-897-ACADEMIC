@@ -1,5 +1,6 @@
 """All generated histories in this file are test fixtures, never demo API data."""
 
+import hashlib
 from copy import copy
 from decimal import Decimal
 from types import SimpleNamespace
@@ -40,7 +41,7 @@ def history(values=None, *, start=(2026, 1), batch_id=1, currency="MXN"):
 def seed(rows, filename="historia-prueba.csv"):
     with Session(engine) as db:
         batch = ImportBatch(
-            sha256=f"test-hash-{filename}",
+            sha256=hashlib.sha256(filename.encode()).hexdigest(),
             filename=filename,
             currency=rows[0].currency,
             username="analista",
@@ -132,14 +133,12 @@ def test_insufficient_history_has_no_invented_estimate(length):
     assert result["evaluacion"] is None
 
 
-def test_gaps_coverage_and_missing_base_are_rejected():
+def test_gaps_and_missing_base_are_rejected():
     rows = history()
     assert (
         predict_budget(rows[:2] + rows[3:], currency="MXN")["codigo"]
         == "meses_faltantes"
     )
-    rows[1].concept = "Concepto distinto"
-    assert predict_budget(rows, currency="MXN")["codigo"] == "cobertura_variable"
     assert (
         predict_budget(history(), currency="MXN", period="2026-07")["codigo"]
         == "sin_mes_base"
@@ -468,3 +467,65 @@ def test_pending_csv_import_uses_assigned_budgets_not_unknown_actuals(client):
     assert data["importaciones_analizadas"] == 6
     with Session(engine) as db:
         assert all(row.actual is None for row in db.scalars(select(Entry)).all())
+
+
+def test_varying_concepts_categories_and_part_counts_do_not_block_monthly_totals():
+    rows = history()
+    for index, row in enumerate(rows):
+        row.concept = f"Servicio del mes {index + 1}"
+    # Split an already-known month's budget across two legitimate parts.
+    extra = copy(rows[2])
+    extra.source_id += "-extra"
+    extra.category = "Nueva categoría"
+    extra.budget = Decimal(100)
+    rows[2].budget -= 100
+    result = predict_budget(rows + [extra], currency="MXN")
+    assert result["disponible"]
+    assert result["presupuesto_estimado"] == 1600
+    assert result["composicion_variable"]
+    assert any("composición" in warning for warning in result["advertencias"])
+    assert result["evaluacion"]["mae"] == 0
+
+
+def test_varying_composition_still_rejects_poor_temporal_evaluation():
+    rows = history([100, 1000, 100, 1000, 100, 1000])
+    for i, row in enumerate(rows):
+        row.concept += str(i)
+    result = predict_budget(rows, currency="MXN")
+    assert result["codigo"] == "error_elevado"
+    assert result["presupuesto_estimado"] is None
+
+
+def test_forecast_recomputes_after_import_deletion(client):
+    first = seed(history()[:3], filename="a.csv")
+    seed(history()[3:], filename="b.csv")
+    assert client.get("/api/forecast/budget").json()["presupuesto_estimado"] == 1600
+    client.post(
+        "/api/auth/login",
+        json={"username": "analista", "password": "UnaClaveSegura2026"},
+    )
+    fingerprint = next(
+        item["sha256"]
+        for item in client.get("/api/financial/imports").json()["items"]
+        if item["id"] == first
+    )
+    response = client.request(
+        "DELETE",
+        f"/api/financial/imports/{first}",
+        json={"confirmation": f"ELIMINAR {first}", "sha256": fingerprint},
+    )
+    assert response.status_code == 200 and response.json()["deleted_entries"] == 3
+    reduced = client.get("/api/forecast/budget").json()
+    assert reduced["codigo"] == "historico_insuficiente"
+    assert reduced["meses_analizados"] == 3
+    assert reduced["presupuesto_estimado"] is None
+
+
+def test_endpoint_forecasts_variable_composition_in_persisted_history(client):
+    rows = history()
+    for i, row in enumerate(rows):
+        row.concept = f"Descripción mensual {i}"
+    seed(rows)
+    result = client.get("/api/forecast/budget").json()
+    assert result["disponible"] and result["presupuesto_estimado"] == 1600
+    assert result["composicion_variable"]

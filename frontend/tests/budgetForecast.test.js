@@ -11,7 +11,7 @@ let Summary;
 before(async () => {
   server = await createServer({
     optimizeDeps: { noDiscovery: true, include: [] },
-    server: { middlewareMode: true },
+    server: { middlewareMode: true, hmr: false },
     appType: 'custom',
   });
   View = (await server.ssrLoadModule('/src/components/BudgetForecast.jsx')).BudgetForecastView;
@@ -186,4 +186,15 @@ test('pending execution shows registered budget history and an available predict
   assert.ok(html.includes('trend-projected'));
   assert.ok(html.includes('Presupuesto registrado · ejecución pendiente'));
   assert.ok(!html.includes('Predicción no disponible') && !html.includes('trend-pending'));
+});
+
+test('changing budget composition is shown as a warning without hiding a valid estimate', () => {
+  const html = render({
+    result: result({
+      composicion_variable: true,
+      advertencias: ['La composición de las partidas cambia entre meses.'],
+    }),
+  });
+  assert.ok(html.includes('$1,600.00') && html.includes('trend-projected'));
+  assert.ok(html.includes('La composición de las partidas cambia entre meses.'));
 });

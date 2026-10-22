@@ -1,7 +1,7 @@
 """Pronóstico local sobre el histórico de egresos persistido en la base de datos.
 
-La cobertura homogénea es un criterio de elegibilidad, no un cierre contable
-certificado. El estado de ejecución no determina si el presupuesto es conocido.
+La composición mensual se informa como advertencia, no como certificado
+de cierre contable. El estado de ejecución no determina si el presupuesto es conocido.
 """
 
 from collections import Counter, defaultdict
@@ -62,6 +62,7 @@ class BudgetForecastResponse(BaseModel):
     evaluacion: Evaluation | None = None
     ajuste_no_negativo: bool = False
     advertencias: list[str] = Field(default_factory=list)
+    composicion_variable: bool = False
 
 
 def month_number(period):
@@ -178,14 +179,16 @@ def predict_budget(records, *, currency, category=None, period=None):
         Counter((row.category, row.subcategory, row.concept) for row in groups[number])
         for number in numbers
     ]
-    if any(signature != coverage[0] for signature in coverage[1:]):
-        return unavailable(
-            "cobertura_variable",
-            "Las partidas incluidas cambian entre meses. Se requiere un histórico comparable.",
+    result["composicion_variable"] = any(
+        signature != coverage[0] for signature in coverage[1:]
+    )
+    if result["composicion_variable"]:
+        result["advertencias"].append(
+            "La composición de las partidas cambia entre meses. Se modela el presupuesto total registrado; verifica que las cargas cubran el mismo ámbito financiero y que no falten partidas."
         )
     result["presupuesto_actual"] = result["historial"][-1]["presupuesto"]
     result["advertencias"].append(
-        "La cobertura homogénea no certifica el cierre contable del mes."
+        "La existencia de partidas no certifica que el presupuesto mensual esté cerrado o completo."
     )
     if not all(point["ejecucion_completada"] for point in result["historial"]):
         result["advertencias"].append(
@@ -194,7 +197,7 @@ def predict_budget(records, *, currency, category=None, period=None):
     if len(numbers) < MIN_MONTHS:
         return unavailable(
             "historico_insuficiente",
-            f"Se necesitan al menos {MIN_MONTHS} meses consecutivos y comparables; hay {len(numbers)}.",
+            f"Se necesitan al menos {MIN_MONTHS} meses consecutivos de presupuestos; hay {len(numbers)}.",
         )
 
     x = [[number - numbers[0]] for number in numbers]

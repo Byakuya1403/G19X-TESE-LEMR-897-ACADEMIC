@@ -4,6 +4,26 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.17 — Composición variable y retirada de importaciones
+
+### Corregido
+
+- La igualdad literal de conceptos, categorías y número de partidas deja de ser condición de entrenamiento. Un presupuesto total mensual puede cambiar de composición: ahora se informa con `composicion_variable` y una advertencia de alcance/integridad.
+- Se mantienen al menos seis meses consecutivos, ventana de 24 meses, separación de moneda/categoría, deduplicación, importes válidos y evaluación temporal MAE frente a referencia. El cambio corrige el bloqueo `cobertura_variable` observado en Resumen, sin garantizar una cifra si la serie no supera los demás controles.
+
+### Añadido
+
+- `backend/app/imports.py`: `GET /api/financial/imports` paginado y `DELETE /api/financial/imports/{batch_id}`. Solo Analista, utilizando el permiso existente; sesión, `X-App: 1` para DELETE y confirmación exacta `ELIMINAR N` y huella del archivo validadas en el servidor.
+- Componente `ImportHistory` en Importaciones: ID, archivo, moneda, periodos, número de partidas, autor, paginación y diálogo con código escrito, cancelación y bloqueo durante la operación.
+- Borrado de la carga y sus partidas en una transacción, con bloqueo de fila PostgreSQL y rollback ante errores. Se conservan las otras cargas; se permite reimportar el archivo eliminado o su versión corregida si sus claves no colisionan con otros datos.
+- Actualización del listado y datos financieros después de eliminar. El forecast utiliza el histórico restante y puede quedar sin información suficiente. No hay restauración desde la interfaz.
+
+### Actualización y verificación
+
+66 pruebas de backend con SQLite y 13 de frontend correctas; compilación y formato correctos. Casos de composición variable, evaluación deficiente, permisos, confirmación ausente/incorrecta, archivos con nombres iguales, eliminación aislada, rollback, última carga, reimportación, paginación y recálculo del forecast tras borrar.
+
+No se agregan dependencias ni cambios de tablas. Conservar `.env` y volumen, actualizar código y ejecutar `docker compose up -d --build`. No reimportar archivos existentes para actualizar. Docker/PostgreSQL, concurrencia entre procesos y revisión visual con navegador quedan pendientes en el entorno de despliegue. La plataforma no deduce cierre mensual, integridad total de una carga ni empresas independientes a partir del contenido.
+
 ## v0.16 — Presupuesto conocido con ejecución pendiente
 
 ### Corregido

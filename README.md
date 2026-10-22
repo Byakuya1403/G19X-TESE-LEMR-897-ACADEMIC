@@ -211,6 +211,16 @@ Reglas de interpretación:
 
 La varianza recibida debe coincidir con presupuesto menos gasto real; los porcentajes se validan contra los importes. La plataforma recalcula esos valores al consultar y conserva la fila original como JSON. No se admiten XLSX, movimientos contables arbitrarios ni mapeo automático entre formatos.
 
+### Eliminar una carga incorrecta
+
+En **Importaciones → Importaciones guardadas**, el analista ve las cargas del espacio financiero compartido, con ID, nombre, moneda, periodos, número de partidas y usuario que las importó. El listado se pagina de 25 en 25 y permite actualizarlo. La gestión corresponde al rol que ya puede importar; director, administrador y visitante no reciben este permiso.
+
+Pulsa **Eliminar carga**, comprueba el ID y los datos del archivo, escribe `ELIMINAR N` (N es su ID) y pulsa **Eliminar definitivamente**. Cancelar o cerrar el diálogo no envía una eliminación. El backend también valida la confirmación exacta, la sesión, el rol, `X-App: 1` y la huella `sha256` de la carga seleccionada; no depende solo del botón deshabilitado.
+
+Se borran la fila de `financial_imports` y sus `financial_entries` dentro de una transacción, bloqueando la carga durante la eliminación en PostgreSQL. Una excepción revierte toda la operación. Los demás archivos y sus partidas se conservan. No hay restauración desde la interfaz; conserva tu archivo fuente si necesitas volver a cargarlo.
+
+Al terminar se actualizan listado y datos financieros. El forecast se vuelve a calcular con las partidas restantes; si quedan pocos meses o huecos puede pasar a no disponible. El filtro de periodo puede seguir apuntando a un mes que quedó vacío: selecciona otro periodo o importa el definitivo. Al retirar la carga se liberan su hash y sus claves de origen, por lo que puedes importar el archivo corregido sin los conflictos de esa carga eliminada; las claves que pertenezcan a otras cargas siguen protegidas.
+
 ### Consultar resultados
 
 **Resumen** muestra únicamente el mes seleccionado, sus categorías, cuatro indicadores de ingresos/egresos presupuestados y reales, resultado del periodo y alertas. **Presupuestos** contiene el detalle por concepto. Los filtros de categoría y moneda acotan la consulta; no se suman monedas diferentes. Si hay partidas pendientes, el total real del grupo se muestra pendiente y se informa por separado lo conocido.
@@ -227,11 +237,13 @@ Esta sección adicional de **Resumen** predice el **presupuesto de egresos asign
 
 Todas las importaciones de esta instalación aportan al mismo espacio financiero, como ya ocurre en los indicadores de Resumen. `batch_id` identifica la procedencia de una fila y no separa series del modelo. Puedes cargar enero en un archivo y febrero en otro, o repartir partidas del mismo mes entre archivos: se suman los presupuestos de las partidas distintas, se ordenan por año/mes y se aplican los filtros actuales. No existe selector de CSV ni parámetro `batch_id` en el forecast.
 
-La clave existente `año + ID_Registro + moneda` evita repetir partidas; el hash evita importar de nuevo el mismo archivo. Un conflicto rechaza toda la nueva carga, sin sobrescribir datos ni insertar filas parciales. Los ID deben identificar establemente cada partida y ser distintos para partidas legítimamente diferentes dentro del mismo año/moneda, incluso entre archivos. No reinicies la numeración por archivo ni cambies ID para volver a cargar una partida existente: un duplicado con otro ID no se puede reconocer con certeza. Las revisiones de partidas existentes no son una función de esta entrega.
+La clave existente `año + ID_Registro + moneda` evita repetir partidas; el hash evita importar de nuevo el mismo archivo. Un conflicto rechaza toda la nueva carga, sin sobrescribir datos ni insertar filas parciales. Los ID deben identificar establemente cada partida y ser distintos para partidas legítimamente diferentes dentro del mismo año/moneda, incluso entre archivos. No reinicies la numeración por archivo ni cambies ID para volver a cargar una partida existente: un duplicado con otro ID no se puede reconocer con certeza. Para corregir una carga completa, elimínala desde Importaciones y luego importa el archivo definitivo. No se editan ni sobrescriben filas de forma individual.
 
 El modelo actual no tiene entidad empresa o unidad contable: esta acumulación es para **un mismo espacio financiero**, no una separación automática de empresas. No cargues presupuestos de empresas independientes en una instalación esperando que el nombre del archivo las separe. Los filtros siguen separando monedas y categorías, y los ingresos no se mezclan con egresos. No se crean tablas ni se requiere migración SQL.
 
-**Requisitos de los datos.** Se requieren al menos seis meses consecutivos y se analizan como máximo los últimos 24 meses hasta el periodo base. Las partidas de egresos deben tener presupuestos válidos y la misma cobertura mensual: categoría, subcategoría, concepto y cantidad de partidas por combinación. Los ID de registro pueden variar entre meses. Son condiciones conservadoras para reducir cambios de cobertura y meses parciales; **no certifican un cierre contable**, porque ese dato no existe en el modelo actual. **`Estado=Pendiente` y `Gasto_Real=NULL` no bloquean el forecast:** describen la ejecución del gasto, mientras que el presupuesto asignado ya está registrado. Se utiliza ese presupuesto sin inventar ni completar el gasto real. La comparación se realiza contra el presupuesto asignado del mes base.
+**Requisitos de los datos.** Se requieren al menos seis meses consecutivos con importes de presupuesto válidos y se analizan como máximo los últimos 24 meses hasta el periodo base. El modelo aprende la suma mensual de egresos. Los conceptos, las categorías y el número de partidas pueden variar: no se exige que coincidan literalmente entre meses. Si cambia la composición se devuelve `composicion_variable=true` y una advertencia para comprobar el ámbito y la integridad de las cargas, sin bloquear automáticamente el cálculo. El cambio de composición puede ser legítimo o deberse a un archivo incompleto; la plataforma no puede distinguirlo de forma concluyente con los campos actuales. Las partidas registradas no certifican un cierre mensual.
+
+**`Estado=Pendiente` y `Gasto_Real=NULL` no bloquean el forecast:** describen la ejecución del gasto, mientras que el presupuesto asignado ya está registrado. Se utiliza ese presupuesto sin inventar ni completar el gasto real. La comparación se realiza contra el presupuesto asignado del mes base. La continuidad mensual, los importes válidos y la evaluación temporal siguen siendo requisitos; no se fuerza una estimación cuando el modelo falla esos controles.
 
 No se rellenan meses ausentes con ceros. Se cuenta una sola vez la misma fila de origen; un duplicado con valores inconsistentes invalida la serie. No se usan la tabla histórica `budgets`, datos de demostración ni servicios externos. El CSV de ejemplo tiene solo tres meses: permite verificar el mensaje de histórico insuficiente. Sus gastos pendientes no son un motivo de exclusión del forecast. No se agregan datos de prueba a la plataforma para producir una cifra.
 
@@ -241,7 +253,7 @@ El criterio de publicación actual rechaza una regresión cuyo MAE supere al de 
 
 Se redondean importes a dos decimales. Una salida no finita se rechaza; una tendencia negativa se limita a cero y se informa explícitamente. Si el presupuesto base es cero, la variación porcentual se devuelve como `null`, sin división por cero. El presupuesto base mostrado corresponde al último mes elegible del intervalo, que debe coincidir con el periodo seleccionado.
 
-**Gráfica y actualización.** La gráfica SVG añade histórico registrado y un segmento discontinuo con rombo para la estimación. Incluye títulos con valores exactos, leyenda y tabla accesible; con una serie no elegible solo muestra registros existentes. No había biblioteca de gráficas en el proyecto, por lo que no se añadió otra dependencia de frontend. El servidor consulta y entrena con los datos persistidos en cada petición, sin caché de predicciones. La sección vuelve a consultar al cambiar filtros, actualizar los datos de Resumen después de confirmar nuevas cargas; las respuestas anteriores canceladas no sustituyen una selección nueva.
+**Gráfica y actualización.** La gráfica SVG añade histórico registrado y un segmento discontinuo con rombo para la estimación. Incluye títulos con valores exactos, leyenda y tabla accesible; con una serie no elegible solo muestra registros existentes. No había biblioteca de gráficas en el proyecto, por lo que no se añadió otra dependencia de frontend. El servidor consulta y entrena con los datos persistidos en cada petición, sin caché de predicciones. La sección vuelve a consultar al cambiar filtros o actualizar los datos de Resumen después de importar o eliminar cargas; las respuestas anteriores canceladas no sustituyen una selección nueva.
 
 **Referencia técnica:** [LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html), [MAE](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) y [evaluación de series temporales](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-split), documentación oficial de scikit-learn.
 
@@ -279,6 +291,8 @@ Consulta los detalles de parámetros y esquemas disponibles en [Swagger UI](http
 | --- | --- | --- | --- |
 | POST | `/api/financial/imports/preview` | Analista | Previsualiza multipart con `file` y `repair_shifted` opcional |
 | POST | `/api/financial/imports/csv` | Analista | Importa multipart con `file`, `currency` y `repair_shifted` opcional |
+| GET | `/api/financial/imports` | Analista | Lista cargas por ID descendente, con `limit` (1–100, 25 por defecto) y `offset` (desde 0) |
+| DELETE | `/api/financial/imports/{batch_id}` | Analista | Elimina una carga y sus partidas; requiere JSON `confirmation` con el texto exacto `ELIMINAR {batch_id}` y `sha256` recibido en el listado |
 | GET | `/api/financial/entries` | Público con demostración; financiero con datos reales | Lista partidas con periodo, categoría, concepto e importes |
 | GET | `/api/financial/dashboard` | Público con demostración; financiero con datos reales | Recibe `period=YYYY-MM`, `currency` (MXN por defecto) y `category` opcional |
 | POST | `/api/financial/simulations` | Director o Analista | Calcula el escenario sobre egresos completados |
@@ -299,9 +313,9 @@ Parámetros de consulta:
 | `category` | Categoría exacta opcional; si se omite, suma las categorías de egresos almacenadas |
 | `period` | Mes base `YYYY-MM`, entre 1900 y 9999. Si se omite, toma el máximo periodo de la selección |
 
-Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses ausentes, presupuestos inválidos, cobertura variable o mala evaluación. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. No es necesario elegir un archivo. Los filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
+Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses ausentes, presupuestos inválidos o mala evaluación. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. No es necesario elegir un archivo. Los filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
 
-La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion` y advertencias. Cada punto del historial incluye `ejecucion_completada`, un dato informativo sobre el gasto real que no condiciona el entrenamiento; no certifica el cierre del presupuesto mensual. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
+La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion`, `composicion_variable` y advertencias. Cada punto del historial incluye `ejecucion_completada`, un dato informativo sobre el gasto real que no condiciona el entrenamiento; no certifica el cierre del presupuesto mensual. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
 
 ### Estado e integración
 
@@ -410,9 +424,9 @@ La publicación para usuarios remotos requiere una configuración de HTTPS, acce
 La dependencia del modelo es `scikit-learn>=1.5,<2` en `backend/requirements.txt`, comprobada con 1.9.1. Esta corrección no incorpora dependencias adicionales ni modifica las tablas SQL.
 
 1. Actualiza el código conservando `.env` y el volumen de PostgreSQL. Ejecuta `docker compose up -d --build`. No necesitas ejecutar SQL ni volver a importar datos existentes.
-2. Inicia sesión como analista. En Importaciones confirma archivos con partidas distintas del mismo espacio financiero y moneda. Se requieren al menos seis meses consecutivos con presupuesto conocido y cobertura comparable; pueden llegar en archivos mensuales y en cualquier orden. El ejemplo existente de tres meses permite comprobar el aviso de histórico insuficiente, sin cifras inventadas.
+2. Inicia sesión como analista. En Importaciones confirma archivos con partidas distintas del mismo espacio financiero y moneda. Se requieren al menos seis meses consecutivos con presupuesto conocido del mismo espacio financiero; pueden llegar en archivos mensuales y en cualquier orden. El ejemplo existente de tres meses permite comprobar el aviso de histórico insuficiente, sin cifras inventadas.
 3. En Resumen selecciona el mes base y, si corresponde, la categoría. La tarjeta verde y el detalle deben mostrar el mismo resultado de `/api/forecast/budget?currency=MXN&period=YYYY-MM`, sin elegir archivo. Si el histórico no cumple los requisitos o el modelo no supera la evaluación, ambas vistas explican la no disponibilidad.
-4. Carga el siguiente mes con identificadores válidos y cobertura comparable. Al volver a Resumen y seleccionar ese mes, el siguiente periodo debe avanzar. Una sesión posterior conserva los datos: la fuente es la base de datos, no el navegador ni los CSV temporales. Cambiar a un periodo anterior debe excluir todos los datos posteriores del pronóstico.
+4. Carga el siguiente mes con identificadores válidos y el mismo ámbito financiero. Al volver a Resumen y seleccionar ese mes, el siguiente periodo debe avanzar. Una sesión posterior conserva los datos: la fuente es la base de datos, no el navegador ni los CSV temporales. Cambiar a un periodo anterior debe excluir todos los datos posteriores del pronóstico.
 5. Repetir una carga ya guardada debe devolver 409 sin alterar la predicción. Puedes comprobar las partidas con `SELECT year, month, currency, COUNT(*), SUM(budget) FROM financial_entries WHERE nature = 'expense' GROUP BY year, month, currency ORDER BY year, month, currency;` en tu cliente SQL. Puedes consultar la respuesta en Swagger con una sesión financiera iniciada en el mismo host del navegador.
 
 Desde `backend`, con las dependencias instaladas:
@@ -430,18 +444,20 @@ npm run build
 npm run format:check
 ```
 
-La verificación de esta entrega incluye **56 pruebas de backend con SQLite y ocho de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
+La verificación de esta entrega incluye **66 pruebas de backend con SQLite y 13 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
 
-### Archivos modificados en la corrección del forecast
+### Archivos de esta actualización
 
-| Archivos | Propósito |
-| --- | --- |
-| `backend/app/forecast.py` | Presupuestos conocidos elegibles aunque la ejecución esté pendiente; estado de ejecución informativo |
-| `backend/app/financial.py` | Retirada de la media anterior y del campo `prediction` |
-| `frontend/src/components/BudgetTrendChart.jsx` | Histórico de presupuestos conocidos, con ejecución pendiente identificada en la tabla y títulos |
-| `frontend/src/styles.css` | Retirada del estilo que mostraba el presupuesto como si fuera desconocido al faltar el gasto real |
-| `backend/tests/test_forecast.py`, `backend/tests/test_api.py`, `frontend/tests/budgetForecast.test.js` | Presupuestos con ejecución pendiente, retirada de la API anterior y continuidad de indicadores y Simulación |
-| `backend/app/main.py`, `frontend/src/App.jsx` | Identificador de versión |
-| `README.md`, `CHANGELOG.md` | Funcionamiento, límites, actualización y verificación |
+| Acción | Archivos | Propósito |
+| --- | --- | --- |
+| Creados | `backend/app/imports.py` | Listado paginado y eliminación transaccional con confirmación y permisos |
+| Creados | `frontend/src/components/ImportHistory.jsx` | Listado, paginación y diálogo de confirmación |
+| Creados | `backend/tests/test_imports.py`, `frontend/tests/importHistory.test.js` | Permisos, confirmación, aislamiento, rollback, reimportación y estados de interfaz |
+| Modificados | `backend/app/forecast.py`, `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Composición variable informativa y pruebas del forecast tras eliminar datos |
+| Modificados | `backend/app/main.py`, `frontend/src/App.jsx`, `frontend/src/components/Importaciones.jsx`, `frontend/src/styles.css` | Integración, actualización de datos e identificador de versión |
+| Modificados | `frontend/package.json` | Ejecutar las pruebas de frontend secuencialmente para evitar colisiones entre servidores Vite de prueba |
+| Modificados | `README.md`, `CHANGELOG.md` | Funcionamiento, límites, API y verificación |
 
-No se modifican el importador, el modelo SQL, login, roles ni Simulación. Simulación sigue requiriendo gastos reales completados, porque calcula escenarios sobre gasto ejecutado. La retirada de `prediction` y el cambio del campo de historial `completo` a `ejecucion_completada` requieren actualizar backend y frontend juntos.
+No se agregan dependencias ni migraciones SQL. Login, roles, Simulación y el contrato de carga CSV se mantienen. El listado de cargas y su retirada reutilizan el permiso de Analista.
+
+Para verificar la corrección de la captura, prueba un histórico real de al menos seis meses con descripciones o cantidades de partidas distintas: esos cambios deben producir una advertencia, no el código anterior `cobertura_variable`. La publicación de una cifra sigue dependiendo del MAE y la referencia temporal. Para verificar la retirada, elimina una carga de prueba con su código exacto, comprueba que desaparezcan solo sus partidas y vuelve a importar su archivo fuente. Las pruebas automáticas incluyen también una excepción durante el borrado para comprobar que la transacción revierte todas las filas.

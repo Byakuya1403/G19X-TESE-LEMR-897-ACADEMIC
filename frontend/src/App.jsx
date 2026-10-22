@@ -203,6 +203,16 @@ export default function App() {
     }
   }
 
+  function importedDataDeleted(result) {
+    setPreview(null);
+    setFile(null);
+    setDepartment('');
+    setNotice(
+      `${result.deleted_entries} partidas de ${result.filename} eliminadas. El resumen y el forecast se recalcularán con los datos restantes.`,
+    );
+    setRefresh((value) => value + 1);
+  }
+
   async function finishActivation(openLogin) {
     if (openLogin) {
       await api('/auth/logout', { method: 'POST' });
@@ -444,6 +454,9 @@ export default function App() {
               setError={setError}
               onInspect={inspect}
               onUpload={upload}
+              revision={refresh}
+              onDeleted={importedDataDeleted}
+              onBusyChange={setBusy}
             />
           )}
 
@@ -466,7 +479,7 @@ export default function App() {
           )}
           <Login dialogRef={dialog} onSignIn={signIn} loginError={loginError} authBusy={authBusy} />
           <footer>
-            Plataforma de Presupuesto / v0.16{' '}
+            Plataforma de Presupuesto / v0.17{' '}
             <span>{data?.demo ? 'Vista de demostración' : 'Sesión financiera'}</span>
           </footer>
         </section>
