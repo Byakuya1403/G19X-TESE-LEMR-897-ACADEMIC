@@ -1,7 +1,7 @@
 """Pronóstico local sobre el histórico de egresos persistido en la base de datos.
 
-Estado completado y cobertura homogénea son criterios de elegibilidad, no un
-cierre contable certificado. Nunca se utiliza el importe real como objetivo.
+La cobertura homogénea es un criterio de elegibilidad, no un cierre contable
+certificado. El estado de ejecución no determina si el presupuesto es conocido.
 """
 
 from collections import Counter, defaultdict
@@ -29,7 +29,9 @@ router = APIRouter(tags=["Predicción de presupuestos"])
 class HistoryPoint(BaseModel):
     periodo: str
     presupuesto: float
-    completo: bool
+    ejecucion_completada: bool = Field(
+        description="Indica si el gasto real del mes está completado; no condiciona el entrenamiento."
+    )
 
 
 class Evaluation(BaseModel):
@@ -131,7 +133,6 @@ def predict_budget(records, *, currency, category=None, period=None):
                 row.subcategory,
                 row.concept,
                 amount,
-                row.status,
             )
             if key in seen:
                 if seen[key] != fingerprint:
@@ -145,7 +146,9 @@ def predict_budget(records, *, currency, category=None, period=None):
                 dict(
                     periodo=period_label(number),
                     presupuesto=total,
-                    completo=all(row.status == "completado" for row in rows),
+                    ejecucion_completada=all(
+                        row.status == "completado" for row in rows
+                    ),
                 )
             )
     except (ValueError, InvalidOperation, OverflowError):
@@ -165,11 +168,6 @@ def predict_budget(records, *, currency, category=None, period=None):
             "sin_mes_base",
             "No hay partidas almacenadas en el mes seleccionado para estos filtros.",
         )
-    if not all(point["completo"] for point in result["historial"]):
-        return unavailable(
-            "meses_pendientes",
-            "El histórico incluye partidas pendientes. Selecciona un periodo con histórico completado.",
-        )
     numbers = sorted(groups)
     if numbers != list(range(numbers[0], base + 1)):
         return unavailable(
@@ -187,8 +185,12 @@ def predict_budget(records, *, currency, category=None, period=None):
         )
     result["presupuesto_actual"] = result["historial"][-1]["presupuesto"]
     result["advertencias"].append(
-        "Completado y cobertura homogénea no certifican el cierre contable del mes."
+        "La cobertura homogénea no certifica el cierre contable del mes."
     )
+    if not all(point["ejecucion_completada"] for point in result["historial"]):
+        result["advertencias"].append(
+            "Hay gastos reales pendientes; se utilizan los presupuestos asignados ya registrados, sin sustituir el gasto real por cero."
+        )
     if len(numbers) < MIN_MONTHS:
         return unavailable(
             "historico_insuficiente",

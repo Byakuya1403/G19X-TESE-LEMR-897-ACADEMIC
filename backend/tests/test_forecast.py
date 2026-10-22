@@ -132,15 +132,12 @@ def test_insufficient_history_has_no_invented_estimate(length):
     assert result["evaluacion"] is None
 
 
-def test_gaps_pending_coverage_and_missing_base_are_rejected():
+def test_gaps_coverage_and_missing_base_are_rejected():
     rows = history()
     assert (
         predict_budget(rows[:2] + rows[3:], currency="MXN")["codigo"]
         == "meses_faltantes"
     )
-    rows[1].status = "pendiente"
-    assert predict_budget(rows, currency="MXN")["codigo"] == "meses_pendientes"
-    rows[1].status = "completado"
     rows[1].concept = "Concepto distinto"
     assert predict_budget(rows, currency="MXN")["codigo"] == "cobertura_variable"
     assert (
@@ -378,3 +375,96 @@ def test_forecast_contract_has_no_import_selector(client):
         "get"
     ]["parameters"]
     assert {p["name"] for p in parameters} == {"currency", "category", "period"}
+
+
+def test_pending_actuals_do_not_block_known_budget_forecasts():
+    rows = history()
+    completed = predict_budget(rows, currency="MXN")
+    for row in rows:
+        row.status = "pendiente"
+        row.actual = None
+    pending = predict_budget(rows, currency="MXN")
+    assert pending["disponible"]
+    for field in [
+        "presupuesto_actual",
+        "presupuesto_estimado",
+        "variacion_porcentual",
+        "evaluacion",
+        "periodo_pronosticado",
+    ]:
+        assert pending[field] == completed[field]
+    assert all(not point["ejecucion_completada"] for point in pending["historial"])
+    assert any(
+        "gastos reales pendientes" in warning for warning in pending["advertencias"]
+    )
+    for row in rows[::2]:
+        row.status = "completado"
+        row.actual = Decimal("999999")
+    mixed = predict_budget(rows, currency="MXN")
+    assert mixed["presupuesto_estimado"] == completed["presupuesto_estimado"]
+    assert mixed["evaluacion"] == completed["evaluacion"]
+
+
+def test_pending_budget_history_still_requires_enough_months_and_quality():
+    rows = history()[:5]
+    for row in rows:
+        row.status, row.actual = "pendiente", None
+    result = predict_budget(rows, currency="MXN")
+    assert result["codigo"] == "historico_insuficiente"
+    assert result["presupuesto_estimado"] is None
+    rows = history([100, 1000, 100, 1000, 100, 1000])
+    for row in rows:
+        row.status, row.actual = "pendiente", None
+    assert predict_budget(rows, currency="MXN")["codigo"] == "error_elevado"
+
+
+def test_endpoint_forecasts_persisted_pending_budgets(client):
+    rows = history(start=(2026, 5))
+    for row in rows:
+        row.status, row.actual = "pendiente", None
+    seed(rows, filename="presupuestos-con-ejecucion-pendiente.csv")
+    response = client.get("/api/forecast/budget?period=2026-10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["disponible"]
+    assert data["periodo_pronosticado"] == "2026-11"
+    assert data["presupuesto_actual"] == 1500
+    assert data["presupuesto_estimado"] == 1600
+    dashboard = client.get("/api/financial/dashboard?period=2026-10").json()
+    assert dashboard["expense"]["actual"] is None
+    assert "prediction" not in dashboard
+    # Simulation still requires known actual spending.
+    assert (
+        client.post(
+            "/api/financial/simulations", json={"period": "2026-10", "currency": "MXN"}
+        ).status_code
+        == 422
+    )
+
+
+def test_pending_csv_import_uses_assigned_budgets_not_unknown_actuals(client):
+    client.post(
+        "/api/auth/login",
+        json={"username": "analista", "password": "UnaClaveSegura2026"},
+    )
+    columns = "ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado\n"
+    months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"]
+    for i, month in enumerate(months):
+        amount = 1000 + i * 100
+        content = (
+            columns
+            + f"pending-{i},2026,{month},Servicios,Operación,Servicio mensual,{amount},0,{amount},0,Pendiente\n"
+        )
+        assert (
+            client.post(
+                "/api/financial/imports/csv",
+                files={"file": (f"mes-{i}.csv", content, "text/csv")},
+                data={"currency": "MXN"},
+            ).status_code
+            == 201
+        )
+    data = client.get("/api/forecast/budget?period=2026-06").json()
+    assert data["disponible"] and data["presupuesto_estimado"] == 1600
+    assert data["importaciones_analizadas"] == 6
+    with Session(engine) as db:
+        assert all(row.actual is None for row in db.scalars(select(Entry)).all())

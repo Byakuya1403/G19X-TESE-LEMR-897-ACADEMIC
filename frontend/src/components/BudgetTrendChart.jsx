@@ -9,7 +9,7 @@ export default function BudgetTrendChart({ result }) {
     period: point.periodo,
     amount: point.presupuesto,
     estimated: false,
-    complete: point.completo,
+    executionComplete: point.ejecucion_completada,
   }));
   if (result.disponible) {
     points.push({
@@ -84,13 +84,8 @@ export default function BudgetTrendChart({ result }) {
                   <title>{`${monthLabel(point.period)}: ${formatMoney(point.amount, result.moneda)} estimados`}</title>
                 </path>
               ) : (
-                <circle
-                  cx={x(index)}
-                  cy={y(point.amount)}
-                  r="4"
-                  className={point.complete ? 'trend-point' : 'trend-pending'}
-                >
-                  <title>{`${monthLabel(point.period)}: ${formatMoney(point.amount, result.moneda)} registrados${point.complete ? '' : ' · partidas pendientes'}`}</title>
+                <circle cx={x(index)} cy={y(point.amount)} r="4" className="trend-point">
+                  <title>{`${monthLabel(point.period)}: ${formatMoney(point.amount, result.moneda)} registrados${point.executionComplete ? '' : ' · ejecución pendiente; presupuesto conocido'}`}</title>
                 </circle>
               )}
             </g>
@@ -129,9 +124,9 @@ export default function BudgetTrendChart({ result }) {
                   <td>
                     {point.estimated
                       ? 'Estimado'
-                      : point.complete
+                      : point.executionComplete
                         ? 'Histórico registrado'
-                        : 'Registrado con partidas pendientes'}
+                        : 'Presupuesto registrado · ejecución pendiente'}
                   </td>
                 </tr>
               ))}

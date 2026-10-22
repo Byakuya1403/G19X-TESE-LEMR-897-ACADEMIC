@@ -4,7 +4,7 @@ import csv
 import hashlib
 import io
 import re
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from fastapi import APIRouter, Form, File, UploadFile, HTTPException
 from sqlalchemy import select
@@ -165,47 +165,6 @@ def parse_file(content, repair=False):
     if not parsed:
         raise ValueError("El archivo no contiene partidas")
     return parsed, warnings
-
-
-def forecast_expenses(records, category=None):
-    # Numeric tuples, not CSV position or alphabetic month names.
-    periods = sorted({(r.year, r.month) for r in records})
-    latest = periods[-1] if periods else None
-    target = None
-    if latest and latest != (9999, 12):
-        year, month = latest
-        target = (year + 1, 1) if month == 12 else (year, month + 1)
-    monthly = {}
-    for r in records:
-        if r.nature == "expense" and (not category or r.category == category):
-            monthly.setdefault((r.year, r.month), []).append(r)
-    completed = [
-        (p, sum((r.actual for r in group), Decimal(0)))
-        for p, group in sorted(monthly.items())
-        if all(r.actual is not None for r in group)
-    ][-3:]
-
-    def label(period):
-        return f"{period[0]:04}-{period[1]:02}" if period else None
-
-    return dict(
-        amount=(
-            float(
-                (
-                    sum((amount for _, amount in completed), Decimal(0))
-                    / len(completed)
-                ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
-            )
-            if completed and target
-            else None
-        ),
-        months=len(completed),
-        reference_period=label(latest),
-        next_period=label(target),
-        periods_used=[label(p) for p, _ in completed],
-        periods_available=[label(p) for p in periods],
-        method="Proyección estadística: media de hasta 3 meses de egresos completados, ordenados por año y mes. Los meses pendientes se excluyen; cobertura mensual variable. No es IA validada.",
-    )
 
 
 router = APIRouter(tags=["Finanzas por partidas"])
@@ -404,7 +363,6 @@ def dashboard(
                     deviation=float(r.actual - r.budget),
                 )
             )
-    prediction = forecast_expenses(currency_history, category)
     return dict(
         demo=not (user and user.role in ("director", "analyst")),
         currency=currency,
@@ -417,7 +375,6 @@ def dashboard(
         ),
         entries=[serialize(r) for r in selected],
         alerts=alerts,
-        prediction=prediction,
     )
 
 

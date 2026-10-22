@@ -4,6 +4,25 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.16 — Presupuesto conocido con ejecución pendiente
+
+### Corregido
+
+- `forecast.py` acepta los presupuestos asignados aunque `Estado=Pendiente` y `actual=NULL`. El gasto real y el estado de ejecución no determinan la elegibilidad del presupuesto conocido, ni se imputan como cero.
+- Se conservan seis meses mínimos, continuidad cronológica, cobertura comparable, deduplicación, validación temporal con MAE, referencia del mes anterior y rechazo de importes inválidos. El importe base es el presupuesto asignado del mes seleccionado.
+- `historial[].ejecucion_completada` reemplaza `completo` y describe exclusivamente la ejecución del gasto. La gráfica muestra todos los presupuestos registrados como valores conocidos y señala ejecución pendiente en los títulos y tabla. El aviso de gasto pendiente es informativo.
+
+### Eliminado
+
+- Función `financial.forecast_expenses`, media de hasta tres meses de gasto real, llamada desde dashboard, campo `prediction` y pruebas exclusivas de ese cálculo retirado.
+- El único módulo de pronóstico es `forecast.py`; ambas vistas de Resumen continúan compartiendo su respuesta. `financial.py` conserva importación, indicadores, alertas y Simulación.
+
+### Actualización y verificación
+
+Actualizar backend y frontend juntos y ejecutar `docker compose up -d --build`, conservando `.env` y el volumen. No se agregan dependencias, tablas ni migraciones; no es necesario reimportar archivos. Los clientes externos que consuman el campo retirado deben consultar `/api/forecast/budget` con sesión financiera.
+
+56 pruebas de backend con SQLite y ocho de frontend, compilación y formato correctos. Incluyen seis CSV mensuales con ejecución pendiente, persistencia de `actual=NULL`, forecast disponible para presupuestos válidos, igualdad frente a la misma serie completada, rechazo con historial insuficiente o mala evaluación, dashboard sin `prediction` y Simulación todavía bloqueada por gasto pendiente. No se ha ejecutado Docker/PostgreSQL ni revisión visual con navegador en este entorno. Esta corrección elimina el bloqueo observado en la captura; no garantiza que el histórico del despliegue cumpla los demás criterios.
+
 ## v0.15 — Forecast sobre el histórico acumulado en la base de datos
 
 ### Corregido

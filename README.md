@@ -215,7 +215,7 @@ La varianza recibida debe coincidir con presupuesto menos gasto real; los porcen
 
 **Resumen** muestra únicamente el mes seleccionado, sus categorías, cuatro indicadores de ingresos/egresos presupuestados y reales, resultado del periodo y alertas. **Presupuestos** contiene el detalle por concepto. Los filtros de categoría y moneda acotan la consulta; no se suman monedas diferentes. Si hay partidas pendientes, el total real del grupo se muestra pendiente y se informa por separado lo conocido.
 
-La tarjeta verde **Predicción del siguiente mes** utiliza el módulo de regresión lineal descrito debajo. Comparte la respuesta con la sección de evaluación y tendencia, por lo que ambas muestran el mismo importe y periodo. La media anterior de gasto real ya no se utiliza en la interfaz.
+La tarjeta verde **Predicción del siguiente mes** utiliza el módulo de regresión lineal descrito debajo. Comparte la respuesta con la sección de evaluación y tendencia, por lo que ambas muestran el mismo importe y periodo. El cálculo anterior de media del gasto real se retiró de `financial.py` y de la respuesta del dashboard. El único pronóstico está en `forecast.py`, disponible en `/api/forecast/budget`.
 
 ### Predicción inteligente de presupuesto
 
@@ -231,9 +231,9 @@ La clave existente `año + ID_Registro + moneda` evita repetir partidas; el hash
 
 El modelo actual no tiene entidad empresa o unidad contable: esta acumulación es para **un mismo espacio financiero**, no una separación automática de empresas. No cargues presupuestos de empresas independientes en una instalación esperando que el nombre del archivo las separe. Los filtros siguen separando monedas y categorías, y los ingresos no se mezclan con egresos. No se crean tablas ni se requiere migración SQL.
 
-**Requisitos de los datos.** Se requieren al menos seis meses consecutivos y se analizan como máximo los últimos 24 meses hasta el periodo base. Todas las partidas de egresos de ese intervalo deben estar `Completado` y tener la misma cobertura mensual: categoría, subcategoría, concepto y cantidad de partidas por combinación. Los ID de registro pueden variar entre meses. Son condiciones conservadoras para reducir cambios de cobertura y meses parciales; **no certifican un cierre contable**, porque ese dato no existe en el modelo actual. El presupuesto ya es conocido aunque un resultado esté pendiente, pero esta primera versión no publica un pronóstico con ese histórico pendiente.
+**Requisitos de los datos.** Se requieren al menos seis meses consecutivos y se analizan como máximo los últimos 24 meses hasta el periodo base. Las partidas de egresos deben tener presupuestos válidos y la misma cobertura mensual: categoría, subcategoría, concepto y cantidad de partidas por combinación. Los ID de registro pueden variar entre meses. Son condiciones conservadoras para reducir cambios de cobertura y meses parciales; **no certifican un cierre contable**, porque ese dato no existe en el modelo actual. **`Estado=Pendiente` y `Gasto_Real=NULL` no bloquean el forecast:** describen la ejecución del gasto, mientras que el presupuesto asignado ya está registrado. Se utiliza ese presupuesto sin inventar ni completar el gasto real. La comparación se realiza contra el presupuesto asignado del mes base.
 
-No se rellenan meses ausentes con ceros. Se cuenta una sola vez la misma fila de origen; un duplicado con valores inconsistentes invalida la serie. No se usan la tabla histórica `budgets`, datos de demostración ni servicios externos. El CSV de ejemplo tiene tres meses y partidas pendientes: permite verificar el mensaje de no disponibilidad, pero no un entrenamiento suficiente. No se agregan datos de prueba a la plataforma para producir una cifra.
+No se rellenan meses ausentes con ceros. Se cuenta una sola vez la misma fila de origen; un duplicado con valores inconsistentes invalida la serie. No se usan la tabla histórica `budgets`, datos de demostración ni servicios externos. El CSV de ejemplo tiene solo tres meses: permite verificar el mensaje de histórico insuficiente. Sus gastos pendientes no son un motivo de exclusión del forecast. No se agregan datos de prueba a la plataforma para producir una cifra.
 
 **Modelo y evaluación.** `scikit-learn` ajusta `LinearRegression` sobre el número de mes transcurrido y la suma mensual de presupuestos. Se evalúan los tres últimos meses mediante origen móvil: para cada mes evaluado se entrena exclusivamente con los anteriores. El MAE se compara con la referencia de repetir el presupuesto del mes previo. Después de evaluar se reentrena con todo el intervalo elegible para predecir su mes siguiente.
 
@@ -299,9 +299,9 @@ Parámetros de consulta:
 | `category` | Categoría exacta opcional; si se omite, suma las categorías de egresos almacenadas |
 | `period` | Mes base `YYYY-MM`, entre 1900 y 9999. Si se omite, toma el máximo periodo de la selección |
 
-Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses pendientes o ausentes, cobertura variable, mala evaluación. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. No es necesario elegir un archivo. Los filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
+Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses ausentes, presupuestos inválidos, cobertura variable o mala evaluación. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. No es necesario elegir un archivo. Los filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
 
-La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion` y advertencias. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
+La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion` y advertencias. Cada punto del historial incluye `ejecucion_completada`, un dato informativo sobre el gasto real que no condiciona el entrenamiento; no certifica el cierre del presupuesto mensual. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
 
 ### Estado e integración
 
@@ -400,17 +400,17 @@ Si un servicio falla, revisa `docker compose ps` y `docker compose logs backend 
 
 ## Alcance actual
 
-Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La interfaz utiliza el pronóstico de presupuesto por regresión lineal con evaluación temporal cuando la serie es elegible. El campo anterior de proyección del dashboard se conserva por compatibilidad de API, sin uso en la interfaz. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
+Power BI Embedded, recuperación de contraseñas, asociación de correos a cuentas anteriores, auditoría completa y cierre/aprobación mensual están pendientes. La interfaz utiliza el pronóstico de presupuesto por regresión lineal con evaluación temporal cuando la serie es elegible. El dashboard financiero ya no devuelve `prediction`; el frontend consulta exclusivamente `/api/forecast/budget` para obtener el pronóstico. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
 
 La publicación para usuarios remotos requiere una configuración de HTTPS, acceso de red y correo distinta de la instalación local incluida. Los límites de intentos son por proceso y requieren almacenamiento compartido antes de escalar a varios servidores.
 
 
 ## Verificar la predicción de presupuesto
 
-La dependencia del modelo es `scikit-learn>=1.5,<2` en `backend/requirements.txt`, comprobada con 1.9.1. Este cambio de acumulación no incorpora dependencias adicionales ni modifica las tablas SQL.
+La dependencia del modelo es `scikit-learn>=1.5,<2` en `backend/requirements.txt`, comprobada con 1.9.1. Esta corrección no incorpora dependencias adicionales ni modifica las tablas SQL.
 
 1. Actualiza el código conservando `.env` y el volumen de PostgreSQL. Ejecuta `docker compose up -d --build`. No necesitas ejecutar SQL ni volver a importar datos existentes.
-2. Inicia sesión como analista. En Importaciones confirma archivos con partidas distintas del mismo espacio financiero y moneda. Se requieren al menos seis meses consecutivos, completados y de cobertura comparable; pueden llegar en archivos mensuales y en cualquier orden. El ejemplo existente de tres meses y pendientes permite comprobar la no disponibilidad, sin cifras inventadas.
+2. Inicia sesión como analista. En Importaciones confirma archivos con partidas distintas del mismo espacio financiero y moneda. Se requieren al menos seis meses consecutivos con presupuesto conocido y cobertura comparable; pueden llegar en archivos mensuales y en cualquier orden. El ejemplo existente de tres meses permite comprobar el aviso de histórico insuficiente, sin cifras inventadas.
 3. En Resumen selecciona el mes base y, si corresponde, la categoría. La tarjeta verde y el detalle deben mostrar el mismo resultado de `/api/forecast/budget?currency=MXN&period=YYYY-MM`, sin elegir archivo. Si el histórico no cumple los requisitos o el modelo no supera la evaluación, ambas vistas explican la no disponibilidad.
 4. Carga el siguiente mes con identificadores válidos y cobertura comparable. Al volver a Resumen y seleccionar ese mes, el siguiente periodo debe avanzar. Una sesión posterior conserva los datos: la fuente es la base de datos, no el navegador ni los CSV temporales. Cambiar a un periodo anterior debe excluir todos los datos posteriores del pronóstico.
 5. Repetir una carga ya guardada debe devolver 409 sin alterar la predicción. Puedes comprobar las partidas con `SELECT year, month, currency, COUNT(*), SUM(budget) FROM financial_entries WHERE nature = 'expense' GROUP BY year, month, currency ORDER BY year, month, currency;` en tu cliente SQL. Puedes consultar la respuesta en Swagger con una sesión financiera iniciada en el mismo host del navegador.
@@ -430,17 +430,18 @@ npm run build
 npm run format:check
 ```
 
-La verificación de esta entrega incluye **53 pruebas de backend con SQLite y siete de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
+La verificación de esta entrega incluye **56 pruebas de backend con SQLite y ocho de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
 
-### Archivos modificados en la actualización del histórico acumulado
+### Archivos modificados en la corrección del forecast
 
 | Archivos | Propósito |
 | --- | --- |
-| `backend/app/forecast.py` | Consulta acumulada, deduplicación global y metadatos del histórico analizado |
-| `frontend/src/components/BudgetForecast.jsx`, `frontend/src/components/Dashboard.jsx` | Una consulta compartida por la tarjeta verde y el detalle; eliminación del selector de CSV |
-| `frontend/src/styles.css` | Retirada del estilo exclusivo del selector eliminado |
-| `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Pruebas de persistencia, acumulación entre cargas, filtros, duplicados y ambas vistas |
+| `backend/app/forecast.py` | Presupuestos conocidos elegibles aunque la ejecución esté pendiente; estado de ejecución informativo |
+| `backend/app/financial.py` | Retirada de la media anterior y del campo `prediction` |
+| `frontend/src/components/BudgetTrendChart.jsx` | Histórico de presupuestos conocidos, con ejecución pendiente identificada en la tabla y títulos |
+| `frontend/src/styles.css` | Retirada del estilo que mostraba el presupuesto como si fuera desconocido al faltar el gasto real |
+| `backend/tests/test_forecast.py`, `backend/tests/test_api.py`, `frontend/tests/budgetForecast.test.js` | Presupuestos con ejecución pendiente, retirada de la API anterior y continuidad de indicadores y Simulación |
 | `backend/app/main.py`, `frontend/src/App.jsx` | Identificador de versión |
 | `README.md`, `CHANGELOG.md` | Funcionamiento, límites, actualización y verificación |
 
-No se modifican el importador, el modelo SQL, login, roles ni Simulación. La gráfica existente `BudgetTrendChart` recibe el histórico acumulado sin cambios en su implementación.
+No se modifican el importador, el modelo SQL, login, roles ni Simulación. Simulación sigue requiriendo gastos reales completados, porque calcula escenarios sobre gasto ejecutado. La retirada de `prediction` y el cambio del campo de historial `completo` a `ejecucion_completada` requieren actualizar backend y frontend juntos.

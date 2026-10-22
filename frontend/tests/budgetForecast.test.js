@@ -41,7 +41,7 @@ function result(overrides = {}) {
     historial: Array.from({ length: 6 }, (_, i) => ({
       periodo: `2026-0${i + 1}`,
       presupuesto: 1000 + i * 100,
-      completo: true,
+      ejecucion_completada: true,
     })),
     ...overrides,
   };
@@ -155,14 +155,6 @@ test('dashboard preserves panels and connects the original card to the budget fo
         expense: { budget: 0, actual: null, pending: 0 },
         balance: null,
         alerts: [],
-        prediction: {
-          next_period: null,
-          amount: 999999,
-          method: 'Referencia',
-          months: 0,
-          periods_used: [],
-          reference_period: null,
-        },
       },
     }),
   );
@@ -180,4 +172,18 @@ test('dashboard preserves panels and connects the original card to the budget fo
   assert.ok(
     html.indexOf('Centro de alertas') < html.indexOf('Predicción inteligente de presupuesto'),
   );
+});
+
+test('pending execution shows registered budget history and an available prediction', () => {
+  const pending = result({
+    historial: result().historial.map((point) => ({ ...point, ejecucion_completada: false })),
+    advertencias: [
+      'Hay gastos reales pendientes; se utilizan los presupuestos asignados ya registrados.',
+    ],
+  });
+  const html = render({ result: pending });
+  assert.ok(html.includes('$1,600.00'));
+  assert.ok(html.includes('trend-projected'));
+  assert.ok(html.includes('Presupuesto registrado · ejecución pendiente'));
+  assert.ok(!html.includes('Predicción no disponible') && !html.includes('trend-pending'));
 });

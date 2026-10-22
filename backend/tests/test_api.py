@@ -59,7 +59,7 @@ def test_import_is_atomic_and_validated(client):
     assert client.get("/api/financial/entries").json() == []
 
 
-def test_zero_budget_and_forecast_horizon(client):
+def test_zero_budget_and_dashboard_without_legacy_prediction(client):
     financial_login(client)
     content = enterprise_csv(
         "test-1,2026,Enero,TI,Servicios,Operación,0,1,-1,0,Completado\n"
@@ -69,8 +69,7 @@ def test_zero_budget_and_forecast_horizon(client):
     data = client.get("/api/financial/dashboard?period=2026-01&currency=MXN").json()
     assert data["expense"]["actual"] == 1 and data["entries"][0]["execution"] is None
     assert data["alerts"][0]["deviation"] == 1
-    assert data["prediction"]["next_period"] == "2026-03"
-    assert data["prediction"]["amount"] == 250.5
+    assert "prediction" not in data
 
 
 def test_guest_never_reads_real_data(client):
@@ -248,12 +247,7 @@ def test_enterprise_import_repair_and_reconciliation(client):
         assert d["balance"] == income - expense
     march = client.get("/api/financial/dashboard?period=2026-03&currency=MXN").json()
     assert march["expense"]["actual"] is None and march["balance"] is None
-    assert march["prediction"]["months"] == 2
-    assert march["prediction"]["reference_period"] == "2026-03"
-    assert march["prediction"]["next_period"] == "2026-04"
-    jan = client.get("/api/financial/dashboard?period=2026-01&currency=MXN").json()
-    assert jan["prediction"] == march["prediction"]
-    assert march["prediction"]["amount"] == 196115.25
+    assert "prediction" not in march
     assert (
         client.post(
             "/api/financial/simulations", json={"period": "2026-03", "currency": "MXN"}
@@ -296,52 +290,6 @@ def test_enterprise_validation_is_atomic_and_role_enforced(client):
         ).status_code
         == 422
     )
-
-
-def test_forecast_orders_months_and_changes_year():
-    from app.financial import forecast_expenses
-    from types import SimpleNamespace
-    from decimal import Decimal
-
-    rows = [
-        SimpleNamespace(
-            year=y,
-            month=m,
-            nature="expense",
-            category="Operación",
-            actual=Decimal(v) if v is not None else None,
-        )
-        for y, m, v in [(2026, 12, None), (2026, 1, 100), (2026, 11, 300)]
-    ]
-    forecast = forecast_expenses(rows)
-    assert forecast["reference_period"] == "2026-12"
-    assert forecast["next_period"] == "2027-01"
-    assert forecast["periods_available"] == ["2026-01", "2026-11", "2026-12"]
-    assert forecast["periods_used"] == ["2026-01", "2026-11"]
-    assert forecast["amount"] == 200
-    assert forecast_expenses(list(reversed(rows))) == forecast
-    rows.append(
-        SimpleNamespace(
-            year=2027,
-            month=1,
-            nature="expense",
-            category="Operación",
-            actual=Decimal(500),
-        )
-    )
-    assert forecast_expenses(rows)["next_period"] == "2027-02"
-    assert forecast_expenses(rows)["amount"] == 300
-    # A category filter cannot move the dataset's horizon to another month.
-    assert forecast_expenses(rows, category="Sin datos")["next_period"] == "2027-02"
-    assert forecast_expenses(rows, category="Sin datos")["amount"] is None
-    assert forecast_expenses([])["next_period"] is None
-    pending = [
-        SimpleNamespace(
-            year=2026, month=3, nature="expense", category="Operación", actual=None
-        )
-    ]
-    assert forecast_expenses(pending)["next_period"] == "2026-04"
-    assert forecast_expenses(pending)["amount"] is None
 
 
 @pytest.fixture()
