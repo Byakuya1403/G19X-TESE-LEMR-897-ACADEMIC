@@ -4,6 +4,12 @@ Aplicación para comparar el presupuesto estimado con los ingresos y egresos rea
 
 El proyecto utiliza **React, Python, FastAPI y PostgreSQL**. Power BI Embedded forma parte de la integración prevista y todavía no está configurado. El historial de cambios y las notas de actualización están en [CHANGELOG.md](CHANGELOG.md).
 
+## Desarrollo asistido por IA
+
+Durante el desarrollo de este proyecto se utilizó **ChatGPT/Codex de OpenAI** como asistente de programación para implementar y refactorizar componentes del frontend y del backend, preparar pruebas automatizadas y redactar documentación.
+
+Esta asistencia forma parte del proceso de desarrollo. La predicción de presupuestos de la plataforma se ejecuta localmente mediante modelos de **scikit-learn**, como se describe en la sección de predicción inteligente.
+
 ## Qué problema resuelve
 
 La revisión de presupuestos en archivos separados dificulta identificar qué gastos excedieron lo previsto, qué ingresos quedaron por debajo de la meta y cuáles resultados siguen pendientes. La plataforma reúne esa información en una vista mensual y conserva el archivo de origen, las advertencias y el autor de cada importación.
