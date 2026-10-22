@@ -21,6 +21,7 @@ from .security import Financial
 
 MIN_MONTHS = 6
 MAX_MONTHS = 24
+SEASONAL_MIN_MONTHS = 24
 MAX_RELATIVE_MAE = 0.30
 CENT = Decimal("0.01")
 router = APIRouter(tags=["Predicción de presupuestos"])
@@ -38,7 +39,15 @@ class Evaluation(BaseModel):
     mae: float
     mae_referencia: float
     meses_validacion: int
+    supera_referencia: bool = True
     metodo: str = "Origen móvil: hasta tres cortes, entrenando solo con el pasado"
+
+
+class ModelSelection(BaseModel):
+    periodos: list[str]
+    mae_tendencia: float
+    mae_estacional: float
+    metodo: str = "Selección en tres meses anteriores al bloque de evaluación final"
 
 
 class BudgetForecastResponse(BaseModel):
@@ -51,6 +60,9 @@ class BudgetForecastResponse(BaseModel):
     presupuesto_estimado: float | None = None
     variacion_porcentual: float | None = None
     modelo: str = "LinearRegression"
+    configuracion: str = "tendencia"
+    descripcion_modelo: str = "Regresión lineal con tendencia"
+    seleccion_modelo: ModelSelection | None = None
     meses_analizados: int = 0
     minimo_meses: int = MIN_MONTHS
     moneda: str
@@ -80,6 +92,27 @@ def rounded(value):
     if not number.is_finite():
         raise ValueError("Importe no finito")
     return float(number.quantize(CENT, rounding=ROUND_HALF_UP))
+
+
+def model_features(number, origin, seasonal):
+    """Tendencia y once indicadores del mes del año; enero es la referencia."""
+    return [number - origin] + (
+        [int(number % 12 == month) for month in range(1, 12)] if seasonal else []
+    )
+
+
+def temporal_predictions(numbers, amounts, indices, seasonal):
+    predictions = []
+    for index in indices:
+        x = [model_features(number, numbers[0], seasonal) for number in numbers[:index]]
+        model = LinearRegression().fit(x, amounts[:index])
+        predicted = float(
+            model.predict([model_features(numbers[index], numbers[0], seasonal)])[0]
+        )
+        if not isfinite(predicted):
+            raise ValueError("Predicción no finita")
+        predictions.append(max(0.0, predicted))
+    return predictions
 
 
 def predict_budget(records, *, currency, category=None, period=None):
@@ -200,19 +233,41 @@ def predict_budget(records, *, currency, category=None, period=None):
             f"Se necesitan al menos {MIN_MONTHS} meses consecutivos de presupuestos; hay {len(numbers)}.",
         )
 
-    x = [[number - numbers[0]] for number in numbers]
     y = [point["presupuesto"] for point in result["historial"]]
     try:
-        # Expanding windows: the held-out month is never included in its own fit.
         validation_start = max(3, len(y) - 3)
-        predicted, reference = [], []
-        for index in range(validation_start, len(y)):
-            model = LinearRegression().fit(x[:index], y[:index])
-            prediction = float(model.predict([x[index]])[0])
-            if not isfinite(prediction):
-                raise ValueError("Predicción no finita")
-            predicted.append(max(0.0, prediction))
-            reference.append(y[index - 1])
+        seasonal = False
+        # Select using a separate earlier block, never the final evaluation months.
+        if len(numbers) >= SEASONAL_MIN_MONTHS:
+            selection_indices = range(validation_start - 3, validation_start)
+            actuals = y[validation_start - 3 : validation_start]
+            trend_mae = float(
+                mean_absolute_error(
+                    actuals, temporal_predictions(numbers, y, selection_indices, False)
+                )
+            )
+            seasonal_mae = float(
+                mean_absolute_error(
+                    actuals, temporal_predictions(numbers, y, selection_indices, True)
+                )
+            )
+            if not all(isfinite(value) for value in (trend_mae, seasonal_mae)):
+                raise ValueError("Selección no finita")
+            seasonal = seasonal_mae + float(CENT) < trend_mae
+            result["seleccion_modelo"] = dict(
+                periodos=[period_label(numbers[index]) for index in selection_indices],
+                mae_tendencia=rounded(trend_mae),
+                mae_estacional=rounded(seasonal_mae),
+            )
+        if seasonal:
+            result["configuracion"] = "tendencia_y_mes"
+            result["descripcion_modelo"] = (
+                "Regresión lineal con tendencia y mes del año"
+            )
+        predicted = temporal_predictions(
+            numbers, y, range(validation_start, len(y)), seasonal
+        )
+        reference = y[validation_start - 1 : -1]
         mae = float(mean_absolute_error(y[validation_start:], predicted))
         naive_mae = float(mean_absolute_error(y[validation_start:], reference))
         scale = sum(y[validation_start:]) / len(predicted)
@@ -222,6 +277,7 @@ def predict_budget(records, *, currency, category=None, period=None):
             mae=rounded(mae),
             mae_referencia=rounded(naive_mae),
             meses_validacion=len(predicted),
+            supera_referencia=mae <= naive_mae + float(CENT),
         )
         # Eligibility policy, not a confidence percentage or a calibrated guarantee.
         if mae > max(CENT, Decimal(str(scale)) * Decimal(str(MAX_RELATIVE_MAE))):
@@ -230,12 +286,12 @@ def predict_budget(records, *, currency, category=None, period=None):
                 "El error temporal supera el umbral de publicación del modelo (MAE relativo del 30%).",
             )
         if mae > naive_mae + float(CENT):
-            return unavailable(
-                "referencia_mejor",
-                "La regresión no mejora la referencia de repetir el presupuesto anterior.",
+            result["advertencias"].append(
+                "En la evaluación temporal, repetir el presupuesto anterior tuvo menor error que este modelo. Consulta ambos MAE antes de utilizar la estimación."
             )
+        x = [model_features(number, numbers[0], seasonal) for number in numbers]
         model = LinearRegression().fit(x, y)
-        raw = float(model.predict([[base + 1 - numbers[0]]])[0])
+        raw = float(model.predict([model_features(base + 1, numbers[0], seasonal)])[0])
         if not isfinite(raw):
             raise ValueError("Predicción no finita")
         estimated = rounded(max(0.0, raw))
@@ -262,7 +318,7 @@ def predict_budget(records, *, currency, category=None, period=None):
         ajuste_no_negativo=raw < 0,
     )
     result["advertencias"].append(
-        "Tendencia lineal sin estacionalidad; el error histórico no garantiza resultados futuros."
+        "El error histórico no garantiza resultados futuros; la estimación depende de mantener el ámbito y las pautas del histórico."
     )
     if raw < 0:
         result["advertencias"].append(

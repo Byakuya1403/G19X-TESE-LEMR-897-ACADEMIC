@@ -4,6 +4,22 @@ Este documento reúne las notas de las entregas del proyecto. Los números ident
 
 La instalación y el uso vigentes se documentan en [README.md](README.md).
 
+## v0.18 — Regresión de presupuesto con mes del año
+
+### Corregido
+
+- Reproducido el fallo con el CSV adjunto de 792 filas: importación correcta y rechazo `referencia_mejor` del modelo de tendencia simple, incapaz de representar los aumentos anuales de determinados meses.
+- Se mantiene `LinearRegression`. Con 24 meses se comparan tendencia y tendencia con indicadores del mes del año. Selección temporal en los meses 19–21 y evaluación independiente en 22–24; cada ajuste utiliza únicamente meses anteriores al objetivo correspondiente. La tendencia simple se conserva con menos de 24 meses o si la configuración estacional no mejora la selección en más de un centavo.
+- El MAE elevado sigue bloqueando la publicación con la política del 30% existente. Una referencia del mes previo mejor que la regresión produce ahora `evaluacion.supera_referencia=false` y una advertencia con comparación de errores, sin un bloqueo automático por diferencias pequeñas. No se sustituye el modelo por una media o por esa referencia.
+- Respuesta con `configuracion`, `descripcion_modelo` y `seleccion_modelo`; interfaz indica la configuración real y explica la separación entre selección y evaluación.
+- README, sección «Consultar resultados y proyección»: «no es un modelo de IA» se refiere a la media histórica de gasto real retirada. La predicción vigente de presupuesto utiliza aprendizaje automático con scikit-learn.
+
+### Verificación y actualización
+
+71 pruebas de backend con SQLite y 15 de frontend correctas; compilación y formato correctos. Incluyen patrón anual, cambio de año, selección independiente de los valores de evaluación final, ajustes sin futuro, preferencia por tendencia simple cuando corresponde y flujo CSV → base aislada → endpoint. El CSV del usuario se probó completo sin modificarlo ni incorporarlo al repositorio. También se comprobaron cortes temporales anteriores, con advertencia cuando la referencia tuvo menor MAE.
+
+No hay dependencias ni migraciones nuevas. Actualizar frontend y backend juntos y reconstruir con `docker compose up -d --build`, conservando `.env` y volumen. No volver a importar archivos ya guardados. El pie de página indica v0.18. No se ha ejecutado Docker/PostgreSQL ni revisión visual con navegador; la prueba real del adjunto se realizó con persistencia SQLite aislada. Los resultados dependen de las otras cargas, el periodo, la categoría y la moneda.
+
 ## v0.17 — Composición variable y retirada de importaciones
 
 ### Corregido

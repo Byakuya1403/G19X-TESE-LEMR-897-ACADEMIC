@@ -221,11 +221,11 @@ Se borran la fila de `financial_imports` y sus `financial_entries` dentro de una
 
 Al terminar se actualizan listado y datos financieros. El forecast se vuelve a calcular con las partidas restantes; si quedan pocos meses o huecos puede pasar a no disponible. El filtro de periodo puede seguir apuntando a un mes que quedó vacío: selecciona otro periodo o importa el definitivo. Al retirar la carga se liberan su hash y sus claves de origen, por lo que puedes importar el archivo corregido sin los conflictos de esa carga eliminada; las claves que pertenezcan a otras cargas siguen protegidas.
 
-### Consultar resultados
+### Consultar resultados y proyección
 
 **Resumen** muestra únicamente el mes seleccionado, sus categorías, cuatro indicadores de ingresos/egresos presupuestados y reales, resultado del periodo y alertas. **Presupuestos** contiene el detalle por concepto. Los filtros de categoría y moneda acotan la consulta; no se suman monedas diferentes. Si hay partidas pendientes, el total real del grupo se muestra pendiente y se informa por separado lo conocido.
 
-La tarjeta verde **Predicción del siguiente mes** utiliza el módulo de regresión lineal descrito debajo. Comparte la respuesta con la sección de evaluación y tendencia, por lo que ambas muestran el mismo importe y periodo. El cálculo anterior de media del gasto real se retiró de `financial.py` y de la respuesta del dashboard. El único pronóstico está en `forecast.py`, disponible en `/api/forecast/budget`.
+La **media de hasta tres meses de gasto real**, utilizada en entregas anteriores, era una proyección estadística: la expresión «no es un modelo de IA» se refiere exclusivamente a esa media. Ese cálculo fue retirado de `financial.py` y del dashboard. La **predicción de presupuesto sí utiliza aprendizaje automático**, mediante `LinearRegression` de scikit-learn en `forecast.py`, a través de `/api/forecast/budget`. Aprende de los presupuestos asignados guardados en la base de datos. La tarjeta verde y el detalle con gráfica comparten el mismo resultado; no se vuelve a introducir la media anterior.
 
 ### Predicción inteligente de presupuesto
 
@@ -247,9 +247,13 @@ El modelo actual no tiene entidad empresa o unidad contable: esta acumulación e
 
 No se rellenan meses ausentes con ceros. Se cuenta una sola vez la misma fila de origen; un duplicado con valores inconsistentes invalida la serie. No se usan la tabla histórica `budgets`, datos de demostración ni servicios externos. El CSV de ejemplo tiene solo tres meses: permite verificar el mensaje de histórico insuficiente. Sus gastos pendientes no son un motivo de exclusión del forecast. No se agregan datos de prueba a la plataforma para producir una cifra.
 
-**Modelo y evaluación.** `scikit-learn` ajusta `LinearRegression` sobre el número de mes transcurrido y la suma mensual de presupuestos. Se evalúan los tres últimos meses mediante origen móvil: para cada mes evaluado se entrena exclusivamente con los anteriores. El MAE se compara con la referencia de repetir el presupuesto del mes previo. Después de evaluar se reentrena con todo el intervalo elegible para predecir su mes siguiente.
+**Modelo y evaluación.** Se mantiene `LinearRegression` de scikit-learn y se ajusta sobre la suma mensual de presupuestos asignados. Con seis a 23 meses se utiliza una tendencia lineal. Con 24 meses consecutivos se comparan dos configuraciones: tendencia y tendencia con once indicadores del mes del año (enero es la referencia). La segunda permite representar patrones anuales, como importes mayores en ciertos meses; no aprende el gasto real ni utiliza servicios externos.
 
-El criterio de publicación actual rechaza una regresión cuyo MAE supere al de la referencia por más de un centavo o supere el máximo entre un centavo y el 30% del presupuesto medio de los meses de validación. El umbral es una **política inicial de elegibilidad**, no un porcentaje de precisión ni una garantía calibrada para una empresa. No se calcula ni presenta R² como confianza. La regresión no modela estacionalidad. Las métricas históricas no garantizan resultados futuros.
+La configuración se selecciona antes de la evaluación final: con una ventana de 24 meses, ambas se prueban en los meses 19–21, entrenando cada vez solo con los anteriores. Se elige la estacional únicamente si reduce ese MAE en más de un centavo; en un empate se conserva la tendencia simple. La configuración elegida se evalúa por origen móvil en los meses 22–24, que no participaron en la selección. El entrenamiento final usa los 24 meses para estimar el siguiente. Con ventanas más cortas se mantiene la evaluación de los tres últimos meses, sin selección estacional. Este procedimiento evita elegir la configuración con el mismo bloque usado para informar su MAE final.
+
+El criterio de publicación rechaza un MAE que supere el máximo entre un centavo y el 30% del presupuesto medio de los meses de evaluación. Es una **política inicial de elegibilidad**, no un porcentaje de precisión ni una garantía calibrada para una empresa. La referencia de repetir el presupuesto anterior sigue calculándose: si tiene menor MAE, `supera_referencia=false` y se muestra una advertencia explícita junto a ambos errores, sin ocultar automáticamente una estimación de error moderado. La estimación siempre sigue siendo la regresión entrenada; no se sustituye por la referencia para presentarla como IA.
+
+No se calcula ni presenta R² como confianza. Los patrones anuales pueden cambiar y el error histórico no garantiza resultados futuros. Las validaciones de importes, continuidad mensual, mínimo histórico, filtros, no negatividad y corte temporal se mantienen.
 
 Se redondean importes a dos decimales. Una salida no finita se rechaza; una tendencia negativa se limita a cero y se informa explícitamente. Si el presupuesto base es cero, la variación porcentual se devuelve como `null`, sin división por cero. El presupuesto base mostrado corresponde al último mes elegible del intervalo, que debe coincidir con el periodo seleccionado.
 
@@ -315,7 +319,7 @@ Parámetros de consulta:
 
 Una respuesta 200 puede tener `disponible: false` por histórico insuficiente, meses ausentes, presupuestos inválidos o mala evaluación. En esos casos `presupuesto_estimado` es `null` y `codigo`/`mensaje` explican el motivo. No es necesario elegir un archivo. Los filtros inválidos producen 422; sin sesión devuelve 401 y un administrador sin rol financiero recibe 403. El endpoint no devuelve datos sintéticos ni crea sesiones.
 
-La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion`, `composicion_variable` y advertencias. Cada punto del historial incluye `ejecucion_completada`, un dato informativo sobre el gasto real que no condiciona el entrenamiento; no certifica el cierre del presupuesto mensual. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
+La respuesta incluye `periodo_pronosticado`, `presupuesto_actual`, `presupuesto_estimado`, `variacion_porcentual`, `modelo`, `configuracion`, `descripcion_modelo`, `seleccion_modelo`, `meses_analizados`, `periodo_base`, `moneda`, `origen`, `registros_analizados`, `importaciones_analizadas`, `historial`, `evaluacion`, `composicion_variable` y advertencias. Cada punto del historial incluye `ejecucion_completada`, un dato informativo sobre el gasto real que no condiciona el entrenamiento; no certifica el cierre del presupuesto mensual. Su esquema completo está en Swagger UI. No se incluye un ejemplo numérico como si fuera una predicción de los datos existentes.
 
 ### Estado e integración
 
@@ -421,7 +425,7 @@ La publicación para usuarios remotos requiere una configuración de HTTPS, acce
 
 ## Verificar la predicción de presupuesto
 
-La dependencia del modelo es `scikit-learn>=1.5,<2` en `backend/requirements.txt`, comprobada con 1.9.1. Esta corrección no incorpora dependencias adicionales ni modifica las tablas SQL.
+La dependencia del modelo es `scikit-learn>=1.5,<2` en `backend/requirements.txt`, comprobada con 1.9.1. Esta actualización no incorpora dependencias adicionales ni modifica las tablas SQL. Con 24 meses compara tendencia con una regresión que incluye el mes del año.
 
 1. Actualiza el código conservando `.env` y el volumen de PostgreSQL. Ejecuta `docker compose up -d --build`. No necesitas ejecutar SQL ni volver a importar datos existentes.
 2. Inicia sesión como analista. En Importaciones confirma archivos con partidas distintas del mismo espacio financiero y moneda. Se requieren al menos seis meses consecutivos con presupuesto conocido del mismo espacio financiero; pueden llegar en archivos mensuales y en cualquier orden. El ejemplo existente de tres meses permite comprobar el aviso de histórico insuficiente, sin cifras inventadas.
@@ -444,20 +448,18 @@ npm run build
 npm run format:check
 ```
 
-La verificación de esta entrega incluye **66 pruebas de backend con SQLite y 13 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
+La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
 
 ### Archivos de esta actualización
 
-| Acción | Archivos | Propósito |
-| --- | --- | --- |
-| Creados | `backend/app/imports.py` | Listado paginado y eliminación transaccional con confirmación y permisos |
-| Creados | `frontend/src/components/ImportHistory.jsx` | Listado, paginación y diálogo de confirmación |
-| Creados | `backend/tests/test_imports.py`, `frontend/tests/importHistory.test.js` | Permisos, confirmación, aislamiento, rollback, reimportación y estados de interfaz |
-| Modificados | `backend/app/forecast.py`, `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Composición variable informativa y pruebas del forecast tras eliminar datos |
-| Modificados | `backend/app/main.py`, `frontend/src/App.jsx`, `frontend/src/components/Importaciones.jsx`, `frontend/src/styles.css` | Integración, actualización de datos e identificador de versión |
-| Modificados | `frontend/package.json` | Ejecutar las pruebas de frontend secuencialmente para evitar colisiones entre servidores Vite de prueba |
-| Modificados | `README.md`, `CHANGELOG.md` | Funcionamiento, límites, API y verificación |
+| Archivos | Propósito |
+| --- | --- |
+| `backend/app/forecast.py` | Dos configuraciones de regresión lineal, selección temporal anterior a la evaluación y comparación informativa con la referencia |
+| `frontend/src/components/BudgetForecast.jsx` | Descripción de la configuración utilizada y explicación de selección/evaluación |
+| `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Patrones anuales, independencia de selección, ausencia de fuga temporal, importación y advertencias |
+| `backend/app/main.py`, `frontend/src/App.jsx` | Versión visible y de API |
+| `README.md`, `CHANGELOG.md` | Distinción entre media de gasto e IA de presupuesto, metodología, límites y verificación |
 
-No se agregan dependencias ni migraciones SQL. Login, roles, Simulación y el contrato de carga CSV se mantienen. El listado de cargas y su retirada reutilizan el permiso de Analista.
+La verificación incluyó el CSV de 792 filas adjunto a la solicitud: importación mediante la API, persistencia en una base SQLite aislada y consulta del forecast para el último mes y varios cortes anteriores. No se modificó ese archivo ni se añadió al repositorio. Las pruebas automáticas versionadas usan datos sintéticos identificados como fixtures, sin copiar presupuestos del archivo del usuario.
 
-Para verificar la corrección de la captura, prueba un histórico real de al menos seis meses con descripciones o cantidades de partidas distintas: esos cambios deben producir una advertencia, no el código anterior `cobertura_variable`. La publicación de una cifra sigue dependiendo del MAE y la referencia temporal. Para verificar la retirada, elimina una carga de prueba con su código exacto, comprueba que desaparezcan solo sus partidas y vuelve a importar su archivo fuente. Las pruebas automáticas incluyen también una excepción durante el borrado para comprobar que la transacción revierte todas las filas.
+Se conservan el login, los roles, Simulación, importación y eliminación de cargas, modelo SQL y dependencias. Actualiza backend y frontend juntos con `docker compose up -d --build`, manteniendo `.env` y el volumen. Si el CSV ya está guardado, no lo reimportes: la consulta utiliza los registros existentes. Comprueba que el pie de página muestre **v0.18**. Los importes obtenidos en una base que contenga solo ese archivo pueden diferir de los de una instalación con otras cargas o filtros.

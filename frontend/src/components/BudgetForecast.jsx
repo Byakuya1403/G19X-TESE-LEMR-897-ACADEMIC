@@ -8,7 +8,7 @@ export function BudgetForecastView({ result, loading, error, financial }) {
     <article className="panel budget-forecast" aria-labelledby="budget-forecast-title">
       <div className="paneltitle">
         <h2 id="budget-forecast-title">Predicción inteligente de presupuesto</h2>
-        <span>Regresión lineal</span>
+        <span>{result?.descripcion_modelo || 'Regresión lineal'}</span>
       </div>
       <p className="muted">
         Presupuesto asignado a egresos, separado del gasto real. Se estima el mes siguiente al
@@ -63,7 +63,10 @@ export function BudgetForecastView({ result, loading, error, financial }) {
                       </div>
                       <div>
                         <dt>Modelo utilizado</dt>
-                        <dd>Regresión lineal · {result.meses_analizados} meses</dd>
+                        <dd>
+                          {result.descripcion_modelo || 'Regresión lineal'} ·{' '}
+                          {result.meses_analizados} meses
+                        </dd>
                       </div>
                     </dl>
                   </div>
@@ -76,6 +79,12 @@ export function BudgetForecastView({ result, loading, error, financial }) {
                   {formatMoney(result.evaluacion.mae_referencia, result.moneda)}. Evaluación
                   temporal en {result.evaluacion.meses_validacion} meses, siempre entrenando con
                   meses anteriores; no es un porcentaje de confianza.
+                </p>
+              )}
+              {result.seleccion_modelo && (
+                <p className="muted">
+                  La configuración se eligió con meses anteriores a los tres meses de evaluación
+                  final. Esa selección comparó tendencia y tendencia con mes del año.
                 </p>
               )}
               {result.advertencias.map((warning) => (
@@ -162,7 +171,7 @@ export function BudgetForecastSummary({ result, loading, error, financial }) {
             : error
               ? error
               : ready
-                ? `Regresión lineal · ${result.meses_analizados} meses analizados. Fuente: base de datos. Consulta la evaluación y la tendencia debajo.`
+                ? `${result.descripcion_modelo || 'Regresión lineal'} · ${result.meses_analizados} meses analizados. Fuente: base de datos. Consulta la evaluación y la tendencia debajo.`
                 : result?.mensaje || 'Esperando el histórico almacenado.'}
       </div>
     </article>

@@ -198,3 +198,28 @@ test('changing budget composition is shown as a warning without hiding a valid e
   assert.ok(html.includes('$1,600.00') && html.includes('trend-projected'));
   assert.ok(html.includes('La composición de las partidas cambia entre meses.'));
 });
+
+test('calendar configuration and independent selection are explained in the result', () => {
+  const html = render({
+    result: result({
+      descripcion_modelo: 'Regresión lineal con tendencia y mes del año',
+      configuracion: 'tendencia_y_mes',
+      seleccion_modelo: { periodos: ['2026-01', '2026-02', '2026-03'] },
+    }),
+  });
+  assert.ok(html.includes('Regresión lineal con tendencia y mes del año'));
+  assert.ok(html.includes('tres meses de evaluación final'));
+  assert.ok(html.includes('$1,600.00'));
+});
+
+test('inferior baseline comparison remains visible with the usable model estimate', () => {
+  const html = render({
+    result: result({
+      evaluacion: { mae: 10, mae_referencia: 1, meses_validacion: 3, supera_referencia: false },
+      advertencias: ['Repetir el presupuesto anterior tuvo menor error.'],
+    }),
+  });
+  assert.ok(html.includes('$1,600.00'));
+  assert.ok(html.includes('Repetir el presupuesto anterior tuvo menor error.'));
+  assert.ok(html.includes('Error histórico (MAE)'));
+});

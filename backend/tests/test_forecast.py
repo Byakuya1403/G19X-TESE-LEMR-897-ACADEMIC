@@ -166,12 +166,13 @@ def test_income_currency_and_category_are_separate():
     )
 
 
-def test_error_threshold_and_naive_reference_reject_bad_models():
+def test_error_threshold_blocks_large_error_and_baseline_comparison_is_honest():
     result = predict_budget(history([100, 1000, 100, 1000, 100, 1000]), currency="MXN")
     assert not result["disponible"] and result["codigo"] == "error_elevado"
     result = predict_budget(history([100, 110, 120, 120, 120, 120]), currency="MXN")
-    assert not result["disponible"] and result["codigo"] == "referencia_mejor"
-    assert result["evaluacion"] is not None
+    assert result["disponible"]
+    assert result["evaluacion"]["supera_referencia"] is False
+    assert any("menor error" in warning for warning in result["advertencias"])
 
 
 def test_zero_baseline_and_negative_trend_are_explicit():
@@ -529,3 +530,108 @@ def test_endpoint_forecasts_variable_composition_in_persisted_history(client):
     result = client.get("/api/forecast/budget").json()
     assert result["disponible"] and result["presupuesto_estimado"] == 1600
     assert result["composicion_variable"]
+
+
+def seasonal_history():
+    # Synthetic, test-only annual pattern. No company/source CSV is bundled here.
+    return history(
+        [1000 + i * 10 + (400 if i % 12 in (10, 11) else 0) for i in range(36)],
+        start=(2024, 1),
+    )
+
+
+def test_calendar_regression_handles_annual_peaks_and_year_rollover():
+    result = predict_budget(seasonal_history(), currency="MXN")
+    assert result["disponible"]
+    assert result["modelo"] == "LinearRegression"
+    assert result["configuracion"] == "tendencia_y_mes"
+    assert result["periodo_pronosticado"] == "2027-01"
+    assert result["presupuesto_estimado"] == 1360
+    assert result["presupuesto_actual"] == 1750
+    assert result["evaluacion"]["mae"] == 0
+    assert result["evaluacion"]["supera_referencia"]
+    assert result["seleccion_modelo"]["periodos"] == ["2026-07", "2026-08", "2026-09"]
+    assert result["meses_analizados"] == 24
+
+
+def test_configuration_selection_never_uses_final_evaluation_values():
+    rows = seasonal_history()
+    expected = predict_budget(rows, currency="MXN")
+    for row in rows[-3:]:
+        row.budget = Decimal(9999999)
+    changed = predict_budget(rows, currency="MXN")
+    assert changed["seleccion_modelo"] == expected["seleccion_modelo"]
+    assert changed["configuracion"] == expected["configuracion"]
+    assert changed["evaluacion"] != expected["evaluacion"]
+
+
+def test_short_histories_keep_simple_trend_and_linear_history_prefers_simple_model():
+    short = predict_budget(history(), currency="MXN")
+    assert short["configuracion"] == "tendencia"
+    assert short["seleccion_modelo"] is None
+    linear = predict_budget(history(list(range(1000, 3400, 100))), currency="MXN")
+    assert linear["configuracion"] == "tendencia"
+    assert linear["presupuesto_estimado"] == 3400
+
+
+def test_seasonal_regression_fits_only_past_at_every_cut(monkeypatch):
+    import app.forecast as module
+
+    real_model = module.LinearRegression
+    fit_sizes = []
+
+    class Spy(real_model):
+        def fit(self, x, y):
+            self.last_fit = max(row[0] for row in x)
+            fit_sizes.append(len(x))
+            return super().fit(x, y)
+
+        def predict(self, x):
+            assert all(row[0] > self.last_fit for row in x)
+            return super().predict(x)
+
+    monkeypatch.setattr(module, "LinearRegression", Spy)
+    assert predict_budget(seasonal_history(), currency="MXN")["disponible"]
+    assert fit_sizes == [18, 19, 20, 18, 19, 20, 21, 22, 23, 24]
+
+
+def test_seasonal_csv_round_trip_uses_persisted_budgets(client):
+    client.post(
+        "/api/auth/login",
+        json={"username": "analista", "password": "UnaClaveSegura2026"},
+    )
+    columns = "ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado\n"
+    months = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ]
+    rows = [
+        f"{row.source_id},{row.year},{months[row.month-1]},Servicios,Operación,Servicio mensual,{row.budget},0,{row.budget},0,Pendiente"
+        for row in seasonal_history()
+    ]
+    response = client.post(
+        "/api/financial/imports/csv",
+        files={
+            "file": (
+                "fixture-estacional.csv",
+                columns + "\n".join(rows) + "\n",
+                "text/csv",
+            )
+        },
+        data={"currency": "MXN"},
+    )
+    assert response.status_code == 201
+    result = client.get("/api/forecast/budget").json()
+    assert result["disponible"] and result["presupuesto_estimado"] == 1360
+    assert result["configuracion"] == "tendencia_y_mes"
+    assert result["periodo_pronosticado"] == "2027-01"

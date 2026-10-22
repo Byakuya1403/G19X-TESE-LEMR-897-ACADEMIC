@@ -16,7 +16,7 @@ async def lifespan(app):
 
 app = FastAPI(
     title="Plataforma de Presupuesto · Presupuesto corporativo",
-    version="0.17.0",
+    version="0.18.0",
     lifespan=lifespan,
 )
 app.add_middleware(
