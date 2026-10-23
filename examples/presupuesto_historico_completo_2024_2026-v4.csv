@@ -1,0 +1,793 @@
+﻿ID_Registro,Anio,Mes,Categoria,Subcategoria,Concepto,Presupuesto_Estimado,Gasto_Real,Diferencia_Varianza,Porcentaje_Ejecucion,Estado
+1001,2024,Enero,Ingresos,Ventas,Ventas de Productos - Línea A,138672.71,148358.22,-9685.51,106.98%,Completado
+1002,2024,Enero,Ingresos,Ventas,Ventas de Productos - Línea B,78849.31,83049.2,-4199.89,105.33%,Completado
+1003,2024,Enero,Ingresos,Servicios,Consultoría y Soporte Técnico,43779.08,46414.92,-2635.84,106.02%,Completado
+1004,2024,Enero,Ingresos,Servicios,Suscripciones de Software (SaaS),28213.06,29209.52,-996.46,103.53%,Completado
+1005,2024,Enero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7760.55,7911.91,-151.36,101.95%,Completado
+1006,2024,Enero,Gastos Operativos,Nómina,Sueldos Personal Operativo,61134.22,62536.8,-1402.58,102.29%,Completado
+1007,2024,Enero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,39289.92,40131.22,-841.3,102.14%,Completado
+1008,2024,Enero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,17140.14,17147.84,-7.7,100.04%,Completado
+1009,2024,Enero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,23889.08,24077.34,-188.26,100.79%,Completado
+1010,2024,Enero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4261.74,4387.92,-126.18,102.96%,Completado
+1011,2024,Enero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3113.94,3329.91,-215.97,106.94%,Completado
+1012,2024,Enero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7249.01,7690.95,-441.94,106.10%,Completado
+1013,2024,Enero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),11995.24,13987.31,-1992.07,116.61%,Completado
+1014,2024,Enero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8429.61,6972.47,1457.14,82.71%,Completado
+1015,2024,Enero,Marketing y Ventas,Comisiones,Comisiones por Ventas,11631.08,11781.93,-150.85,101.30%,Completado
+1016,2024,Enero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6770.3,6461.92,308.38,95.45%,Completado
+1017,2024,Enero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3546.51,3277.46,269.05,92.41%,Completado
+1018,2024,Enero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4838.16,3528.27,1309.89,72.93%,Completado
+1019,2024,Enero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3757.88,2208.53,1549.35,58.77%,Completado
+1020,2024,Enero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2376.82,2862.61,-485.79,120.44%,Completado
+1021,2024,Enero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10565.89,9959.44,606.45,94.26%,Completado
+1022,2024,Enero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1750.02,1650.94,99.08,94.34%,Completado
+1023,2024,Febrero,Ingresos,Ventas,Ventas de Productos - Línea A,142381.47,136972.83,5408.64,96.20%,Completado
+1024,2024,Febrero,Ingresos,Ventas,Ventas de Productos - Línea B,78481.77,71854.79,6626.98,91.56%,Completado
+1025,2024,Febrero,Ingresos,Servicios,Consultoría y Soporte Técnico,43401.95,45080.06,-1678.11,103.87%,Completado
+1026,2024,Febrero,Ingresos,Servicios,Suscripciones de Software (SaaS),29207.33,35107.34,-5900.01,120.20%,Completado
+1027,2024,Febrero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7672.08,7805.9,-133.82,101.74%,Completado
+1028,2024,Febrero,Gastos Operativos,Nómina,Sueldos Personal Operativo,61346.87,62809.45,-1462.58,102.38%,Completado
+1029,2024,Febrero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,38878.46,37901.02,977.44,97.49%,Completado
+1030,2024,Febrero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,17402.17,17645.88,-243.71,101.40%,Completado
+1031,2024,Febrero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,23306.91,23585.79,-278.88,101.20%,Completado
+1032,2024,Febrero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4150.04,4395.74,-245.7,105.92%,Completado
+1033,2024,Febrero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3012.99,3085.81,-72.82,102.42%,Completado
+1034,2024,Febrero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7220.62,8984.94,-1764.32,124.43%,Completado
+1035,2024,Febrero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12653.18,8869.57,3783.61,70.10%,Completado
+1036,2024,Febrero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8788.06,3574.35,5213.71,40.67%,Completado
+1037,2024,Febrero,Marketing y Ventas,Comisiones,Comisiones por Ventas,11488.91,11654.25,-165.34,101.44%,Completado
+1038,2024,Febrero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6521.36,6894.3,-372.94,105.72%,Completado
+1039,2024,Febrero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3716.56,3250.17,466.39,87.45%,Completado
+1040,2024,Febrero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4620.08,5542.29,-922.21,119.96%,Completado
+1041,2024,Febrero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3716.72,4016.66,-299.94,108.07%,Completado
+1042,2024,Febrero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2353.92,2693.42,-339.5,114.42%,Completado
+1043,2024,Febrero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10307,9715.45,591.55,94.26%,Completado
+1044,2024,Febrero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1669.84,1704.84,-35,102.10%,Completado
+1045,2024,Marzo,Ingresos,Ventas,Ventas de Productos - Línea A,146063.48,142973.51,3089.97,97.88%,Completado
+1046,2024,Marzo,Ingresos,Ventas,Ventas de Productos - Línea B,84659.32,87543.14,-2883.82,103.41%,Completado
+1047,2024,Marzo,Ingresos,Servicios,Consultoría y Soporte Técnico,43673.12,42841.46,831.66,98.10%,Completado
+1048,2024,Marzo,Ingresos,Servicios,Suscripciones de Software (SaaS),30349.57,30032.19,317.38,98.95%,Completado
+1049,2024,Marzo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7954.02,8201.27,-247.25,103.11%,Completado
+1050,2024,Marzo,Gastos Operativos,Nómina,Sueldos Personal Operativo,64892.79,64753.12,139.67,99.78%,Completado
+1051,2024,Marzo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42632.05,42231.08,400.97,99.06%,Completado
+1052,2024,Marzo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18654.43,19249.22,-594.79,103.19%,Completado
+1053,2024,Marzo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25704.53,25904.22,-199.69,100.78%,Completado
+1054,2024,Marzo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4558.78,4305.43,253.35,94.44%,Completado
+1055,2024,Marzo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3234.38,2987.9,246.48,92.38%,Completado
+1056,2024,Marzo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7310.27,8080.53,-770.26,110.54%,Completado
+1057,2024,Marzo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13295.55,15553.51,-2257.96,116.98%,Completado
+1058,2024,Marzo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9020.27,9978.79,-958.52,110.63%,Completado
+1059,2024,Marzo,Marketing y Ventas,Comisiones,Comisiones por Ventas,11745.22,9997.92,1747.3,85.12%,Completado
+1060,2024,Marzo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7115.98,6458.69,657.29,90.76%,Completado
+1061,2024,Marzo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3774.75,4349.15,-574.4,115.22%,Completado
+1062,2024,Marzo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5005.13,8399.34,-3394.21,167.81%,Completado
+1063,2024,Marzo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4031.11,4416.58,-385.47,109.56%,Completado
+1064,2024,Marzo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2434.31,1978.96,455.35,81.29%,Completado
+1065,2024,Marzo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10759.77,10466.22,293.55,97.27%,Completado
+1066,2024,Marzo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1840.08,1765.71,74.37,95.96%,Completado
+1067,2024,Abril,Ingresos,Ventas,Ventas de Productos - Línea A,152161.48,170122.43,-17960.95,111.80%,Completado
+1068,2024,Abril,Ingresos,Ventas,Ventas de Productos - Línea B,83999.41,82468.42,1530.99,98.18%,Completado
+1069,2024,Abril,Ingresos,Servicios,Consultoría y Soporte Técnico,45785.99,48522.23,-2736.24,105.98%,Completado
+1070,2024,Abril,Ingresos,Servicios,Suscripciones de Software (SaaS),30668.51,31457.82,-789.31,102.57%,Completado
+1071,2024,Abril,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8007.07,8252.25,-245.18,103.06%,Completado
+1072,2024,Abril,Gastos Operativos,Nómina,Sueldos Personal Operativo,65177.29,66927.01,-1749.72,102.68%,Completado
+1073,2024,Abril,Gastos Operativos,Nómina,Sueldos Administración y Ventas,41669.88,42265.66,-595.78,101.43%,Completado
+1074,2024,Abril,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18246.64,17833.63,413.01,97.74%,Completado
+1075,2024,Abril,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25009.45,25073.26,-63.81,100.26%,Completado
+1076,2024,Abril,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4472.51,4774.48,-301.97,106.75%,Completado
+1077,2024,Abril,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3284.15,3569.83,-285.68,108.70%,Completado
+1078,2024,Abril,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7364.77,7836.89,-472.12,106.41%,Completado
+1079,2024,Abril,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13386.31,14407.16,-1020.85,107.63%,Completado
+1080,2024,Abril,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9034.9,8094.69,940.21,89.59%,Completado
+1081,2024,Abril,Marketing y Ventas,Comisiones,Comisiones por Ventas,11701.27,11176.89,524.38,95.52%,Completado
+1082,2024,Abril,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7015.83,7308.28,-292.45,104.17%,Completado
+1083,2024,Abril,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3897.9,4037.58,-139.68,103.58%,Completado
+1084,2024,Abril,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5085.82,3035.09,2050.73,59.68%,Completado
+1085,2024,Abril,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3996.15,3743.12,253.03,93.67%,Completado
+1086,2024,Abril,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2463.53,1616.39,847.14,65.61%,Completado
+1087,2024,Abril,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11219.63,10534.14,685.49,93.89%,Completado
+1088,2024,Abril,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1788.75,1740.2,48.55,97.29%,Completado
+1089,2024,Mayo,Ingresos,Ventas,Ventas de Productos - Línea A,147517.35,141389.98,6127.37,95.85%,Completado
+1090,2024,Mayo,Ingresos,Ventas,Ventas de Productos - Línea B,85687.39,85652.24,35.15,99.96%,Completado
+1091,2024,Mayo,Ingresos,Servicios,Consultoría y Soporte Técnico,46075.32,46870.75,-795.43,101.73%,Completado
+1092,2024,Mayo,Ingresos,Servicios,Suscripciones de Software (SaaS),29990.05,25216.12,4773.93,84.08%,Completado
+1093,2024,Mayo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8093.98,8170.37,-76.39,100.94%,Completado
+1094,2024,Mayo,Gastos Operativos,Nómina,Sueldos Personal Operativo,66410.42,66864.93,-454.51,100.68%,Completado
+1095,2024,Mayo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,41651.84,41227.41,424.43,98.98%,Completado
+1096,2024,Mayo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18343.12,17673.66,669.46,96.35%,Completado
+1097,2024,Mayo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25405.43,25170.74,234.69,99.08%,Completado
+1098,2024,Mayo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4586.53,5098.8,-512.27,111.17%,Completado
+1099,2024,Mayo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3138.69,3306.03,-167.34,105.33%,Completado
+1100,2024,Mayo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7461.63,7385.22,76.41,98.98%,Completado
+1101,2024,Mayo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13000.37,13578.58,-578.21,104.45%,Completado
+1102,2024,Mayo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9031.88,7802.31,1229.57,86.39%,Completado
+1103,2024,Mayo,Marketing y Ventas,Comisiones,Comisiones por Ventas,11905.33,12548.55,-643.22,105.40%,Completado
+1104,2024,Mayo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6901.47,6818.19,83.28,98.79%,Completado
+1105,2024,Mayo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3872.91,3546.53,326.38,91.57%,Completado
+1106,2024,Mayo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4865.48,8542.77,-3677.29,175.58%,Completado
+1107,2024,Mayo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3973.22,5187.9,-1214.68,130.57%,Completado
+1108,2024,Mayo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2569.47,2988.84,-419.37,116.32%,Completado
+1109,2024,Mayo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10884.3,10574.28,310.02,97.15%,Completado
+1110,2024,Mayo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1793.44,1737.23,56.21,96.87%,Completado
+1111,2024,Junio,Ingresos,Ventas,Ventas de Productos - Línea A,150643.69,150827.69,-184,100.12%,Completado
+1112,2024,Junio,Ingresos,Ventas,Ventas de Productos - Línea B,85005.08,98022.68,-13017.6,115.31%,Completado
+1113,2024,Junio,Ingresos,Servicios,Consultoría y Soporte Técnico,46094.75,45196.56,898.19,98.05%,Completado
+1114,2024,Junio,Ingresos,Servicios,Suscripciones de Software (SaaS),29427.97,38109.55,-8681.58,129.50%,Completado
+1115,2024,Junio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7769.56,7499.19,270.37,96.52%,Completado
+1116,2024,Junio,Gastos Operativos,Nómina,Sueldos Personal Operativo,64911.55,62234.46,2677.09,95.88%,Completado
+1117,2024,Junio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,40847.76,41299.1,-451.34,101.10%,Completado
+1118,2024,Junio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18911.22,18906.32,4.9,99.97%,Completado
+1119,2024,Junio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25587.3,25680.36,-93.06,100.36%,Completado
+1120,2024,Junio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4490.12,5195.58,-705.46,115.71%,Completado
+1121,2024,Junio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3276.72,3921.67,-644.95,119.68%,Completado
+1122,2024,Junio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7404.92,5745.66,1659.26,77.59%,Completado
+1123,2024,Junio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13062.48,14773.48,-1711,113.10%,Completado
+1124,2024,Junio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8938.71,8708.54,230.17,97.43%,Completado
+1125,2024,Junio,Marketing y Ventas,Comisiones,Comisiones por Ventas,12135.35,13163.44,-1028.09,108.47%,Completado
+1126,2024,Junio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6860.57,6961.12,-100.55,101.47%,Completado
+1127,2024,Junio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3780.86,3412.53,368.33,90.26%,Completado
+1128,2024,Junio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4999.04,6085.06,-1086.02,121.72%,Completado
+1129,2024,Junio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3919.54,5292.76,-1373.22,135.04%,Completado
+1130,2024,Junio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2539.58,2718.48,-178.9,107.04%,Completado
+1131,2024,Junio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11281.75,11588.67,-306.92,102.72%,Completado
+1132,2024,Junio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1839.49,1773.44,66.05,96.41%,Completado
+1133,2024,Julio,Ingresos,Ventas,Ventas de Productos - Línea A,149706.52,148640.25,1066.27,99.29%,Completado
+1134,2024,Julio,Ingresos,Ventas,Ventas de Productos - Línea B,84707.83,88355.63,-3647.8,104.31%,Completado
+1135,2024,Julio,Ingresos,Servicios,Consultoría y Soporte Técnico,45121.4,44849.15,272.25,99.40%,Completado
+1136,2024,Julio,Ingresos,Servicios,Suscripciones de Software (SaaS),30793.6,33188.4,-2394.8,107.78%,Completado
+1137,2024,Julio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7792.53,8088.08,-295.55,103.79%,Completado
+1138,2024,Julio,Gastos Operativos,Nómina,Sueldos Personal Operativo,66136.92,65383.74,753.18,98.86%,Completado
+1139,2024,Julio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,41019.59,39762.41,1257.18,96.94%,Completado
+1140,2024,Julio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18428.97,17897.34,531.63,97.12%,Completado
+1141,2024,Julio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,24784.7,24621.85,162.85,99.34%,Completado
+1142,2024,Julio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4422.14,4432.05,-9.91,100.22%,Completado
+1143,2024,Julio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3150.33,4158.66,-1008.33,132.01%,Completado
+1144,2024,Julio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7308.05,8057.98,-749.93,110.26%,Completado
+1145,2024,Julio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13333.17,16248.86,-2915.69,121.87%,Completado
+1146,2024,Julio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9025.34,9252.14,-226.8,102.51%,Completado
+1147,2024,Julio,Marketing y Ventas,Comisiones,Comisiones por Ventas,11670.13,13787.09,-2116.96,118.14%,Completado
+1148,2024,Julio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7159.24,6950.74,208.5,97.09%,Completado
+1149,2024,Julio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3785.33,3735.39,49.94,98.68%,Completado
+1150,2024,Julio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4883.82,5943.36,-1059.54,121.69%,Completado
+1151,2024,Julio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4041.03,4405.88,-364.85,109.03%,Completado
+1152,2024,Julio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2428.89,2127.09,301.8,87.57%,Completado
+1153,2024,Julio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10908.61,11176.38,-267.77,102.45%,Completado
+1154,2024,Julio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1769.98,1821.75,-51.77,102.92%,Completado
+1155,2024,Agosto,Ingresos,Ventas,Ventas de Productos - Línea A,151461.79,137218.09,14243.7,90.60%,Completado
+1156,2024,Agosto,Ingresos,Ventas,Ventas de Productos - Línea B,84439.44,88764.22,-4324.78,105.12%,Completado
+1157,2024,Agosto,Ingresos,Servicios,Consultoría y Soporte Técnico,46305.91,45622.9,683.01,98.53%,Completado
+1158,2024,Agosto,Ingresos,Servicios,Suscripciones de Software (SaaS),29350.6,29370.62,-20.02,100.07%,Completado
+1159,2024,Agosto,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8110.99,8254.62,-143.63,101.77%,Completado
+1160,2024,Agosto,Gastos Operativos,Nómina,Sueldos Personal Operativo,64844.41,64317.63,526.78,99.19%,Completado
+1161,2024,Agosto,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42912.62,42760.15,152.47,99.64%,Completado
+1162,2024,Agosto,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18523.17,18478.75,44.42,99.76%,Completado
+1163,2024,Agosto,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,24683.13,24815.38,-132.25,100.54%,Completado
+1164,2024,Agosto,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4393.55,5197.37,-803.82,118.30%,Completado
+1165,2024,Agosto,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3263.3,3275.71,-12.41,100.38%,Completado
+1166,2024,Agosto,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7421.19,5431.88,1989.31,73.19%,Completado
+1167,2024,Agosto,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12674.56,10324.44,2350.12,81.46%,Completado
+1168,2024,Agosto,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8827.09,3956.48,4870.61,44.82%,Completado
+1169,2024,Agosto,Marketing y Ventas,Comisiones,Comisiones por Ventas,11730.83,9015.64,2715.19,76.85%,Completado
+1170,2024,Agosto,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6792.23,6895.29,-103.06,101.52%,Completado
+1171,2024,Agosto,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3865.85,3933.72,-67.87,101.76%,Completado
+1172,2024,Agosto,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4893.92,5120.42,-226.5,104.63%,Completado
+1173,2024,Agosto,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,3989.83,5614.77,-1624.94,140.73%,Completado
+1174,2024,Agosto,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2433.94,2157.58,276.36,88.65%,Completado
+1175,2024,Agosto,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10770.12,10497.25,272.87,97.47%,Completado
+1176,2024,Agosto,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1818.18,1827.69,-9.51,100.52%,Completado
+1177,2024,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea A,148730.4,169921.22,-21190.82,114.25%,Completado
+1178,2024,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea B,86616.23,82247.49,4368.74,94.96%,Completado
+1179,2024,Septiembre,Ingresos,Servicios,Consultoría y Soporte Técnico,44284.86,41283.63,3001.23,93.22%,Completado
+1180,2024,Septiembre,Ingresos,Servicios,Suscripciones de Software (SaaS),29260.93,31453.16,-2192.23,107.49%,Completado
+1181,2024,Septiembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,7764.58,7617.72,146.86,98.11%,Completado
+1182,2024,Septiembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,66118.88,67893.52,-1774.64,102.68%,Completado
+1183,2024,Septiembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42792.92,43085.2,-292.28,100.68%,Completado
+1184,2024,Septiembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18971.5,19070.27,-98.77,100.52%,Completado
+1185,2024,Septiembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,24682.1,24991.46,-309.36,101.25%,Completado
+1186,2024,Septiembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4576.95,5036.54,-459.59,110.04%,Completado
+1187,2024,Septiembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3220.1,3324.65,-104.55,103.25%,Completado
+1188,2024,Septiembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7658.91,4641.79,3017.12,60.61%,Completado
+1189,2024,Septiembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12815.34,7939.88,4875.46,61.96%,Completado
+1190,2024,Septiembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8928.58,12000.63,-3072.05,134.41%,Completado
+1191,2024,Septiembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,12090.78,13782.85,-1692.07,113.99%,Completado
+1192,2024,Septiembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7043.11,6450.9,592.21,91.59%,Completado
+1193,2024,Septiembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3765.77,3756.8,8.97,99.76%,Completado
+1194,2024,Septiembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,4955.16,4824.24,130.92,97.36%,Completado
+1195,2024,Septiembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4062.12,3761.31,300.81,92.59%,Completado
+1196,2024,Septiembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2532.94,2368.33,164.61,93.50%,Completado
+1197,2024,Septiembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11072.61,10778.94,293.67,97.35%,Completado
+1198,2024,Septiembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1810.4,1824.89,-14.49,100.80%,Completado
+1199,2024,Octubre,Ingresos,Ventas,Ventas de Productos - Línea A,152210.19,157683.32,-5473.13,103.60%,Completado
+1200,2024,Octubre,Ingresos,Ventas,Ventas de Productos - Línea B,82810.1,93960.82,-11150.72,113.47%,Completado
+1201,2024,Octubre,Ingresos,Servicios,Consultoría y Soporte Técnico,44204.42,41792.34,2412.08,94.54%,Completado
+1202,2024,Octubre,Ingresos,Servicios,Suscripciones de Software (SaaS),29609.94,34402.59,-4792.65,116.19%,Completado
+1203,2024,Octubre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8187.35,8381.85,-194.5,102.38%,Completado
+1204,2024,Octubre,Gastos Operativos,Nómina,Sueldos Personal Operativo,63154.19,63034.24,119.95,99.81%,Completado
+1205,2024,Octubre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42576.38,42741.51,-165.13,100.39%,Completado
+1206,2024,Octubre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18691.44,17090.32,1601.12,91.43%,Completado
+1207,2024,Octubre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25420.15,25342.36,77.79,99.69%,Completado
+1208,2024,Octubre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4634.98,4762.83,-127.85,102.76%,Completado
+1209,2024,Octubre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3220.1,3089.31,130.79,95.94%,Completado
+1210,2024,Octubre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7308.12,10371.3,-3063.18,141.91%,Completado
+1211,2024,Octubre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12654.29,12623.75,30.54,99.76%,Completado
+1212,2024,Octubre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8951.8,10132.78,-1180.98,113.19%,Completado
+1213,2024,Octubre,Marketing y Ventas,Comisiones,Comisiones por Ventas,12087.18,10258.39,1828.79,84.87%,Completado
+1214,2024,Octubre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,6840.14,6787.26,52.88,99.23%,Completado
+1215,2024,Octubre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3807.97,4077.19,-269.22,107.07%,Completado
+1216,2024,Octubre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5089.77,4842.06,247.71,95.13%,Completado
+1217,2024,Octubre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4033.12,4167.28,-134.16,103.33%,Completado
+1218,2024,Octubre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2490.93,1763.29,727.64,70.79%,Completado
+1219,2024,Octubre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,10825.08,11090.05,-264.97,102.45%,Completado
+1220,2024,Octubre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1756.9,1780.79,-23.89,101.36%,Completado
+1221,2024,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea A,175267.07,188756.47,-13489.4,107.70%,Completado
+1222,2024,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea B,100006.84,84264.95,15741.89,84.26%,Completado
+1223,2024,Noviembre,Ingresos,Servicios,Consultoría y Soporte Técnico,51311.48,49129.26,2182.22,95.75%,Completado
+1224,2024,Noviembre,Ingresos,Servicios,Suscripciones de Software (SaaS),33738.87,27074.88,6663.99,80.25%,Completado
+1225,2024,Noviembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8924.19,9123.33,-199.14,102.23%,Completado
+1226,2024,Noviembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,76129.91,81048.01,-4918.1,106.46%,Completado
+1227,2024,Noviembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,47226.7,47562.23,-335.53,100.71%,Completado
+1228,2024,Noviembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20977.17,20551.21,425.96,97.97%,Completado
+1229,2024,Noviembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28177.56,28571.85,-394.29,101.40%,Completado
+1230,2024,Noviembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5039.91,4535.79,504.12,90.00%,Completado
+1231,2024,Noviembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3574.86,3712.29,-137.43,103.84%,Completado
+1232,2024,Noviembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8660.41,6985.53,1674.88,80.66%,Completado
+1233,2024,Noviembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),15073.88,13669.06,1404.82,90.68%,Completado
+1234,2024,Noviembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10232.22,9785.63,446.59,95.64%,Completado
+1235,2024,Noviembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,13880.69,14204.23,-323.54,102.33%,Completado
+1236,2024,Noviembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7819.45,7472.41,347.04,95.56%,Completado
+1237,2024,Noviembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4276.99,4087.35,189.64,95.57%,Completado
+1238,2024,Noviembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5724.81,10709.96,-4985.15,187.08%,Completado
+1239,2024,Noviembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4599.31,2152.18,2447.13,46.79%,Completado
+1240,2024,Noviembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2926.86,3474.7,-547.84,118.72%,Completado
+1241,2024,Noviembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12387.35,11914.77,472.58,96.18%,Completado
+1242,2024,Noviembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2119.37,2003.67,115.7,94.54%,Completado
+1243,2024,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea A,167974.27,160288.98,7685.29,95.42%,Completado
+1244,2024,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea B,98156.7,95148.62,3008.08,96.94%,Completado
+1245,2024,Diciembre,Ingresos,Servicios,Consultoría y Soporte Técnico,52734.83,49749.02,2985.81,94.34%,Completado
+1246,2024,Diciembre,Ingresos,Servicios,Suscripciones de Software (SaaS),34220.81,36266.95,-2046.14,105.98%,Completado
+1247,2024,Diciembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9445.55,9551.86,-106.31,101.13%,Completado
+1248,2024,Diciembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,72699.15,71979.84,719.31,99.01%,Completado
+1249,2024,Diciembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,48401.24,48309.39,91.85,99.81%,Completado
+1250,2024,Diciembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,21498.65,21699.34,-200.69,100.93%,Completado
+1251,2024,Diciembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28156.92,28077.53,79.39,99.72%,Completado
+1252,2024,Diciembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5241.42,5091.31,150.11,97.14%,Completado
+1253,2024,Diciembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3754.51,4095.22,-340.71,109.07%,Completado
+1254,2024,Diciembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8684.65,5243.79,3440.86,60.38%,Completado
+1255,2024,Diciembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14800.88,16140.06,-1339.18,109.05%,Completado
+1256,2024,Diciembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10644.52,14196.08,-3551.56,133.37%,Completado
+1257,2024,Diciembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,13930.89,14326.91,-396.02,102.84%,Completado
+1258,2024,Diciembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7882.03,7953.45,-71.42,100.91%,Completado
+1259,2024,Diciembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4449.42,4815.24,-365.82,108.22%,Completado
+1260,2024,Diciembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5778.89,8164.91,-2386.02,141.29%,Completado
+1261,2024,Diciembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4562.68,3622.6,940.08,79.40%,Completado
+1262,2024,Diciembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2859.64,3073.01,-213.37,107.46%,Completado
+1263,2024,Diciembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12410.18,11333.51,1076.67,91.32%,Completado
+1264,2024,Diciembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2076.18,2048.39,27.79,98.66%,Completado
+1265,2025,Enero,Ingresos,Ventas,Ventas de Productos - Línea A,156969.91,180495.24,-23525.33,114.99%,Completado
+1266,2025,Enero,Ingresos,Ventas,Ventas de Productos - Línea B,86941.17,78647.25,8293.92,90.46%,Completado
+1267,2025,Enero,Ingresos,Servicios,Consultoría y Soporte Técnico,44765.51,45065.16,-299.65,100.67%,Completado
+1268,2025,Enero,Ingresos,Servicios,Suscripciones de Software (SaaS),30679.11,21866.26,8812.85,71.27%,Completado
+1269,2025,Enero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8109.58,7854.12,255.46,96.85%,Completado
+1270,2025,Enero,Gastos Operativos,Nómina,Sueldos Personal Operativo,67371.53,65021.64,2349.89,96.51%,Completado
+1271,2025,Enero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,42640.23,41567.9,1072.33,97.49%,Completado
+1272,2025,Enero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18766.21,19750.52,-984.31,105.25%,Completado
+1273,2025,Enero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25638,25569.98,68.02,99.73%,Completado
+1274,2025,Enero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4591.45,5037.73,-446.28,109.72%,Completado
+1275,2025,Enero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3269.68,3369.96,-100.28,103.07%,Completado
+1276,2025,Enero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7472.43,6148.26,1324.17,82.28%,Completado
+1277,2025,Enero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13115.31,11154.69,1960.62,85.05%,Completado
+1278,2025,Enero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9078.49,7722.94,1355.55,85.07%,Completado
+1279,2025,Enero,Marketing y Ventas,Comisiones,Comisiones por Ventas,12140.46,12443.08,-302.62,102.49%,Completado
+1280,2025,Enero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7182.66,7334.22,-151.56,102.11%,Completado
+1281,2025,Enero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3763.7,3031.06,732.64,80.53%,Completado
+1282,2025,Enero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5084.48,2918.54,2165.94,57.40%,Completado
+1283,2025,Enero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4117.92,4239.39,-121.47,102.95%,Completado
+1284,2025,Enero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2545.17,1958.21,586.96,76.94%,Completado
+1285,2025,Enero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11001.52,10439.51,562.01,94.89%,Completado
+1286,2025,Enero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1811.61,1732.39,79.22,95.63%,Completado
+1287,2025,Febrero,Ingresos,Ventas,Ventas de Productos - Línea A,156480,147685.84,8794.16,94.38%,Completado
+1288,2025,Febrero,Ingresos,Ventas,Ventas de Productos - Línea B,88489.84,81732.73,6757.11,92.36%,Completado
+1289,2025,Febrero,Ingresos,Servicios,Consultoría y Soporte Técnico,46465.49,48537.92,-2072.43,104.46%,Completado
+1290,2025,Febrero,Ingresos,Servicios,Suscripciones de Software (SaaS),30460.03,29839.87,620.16,97.96%,Completado
+1291,2025,Febrero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8002.84,7921.34,81.5,98.98%,Completado
+1292,2025,Febrero,Gastos Operativos,Nómina,Sueldos Personal Operativo,66829.12,63020.78,3808.34,94.30%,Completado
+1293,2025,Febrero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,43233.94,44480.01,-1246.07,102.88%,Completado
+1294,2025,Febrero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,18399.4,19744.09,-1344.69,107.31%,Completado
+1295,2025,Febrero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,25880.96,26076.66,-195.7,100.76%,Completado
+1296,2025,Febrero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4641.31,5131.69,-490.38,110.57%,Completado
+1297,2025,Febrero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3190.12,2851.89,338.23,89.40%,Completado
+1298,2025,Febrero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7830.88,7407.29,423.59,94.59%,Completado
+1299,2025,Febrero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),12962.88,15239.6,-2276.72,117.56%,Completado
+1300,2025,Febrero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",8876.92,8597.59,279.33,96.85%,Completado
+1301,2025,Febrero,Marketing y Ventas,Comisiones,Comisiones por Ventas,11946.06,10677.81,1268.25,89.38%,Completado
+1302,2025,Febrero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7174.61,7610.38,-435.77,106.07%,Completado
+1303,2025,Febrero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3798.92,3269.57,529.35,86.07%,Completado
+1304,2025,Febrero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5074.08,6604.5,-1530.42,130.16%,Completado
+1305,2025,Febrero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4021.74,2458.49,1563.25,61.13%,Completado
+1306,2025,Febrero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2571.32,1787.49,783.83,69.52%,Completado
+1307,2025,Febrero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11503.73,11393.26,110.47,99.04%,Completado
+1308,2025,Febrero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1778.98,1784.27,-5.29,100.30%,Completado
+1309,2025,Marzo,Ingresos,Ventas,Ventas de Productos - Línea A,165043.62,149872.51,15171.11,90.81%,Completado
+1310,2025,Marzo,Ingresos,Ventas,Ventas de Productos - Línea B,93518.2,105685.31,-12167.11,113.01%,Completado
+1311,2025,Marzo,Ingresos,Servicios,Consultoría y Soporte Técnico,48289.38,46852.41,1436.97,97.02%,Completado
+1312,2025,Marzo,Ingresos,Servicios,Suscripciones de Software (SaaS),32542,28094.3,4447.7,86.33%,Completado
+1313,2025,Marzo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8725.47,8551.06,174.41,98.00%,Completado
+1314,2025,Marzo,Gastos Operativos,Nómina,Sueldos Personal Operativo,67599.8,64774.44,2825.36,95.82%,Completado
+1315,2025,Marzo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,43933.35,42400.34,1533.01,96.51%,Completado
+1316,2025,Marzo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20194.62,20664.47,-469.85,102.33%,Completado
+1317,2025,Marzo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26635.35,26764.67,-129.32,100.49%,Completado
+1318,2025,Marzo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4858.05,4551.97,306.08,93.70%,Completado
+1319,2025,Marzo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3346.97,3799.2,-452.23,113.51%,Completado
+1320,2025,Marzo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7933.88,7513.58,420.3,94.70%,Completado
+1321,2025,Marzo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13552.37,13725.03,-172.66,101.27%,Completado
+1322,2025,Marzo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9663.75,10383.98,-720.23,107.45%,Completado
+1323,2025,Marzo,Marketing y Ventas,Comisiones,Comisiones por Ventas,13207.31,15032.35,-1825.04,113.82%,Completado
+1324,2025,Marzo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7454.24,7481.38,-27.14,100.36%,Completado
+1325,2025,Marzo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4115.83,4311.57,-195.74,104.76%,Completado
+1326,2025,Marzo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5301.56,5771.64,-470.08,108.87%,Completado
+1327,2025,Marzo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4236.11,2971.27,1264.84,70.14%,Completado
+1328,2025,Marzo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2658.3,2972.59,-314.29,111.82%,Completado
+1329,2025,Marzo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11670.48,11971.93,-301.45,102.58%,Completado
+1330,2025,Marzo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1897.94,1881.24,16.7,99.12%,Completado
+1331,2025,Abril,Ingresos,Ventas,Ventas de Productos - Línea A,162352.97,156650.99,5701.98,96.49%,Completado
+1332,2025,Abril,Ingresos,Ventas,Ventas de Productos - Línea B,92944.72,97390.19,-4445.47,104.78%,Completado
+1333,2025,Abril,Ingresos,Servicios,Consultoría y Soporte Técnico,47925.38,44620.68,3304.7,93.10%,Completado
+1334,2025,Abril,Ingresos,Servicios,Suscripciones de Software (SaaS),32926.43,25873.5,7052.93,78.58%,Completado
+1335,2025,Abril,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8527.53,8434.9,92.63,98.91%,Completado
+1336,2025,Abril,Gastos Operativos,Nómina,Sueldos Personal Operativo,67678.61,67867.85,-189.24,100.28%,Completado
+1337,2025,Abril,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46116.12,46985.91,-869.79,101.89%,Completado
+1338,2025,Abril,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20190.75,19925.66,265.09,98.69%,Completado
+1339,2025,Abril,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,27121.7,27055.66,66.04,99.76%,Completado
+1340,2025,Abril,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4845.53,4948.89,-103.36,102.13%,Completado
+1341,2025,Abril,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3346.16,2790.83,555.33,83.40%,Completado
+1342,2025,Abril,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7800.12,8428.98,-628.86,108.06%,Completado
+1343,2025,Abril,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13663.48,12927.72,735.76,94.62%,Completado
+1344,2025,Abril,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9428.76,13002.59,-3573.83,137.90%,Completado
+1345,2025,Abril,Marketing y Ventas,Comisiones,Comisiones por Ventas,12920.87,11692.37,1228.5,90.49%,Completado
+1346,2025,Abril,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7654.33,8017.62,-363.29,104.75%,Completado
+1347,2025,Abril,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4094.21,4212.13,-117.92,102.88%,Completado
+1348,2025,Abril,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5266.77,4197.06,1069.71,79.69%,Completado
+1349,2025,Abril,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4273.8,4470.42,-196.62,104.60%,Completado
+1350,2025,Abril,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2719.39,3182.44,-463.05,117.03%,Completado
+1351,2025,Abril,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11555.94,10938.3,617.64,94.66%,Completado
+1352,2025,Abril,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1940.61,1950.26,-9.65,100.50%,Completado
+1353,2025,Mayo,Ingresos,Ventas,Ventas de Productos - Línea A,160146.02,171730.3,-11584.28,107.23%,Completado
+1354,2025,Mayo,Ingresos,Ventas,Ventas de Productos - Línea B,93206.49,87859.5,5346.99,94.26%,Completado
+1355,2025,Mayo,Ingresos,Servicios,Consultoría y Soporte Técnico,46934.67,44871.35,2063.32,95.60%,Completado
+1356,2025,Mayo,Ingresos,Servicios,Suscripciones de Software (SaaS),31326.8,33935.68,-2608.88,108.33%,Completado
+1357,2025,Mayo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8750.83,8942.89,-192.06,102.19%,Completado
+1358,2025,Mayo,Gastos Operativos,Nómina,Sueldos Personal Operativo,69816.24,68109.58,1706.66,97.56%,Completado
+1359,2025,Mayo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,45021.95,45054.66,-32.71,100.07%,Completado
+1360,2025,Mayo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20027.98,20301.8,-273.82,101.37%,Completado
+1361,2025,Mayo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,27215.36,26864.88,350.48,98.71%,Completado
+1362,2025,Mayo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4846.03,5028.81,-182.78,103.77%,Completado
+1363,2025,Mayo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3480.92,3768.34,-287.42,108.26%,Completado
+1364,2025,Mayo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8221.47,9997.04,-1775.57,121.60%,Completado
+1365,2025,Mayo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13840.93,13767.73,73.2,99.47%,Completado
+1366,2025,Mayo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9563.89,8572.78,991.11,89.64%,Completado
+1367,2025,Mayo,Marketing y Ventas,Comisiones,Comisiones por Ventas,12503.47,10428.83,2074.64,83.41%,Completado
+1368,2025,Mayo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7325.91,7436.49,-110.58,101.51%,Completado
+1369,2025,Mayo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3985.06,3933.03,52.03,98.69%,Completado
+1370,2025,Mayo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5499.15,4540.44,958.71,82.57%,Completado
+1371,2025,Mayo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4356.62,3689.26,667.36,84.68%,Completado
+1372,2025,Mayo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2637.8,2794.94,-157.14,105.96%,Completado
+1373,2025,Mayo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11580.74,11817.26,-236.52,102.04%,Completado
+1374,2025,Mayo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1936.18,1861.94,74.24,96.17%,Completado
+1375,2025,Junio,Ingresos,Ventas,Ventas de Productos - Línea A,156158.66,175491.49,-19332.83,112.38%,Completado
+1376,2025,Junio,Ingresos,Ventas,Ventas de Productos - Línea B,92411.88,76652.23,15759.65,82.95%,Completado
+1377,2025,Junio,Ingresos,Servicios,Consultoría y Soporte Técnico,48471,49876.02,-1405.02,102.90%,Completado
+1378,2025,Junio,Ingresos,Servicios,Suscripciones de Software (SaaS),31778.43,32139.25,-360.82,101.14%,Completado
+1379,2025,Junio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8645.16,8697.11,-51.95,100.60%,Completado
+1380,2025,Junio,Gastos Operativos,Nómina,Sueldos Personal Operativo,68479.11,68974.13,-495.02,100.72%,Completado
+1381,2025,Junio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,44528.61,46230.71,-1702.1,103.82%,Completado
+1382,2025,Junio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,19717.95,20591.26,-873.31,104.43%,Completado
+1383,2025,Junio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26099.18,26020.17,79.01,99.70%,Completado
+1384,2025,Junio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4860.38,4816.95,43.43,99.11%,Completado
+1385,2025,Junio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3455.73,3196.61,259.12,92.50%,Completado
+1386,2025,Junio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8107.77,8590.94,-483.17,105.96%,Completado
+1387,2025,Junio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13635.27,13886.65,-251.38,101.84%,Completado
+1388,2025,Junio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9767.46,6556.65,3210.81,67.13%,Completado
+1389,2025,Junio,Marketing y Ventas,Comisiones,Comisiones por Ventas,13192.14,12170.1,1022.04,92.25%,Completado
+1390,2025,Junio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7459.38,7245.79,213.59,97.14%,Completado
+1391,2025,Junio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4090.64,4247.21,-156.57,103.83%,Completado
+1392,2025,Junio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5262.95,4737.45,525.5,90.02%,Completado
+1393,2025,Junio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4342.66,4733.06,-390.4,108.99%,Completado
+1394,2025,Junio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2753.54,2120.89,632.65,77.02%,Completado
+1395,2025,Junio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11831.82,12273.39,-441.57,103.73%,Completado
+1396,2025,Junio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1929.4,1907.24,22.16,98.85%,Completado
+1397,2025,Julio,Ingresos,Ventas,Ventas de Productos - Línea A,157922.95,162969.58,-5046.63,103.20%,Completado
+1398,2025,Julio,Ingresos,Ventas,Ventas de Productos - Línea B,89873.06,87130,2743.06,96.95%,Completado
+1399,2025,Julio,Ingresos,Servicios,Consultoría y Soporte Técnico,47217.48,50959.53,-3742.05,107.93%,Completado
+1400,2025,Julio,Ingresos,Servicios,Suscripciones de Software (SaaS),32344.69,32977.4,-632.71,101.96%,Completado
+1401,2025,Julio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8646.52,8704.29,-57.77,100.67%,Completado
+1402,2025,Julio,Gastos Operativos,Nómina,Sueldos Personal Operativo,68430.55,71335.78,-2905.23,104.25%,Completado
+1403,2025,Julio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,45264.67,47850.1,-2585.43,105.71%,Completado
+1404,2025,Julio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,19293.79,18074.93,1218.86,93.68%,Completado
+1405,2025,Julio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26378.04,26185.96,192.08,99.27%,Completado
+1406,2025,Julio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4949.44,4831.79,117.65,97.62%,Completado
+1407,2025,Julio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3448.1,3516.62,-68.52,101.99%,Completado
+1408,2025,Julio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8126.96,8102.28,24.68,99.70%,Completado
+1409,2025,Julio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13568.25,7992.58,5575.67,58.91%,Completado
+1410,2025,Julio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9382.13,8858.67,523.46,94.42%,Completado
+1411,2025,Julio,Marketing y Ventas,Comisiones,Comisiones por Ventas,12812.97,11168,1644.97,87.16%,Completado
+1412,2025,Julio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7404.67,7392.83,11.84,99.84%,Completado
+1413,2025,Julio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4129.59,4010.76,118.83,97.12%,Completado
+1414,2025,Julio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5296.76,4519.92,776.84,85.33%,Completado
+1415,2025,Julio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4264.86,4250.96,13.9,99.67%,Completado
+1416,2025,Julio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2643.29,2049.58,593.71,77.54%,Completado
+1417,2025,Julio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11908.82,11249.99,658.83,94.47%,Completado
+1418,2025,Julio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1966.58,1978.13,-11.55,100.59%,Completado
+1419,2025,Agosto,Ingresos,Ventas,Ventas de Productos - Línea A,157907.46,139767.66,18139.8,88.51%,Completado
+1420,2025,Agosto,Ingresos,Ventas,Ventas de Productos - Línea B,89610.28,105484.18,-15873.9,117.71%,Completado
+1421,2025,Agosto,Ingresos,Servicios,Consultoría y Soporte Técnico,48364.26,48639.2,-274.94,100.57%,Completado
+1422,2025,Agosto,Ingresos,Servicios,Suscripciones de Software (SaaS),32511.54,32801.99,-290.45,100.89%,Completado
+1423,2025,Agosto,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8495.38,8175.29,320.09,96.23%,Completado
+1424,2025,Agosto,Gastos Operativos,Nómina,Sueldos Personal Operativo,68207.9,68831.35,-623.45,100.91%,Completado
+1425,2025,Agosto,Gastos Operativos,Nómina,Sueldos Administración y Ventas,44075.64,43803.77,271.87,99.38%,Completado
+1426,2025,Agosto,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,19739.32,19259.88,479.44,97.57%,Completado
+1427,2025,Agosto,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26178.04,26235.89,-57.85,100.22%,Completado
+1428,2025,Agosto,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4883.42,4398.43,484.99,90.07%,Completado
+1429,2025,Agosto,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3409.27,3125.15,284.12,91.67%,Completado
+1430,2025,Agosto,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8060.17,8927.01,-866.84,110.75%,Completado
+1431,2025,Agosto,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14190.35,16293.68,-2103.33,114.82%,Completado
+1432,2025,Agosto,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9746.98,9323.06,423.92,95.65%,Completado
+1433,2025,Agosto,Marketing y Ventas,Comisiones,Comisiones por Ventas,12984.28,16493.47,-3509.19,127.03%,Completado
+1434,2025,Agosto,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7707.4,7738.28,-30.88,100.40%,Completado
+1435,2025,Agosto,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,3999.02,3847.44,151.58,96.21%,Completado
+1436,2025,Agosto,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5381.8,4751.99,629.81,88.30%,Completado
+1437,2025,Agosto,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4265.83,4008.5,257.33,93.97%,Completado
+1438,2025,Agosto,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2708.91,2245.43,463.48,82.89%,Completado
+1439,2025,Agosto,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11877.76,10826.97,1050.79,91.15%,Completado
+1440,2025,Agosto,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1874.48,2102.32,-227.84,112.15%,Completado
+1441,2025,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea A,155905.07,162541.3,-6636.23,104.26%,Completado
+1442,2025,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea B,90903.78,96271.65,-5367.87,105.91%,Completado
+1443,2025,Septiembre,Ingresos,Servicios,Consultoría y Soporte Técnico,48640.33,47822.94,817.39,98.32%,Completado
+1444,2025,Septiembre,Ingresos,Servicios,Suscripciones de Software (SaaS),32159.11,30293.03,1866.08,94.20%,Completado
+1445,2025,Septiembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8392.09,8335.72,56.37,99.33%,Completado
+1446,2025,Septiembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,69443.22,71524.25,-2081.03,103.00%,Completado
+1447,2025,Septiembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,44620.95,42516.28,2104.67,95.28%,Completado
+1448,2025,Septiembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20025.42,21073.56,-1048.14,105.23%,Completado
+1449,2025,Septiembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26469.21,26596.34,-127.13,100.48%,Completado
+1450,2025,Septiembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4892.71,5106.28,-213.57,104.37%,Completado
+1451,2025,Septiembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3526.65,3451.7,74.95,97.87%,Completado
+1452,2025,Septiembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7960.69,8623.99,-663.3,108.33%,Completado
+1453,2025,Septiembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14297.65,13663.45,634.2,95.56%,Completado
+1454,2025,Septiembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9655.11,13704.66,-4049.55,141.94%,Completado
+1455,2025,Septiembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,12825.62,13927.34,-1101.72,108.59%,Completado
+1456,2025,Septiembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7473.96,7543.14,-69.18,100.93%,Completado
+1457,2025,Septiembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4048.44,4350.27,-301.83,107.46%,Completado
+1458,2025,Septiembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5481.45,6831.54,-1350.09,124.63%,Completado
+1459,2025,Septiembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4311.12,2675.43,1635.69,62.06%,Completado
+1460,2025,Septiembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2751.53,2082.76,668.77,75.69%,Completado
+1461,2025,Septiembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11509.6,11558.08,-48.48,100.42%,Completado
+1462,2025,Septiembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1979.09,1997.66,-18.57,100.94%,Completado
+1463,2025,Octubre,Ingresos,Ventas,Ventas de Productos - Línea A,156382.24,142472.15,13910.09,91.11%,Completado
+1464,2025,Octubre,Ingresos,Ventas,Ventas de Productos - Línea B,91640.72,89170.01,2470.71,97.30%,Completado
+1465,2025,Octubre,Ingresos,Servicios,Consultoría y Soporte Técnico,47546.37,49464.71,-1918.34,104.03%,Completado
+1466,2025,Octubre,Ingresos,Servicios,Suscripciones de Software (SaaS),31892.54,30497.68,1394.86,95.63%,Completado
+1467,2025,Octubre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8625.63,8777.82,-152.19,101.76%,Completado
+1468,2025,Octubre,Gastos Operativos,Nómina,Sueldos Personal Operativo,70912.66,73728.72,-2816.06,103.97%,Completado
+1469,2025,Octubre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,43685.93,42893.1,792.83,98.19%,Completado
+1470,2025,Octubre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,19945.03,18464.09,1480.94,92.57%,Completado
+1471,2025,Octubre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26427.9,26567.31,-139.41,100.53%,Completado
+1472,2025,Octubre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4826.23,4582.62,243.61,94.95%,Completado
+1473,2025,Octubre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3401.63,3607.46,-205.83,106.05%,Completado
+1474,2025,Octubre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8241.58,8918.2,-676.62,108.21%,Completado
+1475,2025,Octubre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14021.73,14983.06,-961.33,106.86%,Completado
+1476,2025,Octubre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9594.19,9290.93,303.26,96.84%,Completado
+1477,2025,Octubre,Marketing y Ventas,Comisiones,Comisiones por Ventas,12498.08,12510.49,-12.41,100.10%,Completado
+1478,2025,Octubre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7605.89,7240.37,365.52,95.19%,Completado
+1479,2025,Octubre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4081.76,3887.61,194.15,95.24%,Completado
+1480,2025,Octubre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5422.45,3907.14,1515.31,72.05%,Completado
+1481,2025,Octubre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4344.03,3898.04,445.99,89.73%,Completado
+1482,2025,Octubre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2626.19,2359.07,267.12,89.83%,Completado
+1483,2025,Octubre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11959.52,12346.54,-387.02,103.24%,Completado
+1484,2025,Octubre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1915.82,1852.9,62.92,96.72%,Completado
+1485,2025,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea A,183941.61,176968.95,6972.66,96.21%,Completado
+1486,2025,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea B,103529.26,98580.72,4948.54,95.22%,Completado
+1487,2025,Noviembre,Ingresos,Servicios,Consultoría y Soporte Técnico,56776.34,52589.42,4186.92,92.63%,Completado
+1488,2025,Noviembre,Ingresos,Servicios,Suscripciones de Software (SaaS),36371.13,32644.86,3726.27,89.75%,Completado
+1489,2025,Noviembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9918.49,9560.75,357.74,96.39%,Completado
+1490,2025,Noviembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,78342.25,80624.52,-2282.27,102.91%,Completado
+1491,2025,Noviembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,51671.91,52178.47,-506.56,100.98%,Completado
+1492,2025,Noviembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,22955.14,23149.66,-194.52,100.85%,Completado
+1493,2025,Noviembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,31206.17,31050.05,156.12,99.50%,Completado
+1494,2025,Noviembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5534.93,5151.61,383.32,93.07%,Completado
+1495,2025,Noviembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3869.31,3680.78,188.53,95.13%,Completado
+1496,2025,Noviembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,9078.29,10174.79,-1096.5,112.08%,Completado
+1497,2025,Noviembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),16354.05,17645.96,-1291.91,107.90%,Completado
+1498,2025,Noviembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10833.16,12295.19,-1462.03,113.50%,Completado
+1499,2025,Noviembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,14838.89,12650.28,2188.61,85.25%,Completado
+1500,2025,Noviembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,8831.22,9325.15,-493.93,105.59%,Completado
+1501,2025,Noviembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4553.54,5033.36,-479.82,110.54%,Completado
+1502,2025,Noviembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,6228.53,5690.94,537.59,91.37%,Completado
+1503,2025,Noviembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,5039.71,7199.75,-2160.04,142.86%,Completado
+1504,2025,Noviembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,3029.53,2783.46,246.07,91.88%,Completado
+1505,2025,Noviembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,13830.19,13526.13,304.06,97.80%,Completado
+1506,2025,Noviembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2200.5,2262.88,-62.38,102.83%,Completado
+1507,2025,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea A,185265.61,200758.43,-15492.82,108.36%,Completado
+1508,2025,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea B,103406.26,96470.91,6935.35,93.29%,Completado
+1509,2025,Diciembre,Ingresos,Servicios,Consultoría y Soporte Técnico,56284.58,60571.51,-4286.93,107.62%,Completado
+1510,2025,Diciembre,Ingresos,Servicios,Suscripciones de Software (SaaS),37667.35,36745.18,922.17,97.55%,Completado
+1511,2025,Diciembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9798.76,9626.59,172.17,98.24%,Completado
+1512,2025,Diciembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,81058.61,83082.49,-2023.88,102.50%,Completado
+1513,2025,Diciembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,51938.61,53642.55,-1703.94,103.28%,Completado
+1514,2025,Diciembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,22954.36,23315.03,-360.67,101.57%,Completado
+1515,2025,Diciembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,31274.38,31767.37,-492.99,101.58%,Completado
+1516,2025,Diciembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5377.26,5304.95,72.31,98.66%,Completado
+1517,2025,Diciembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3823.83,4003.9,-180.07,104.71%,Completado
+1518,2025,Diciembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8986.6,8739.77,246.83,97.25%,Completado
+1519,2025,Diciembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),16203.63,18019,-1815.37,111.20%,Completado
+1520,2025,Diciembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10868.77,12255.66,-1386.89,112.76%,Completado
+1521,2025,Diciembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,14549.39,15034.8,-485.41,103.34%,Completado
+1522,2025,Diciembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,8366.99,8659.3,-292.31,103.49%,Completado
+1523,2025,Diciembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4555.27,4621.63,-66.36,101.46%,Completado
+1524,2025,Diciembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,6018.83,7863.21,-1844.38,130.64%,Completado
+1525,2025,Diciembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4823,7103.84,-2280.84,147.29%,Completado
+1526,2025,Diciembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,3091.18,2798.72,292.46,90.54%,Completado
+1527,2025,Diciembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,13673.79,13739.31,-65.52,100.48%,Completado
+1528,2025,Diciembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2209.77,2325.27,-115.5,105.23%,Completado
+1529,2026,Enero,Ingresos,Ventas,Ventas de Productos - Línea A,164010.61,148292.09,15718.52,90.42%,Completado
+1530,2026,Enero,Ingresos,Ventas,Ventas de Productos - Línea B,94129.97,109443.46,-15313.49,116.27%,Completado
+1531,2026,Enero,Ingresos,Servicios,Consultoría y Soporte Técnico,47690.14,44883.77,2806.37,94.12%,Completado
+1532,2026,Enero,Ingresos,Servicios,Suscripciones de Software (SaaS),33115.71,34599.38,-1483.67,104.48%,Completado
+1533,2026,Enero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8476.8,8511.12,-34.32,100.40%,Completado
+1534,2026,Enero,Gastos Operativos,Nómina,Sueldos Personal Operativo,71961.08,73234.93,-1273.85,101.77%,Completado
+1535,2026,Enero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,44846.73,44561.7,285.03,99.36%,Completado
+1536,2026,Enero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,19716.92,19469.28,247.64,98.74%,Completado
+1537,2026,Enero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,27369.63,27188.61,181.02,99.34%,Completado
+1538,2026,Enero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4984.2,5255.8,-271.6,105.45%,Completado
+1539,2026,Enero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3411.34,3486.13,-74.79,102.19%,Completado
+1540,2026,Enero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,7909.75,7776.83,132.92,98.32%,Completado
+1541,2026,Enero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14280.4,13598.43,681.97,95.22%,Completado
+1542,2026,Enero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9859.12,14024.78,-4165.66,142.25%,Completado
+1543,2026,Enero,Marketing y Ventas,Comisiones,Comisiones por Ventas,13114.15,11939.96,1174.19,91.05%,Completado
+1544,2026,Enero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7740.67,7710.74,29.93,99.61%,Completado
+1545,2026,Enero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4217.7,4365.34,-147.64,103.50%,Completado
+1546,2026,Enero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5394.49,4398.42,996.07,81.54%,Completado
+1547,2026,Enero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4212.1,4298.06,-85.96,102.04%,Completado
+1548,2026,Enero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2643.81,2469.38,174.43,93.40%,Completado
+1549,2026,Enero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12199.08,11509.85,689.23,94.35%,Completado
+1550,2026,Enero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1972.72,2048.82,-76.1,103.86%,Completado
+1551,2026,Febrero,Ingresos,Ventas,Ventas de Productos - Línea A,164568.5,181156.41,-16587.91,110.08%,Completado
+1552,2026,Febrero,Ingresos,Ventas,Ventas de Productos - Línea B,92957.68,93730.73,-773.05,100.83%,Completado
+1553,2026,Febrero,Ingresos,Servicios,Consultoría y Soporte Técnico,50085.89,49884.45,201.44,99.60%,Completado
+1554,2026,Febrero,Ingresos,Servicios,Suscripciones de Software (SaaS),33374.19,31091.63,2282.56,93.16%,Completado
+1555,2026,Febrero,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8849.67,8398.43,451.24,94.90%,Completado
+1556,2026,Febrero,Gastos Operativos,Nómina,Sueldos Personal Operativo,70729.15,69517.03,1212.12,98.29%,Completado
+1557,2026,Febrero,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46021.19,46224.69,-203.5,100.44%,Completado
+1558,2026,Febrero,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20562.63,20328.26,234.37,98.86%,Completado
+1559,2026,Febrero,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,26988.71,27132.01,-143.3,100.53%,Completado
+1560,2026,Febrero,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",4873.9,4640.01,233.89,95.20%,Completado
+1561,2026,Febrero,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3416.08,2951.11,464.97,86.39%,Completado
+1562,2026,Febrero,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8104.53,5591.36,2513.17,68.99%,Completado
+1563,2026,Febrero,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),13760.38,12663.78,1096.6,92.03%,Completado
+1564,2026,Febrero,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10033.75,10335.26,-301.51,103.00%,Completado
+1565,2026,Febrero,Marketing y Ventas,Comisiones,Comisiones por Ventas,13090.69,11036.21,2054.48,84.31%,Completado
+1566,2026,Febrero,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7494.29,7377.93,116.36,98.45%,Completado
+1567,2026,Febrero,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4174.78,4741.14,-566.36,113.57%,Completado
+1568,2026,Febrero,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5458.12,3171.74,2286.38,58.11%,Completado
+1569,2026,Febrero,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4428.11,3451.53,976.58,77.95%,Completado
+1570,2026,Febrero,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2658.51,2458.64,199.87,92.48%,Completado
+1571,2026,Febrero,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,11715.88,11350.53,365.35,96.88%,Completado
+1572,2026,Febrero,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,1901.86,1835.61,66.25,96.52%,Completado
+1573,2026,Marzo,Ingresos,Ventas,Ventas de Productos - Línea A,174851.02,175020.63,-169.61,100.10%,Completado
+1574,2026,Marzo,Ingresos,Ventas,Ventas de Productos - Línea B,98059.09,107891.03,-9831.94,110.03%,Completado
+1575,2026,Marzo,Ingresos,Servicios,Consultoría y Soporte Técnico,50713.57,45252.34,5461.23,89.23%,Completado
+1576,2026,Marzo,Ingresos,Servicios,Suscripciones de Software (SaaS),34620.81,32536.85,2083.96,93.98%,Completado
+1577,2026,Marzo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9000.22,9346.69,-346.47,103.85%,Completado
+1578,2026,Marzo,Gastos Operativos,Nómina,Sueldos Personal Operativo,75136.77,73041.45,2095.32,97.21%,Completado
+1579,2026,Marzo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,48527.68,49675.62,-1147.94,102.37%,Completado
+1580,2026,Marzo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20632.94,21415.33,-782.39,103.79%,Completado
+1581,2026,Marzo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,29160.15,29439.95,-279.8,100.96%,Completado
+1582,2026,Marzo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5118.02,5585.48,-467.46,109.13%,Completado
+1583,2026,Marzo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3748.04,4037.05,-289.01,107.71%,Completado
+1584,2026,Marzo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8704.84,7636.45,1068.39,87.73%,Completado
+1585,2026,Marzo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14451.11,11299.41,3151.7,78.19%,Completado
+1586,2026,Marzo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10526.36,7267.33,3259.03,69.04%,Completado
+1587,2026,Marzo,Marketing y Ventas,Comisiones,Comisiones por Ventas,13546.92,12550.96,995.96,92.65%,Completado
+1588,2026,Marzo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7882.16,8431.81,-549.65,106.97%,Completado
+1589,2026,Marzo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4266.23,4703.6,-437.37,110.25%,Completado
+1590,2026,Marzo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5547.47,5203.43,344.04,93.80%,Completado
+1591,2026,Marzo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4566.69,2943.1,1623.59,64.45%,Completado
+1592,2026,Marzo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2872.4,3588.75,-716.35,124.94%,Completado
+1593,2026,Marzo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12360.88,12706.71,-345.83,102.80%,Completado
+1594,2026,Marzo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2072.95,2001.24,71.71,96.54%,Completado
+1595,2026,Abril,Ingresos,Ventas,Ventas de Productos - Línea A,168079.18,176576.23,-8497.05,105.06%,Completado
+1596,2026,Abril,Ingresos,Ventas,Ventas de Productos - Línea B,97941.34,100914.92,-2973.58,103.04%,Completado
+1597,2026,Abril,Ingresos,Servicios,Consultoría y Soporte Técnico,51337.67,50792.58,545.09,98.94%,Completado
+1598,2026,Abril,Ingresos,Servicios,Suscripciones de Software (SaaS),33552.58,31593.61,1958.97,94.16%,Completado
+1599,2026,Abril,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8890.68,8729.06,161.62,98.18%,Completado
+1600,2026,Abril,Gastos Operativos,Nómina,Sueldos Personal Operativo,76105.29,77417.37,-1312.08,101.72%,Completado
+1601,2026,Abril,Gastos Operativos,Nómina,Sueldos Administración y Ventas,48783.01,48784.74,-1.73,100.00%,Completado
+1602,2026,Abril,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,21094.76,20989.26,105.5,99.50%,Completado
+1603,2026,Abril,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,27658.18,27595.56,62.62,99.77%,Completado
+1604,2026,Abril,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5028.75,4606.53,422.22,91.60%,Completado
+1605,2026,Abril,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3603.39,3192.94,410.45,88.61%,Completado
+1606,2026,Abril,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8322.17,12261.47,-3939.3,147.34%,Completado
+1607,2026,Abril,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),15170.87,19849.04,-4678.17,130.84%,Completado
+1608,2026,Abril,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10091.1,9384.62,706.48,93.00%,Completado
+1609,2026,Abril,Marketing y Ventas,Comisiones,Comisiones por Ventas,13971.53,11852.13,2119.4,84.83%,Completado
+1610,2026,Abril,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7808.79,8373.77,-564.98,107.24%,Completado
+1611,2026,Abril,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4458.32,4920.25,-461.93,110.36%,Completado
+1612,2026,Abril,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5812.97,3718.04,2094.93,63.96%,Completado
+1613,2026,Abril,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4580.35,5111.21,-530.86,111.59%,Completado
+1614,2026,Abril,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2793.29,3374.43,-581.14,120.80%,Completado
+1615,2026,Abril,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12775.45,13032.74,-257.29,102.01%,Completado
+1616,2026,Abril,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2108.96,2156.27,-47.31,102.24%,Completado
+1617,2026,Mayo,Ingresos,Ventas,Ventas de Productos - Línea A,171549.75,155346.63,16203.12,90.55%,Completado
+1618,2026,Mayo,Ingresos,Ventas,Ventas de Productos - Línea B,97005.81,93453.68,3552.13,96.34%,Completado
+1619,2026,Mayo,Ingresos,Servicios,Consultoría y Soporte Técnico,49943.25,52301.09,-2357.84,104.72%,Completado
+1620,2026,Mayo,Ingresos,Servicios,Suscripciones de Software (SaaS),34157.19,36613.11,-2455.92,107.19%,Completado
+1621,2026,Mayo,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9295.41,9990.73,-695.32,107.48%,Completado
+1622,2026,Mayo,Gastos Operativos,Nómina,Sueldos Personal Operativo,74152.47,73317.06,835.41,98.87%,Completado
+1623,2026,Mayo,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46966.06,46009.91,956.15,97.96%,Completado
+1624,2026,Mayo,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20488.65,20935.93,-447.28,102.18%,Completado
+1625,2026,Mayo,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28830.3,29052.36,-222.06,100.77%,Completado
+1626,2026,Mayo,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5250.62,5228.05,22.57,99.57%,Completado
+1627,2026,Mayo,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3622.55,3014.74,607.81,83.22%,Completado
+1628,2026,Mayo,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8589.16,6506.67,2082.49,75.75%,Completado
+1629,2026,Mayo,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14851.88,17083.73,-2231.85,115.03%,Completado
+1630,2026,Mayo,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10436.09,15435.5,-4999.41,147.91%,Completado
+1631,2026,Mayo,Marketing y Ventas,Comisiones,Comisiones por Ventas,13679.62,12944.41,735.21,94.63%,Completado
+1632,2026,Mayo,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,8032.63,8159.17,-126.54,101.58%,Completado
+1633,2026,Mayo,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4405.94,4715.6,-309.66,107.03%,Completado
+1634,2026,Mayo,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5625.71,4290.02,1335.69,76.26%,Completado
+1635,2026,Mayo,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4462.01,5191.65,-729.64,116.35%,Completado
+1636,2026,Mayo,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2864.49,3129.86,-265.37,109.26%,Completado
+1637,2026,Mayo,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12691.89,13858.62,-1166.73,109.19%,Completado
+1638,2026,Mayo,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2036.13,1889.88,146.25,92.82%,Completado
+1639,2026,Junio,Ingresos,Ventas,Ventas de Productos - Línea A,173279.02,178009.73,-4730.71,102.73%,Completado
+1640,2026,Junio,Ingresos,Ventas,Ventas de Productos - Línea B,99594.78,110816.77,-11221.99,111.27%,Completado
+1641,2026,Junio,Ingresos,Servicios,Consultoría y Soporte Técnico,51018.74,51414.68,-395.94,100.78%,Completado
+1642,2026,Junio,Ingresos,Servicios,Suscripciones de Software (SaaS),34859.06,27869.52,6989.54,79.95%,Completado
+1643,2026,Junio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9173.38,9191.88,-18.5,100.20%,Completado
+1644,2026,Junio,Gastos Operativos,Nómina,Sueldos Personal Operativo,73895.67,68373.52,5522.15,92.53%,Completado
+1645,2026,Junio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,47037.1,46140.86,896.24,98.09%,Completado
+1646,2026,Junio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,21220.25,21965.25,-745,103.51%,Completado
+1647,2026,Junio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28236.37,28129.85,106.52,99.62%,Completado
+1648,2026,Junio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5043.64,4823.33,220.31,95.63%,Completado
+1649,2026,Junio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3709.05,3071.12,637.93,82.80%,Completado
+1650,2026,Junio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8565.86,6144.71,2421.15,71.73%,Completado
+1651,2026,Junio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),15036.4,16112.7,-1076.3,107.16%,Completado
+1652,2026,Junio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10416.61,12797.19,-2380.58,122.85%,Completado
+1653,2026,Junio,Marketing y Ventas,Comisiones,Comisiones por Ventas,13882.88,14181.93,-299.05,102.15%,Completado
+1654,2026,Junio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7889.99,8059.8,-169.81,102.15%,Completado
+1655,2026,Junio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4269.77,4240.58,29.19,99.32%,Completado
+1656,2026,Junio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5757.05,5462.66,294.39,94.89%,Completado
+1657,2026,Junio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4534.52,5371.33,-836.81,118.45%,Completado
+1658,2026,Junio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2910.46,2146.88,763.58,73.76%,Completado
+1659,2026,Junio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12591.49,14751.11,-2159.62,117.15%,Completado
+1660,2026,Junio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2108.41,2023.49,84.92,95.97%,Completado
+1661,2026,Julio,Ingresos,Ventas,Ventas de Productos - Línea A,169849.75,192778.81,-22929.06,113.50%,Completado
+1662,2026,Julio,Ingresos,Ventas,Ventas de Productos - Línea B,99472.53,95654.02,3818.51,96.16%,Completado
+1663,2026,Julio,Ingresos,Servicios,Consultoría y Soporte Técnico,52583.97,51407.87,1176.1,97.76%,Completado
+1664,2026,Julio,Ingresos,Servicios,Suscripciones de Software (SaaS),35023.29,31502.03,3521.26,89.95%,Completado
+1665,2026,Julio,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,8875.83,8897.7,-21.87,100.25%,Completado
+1666,2026,Julio,Gastos Operativos,Nómina,Sueldos Personal Operativo,73684.79,73502.02,182.77,99.75%,Completado
+1667,2026,Julio,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46942.59,45681.57,1261.02,97.31%,Completado
+1668,2026,Julio,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20737.88,19164.67,1573.21,92.41%,Completado
+1669,2026,Julio,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28778.69,28587.01,191.68,99.33%,Completado
+1670,2026,Julio,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5026.03,4858.06,167.97,96.66%,Completado
+1671,2026,Julio,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3655.88,1759.57,1896.31,48.13%,Completado
+1672,2026,Julio,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8575.2,7794.76,780.44,90.90%,Completado
+1673,2026,Julio,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14643.26,14528.29,114.97,99.21%,Completado
+1674,2026,Julio,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",9991.65,10591.55,-599.9,106.00%,Completado
+1675,2026,Julio,Marketing y Ventas,Comisiones,Comisiones por Ventas,13318.74,12818.44,500.3,96.24%,Completado
+1676,2026,Julio,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,8174.84,7204.31,970.53,88.13%,Completado
+1677,2026,Julio,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4342.67,5210.85,-868.18,119.99%,Completado
+1678,2026,Julio,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5869.46,7305.07,-1435.61,124.46%,Completado
+1679,2026,Julio,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4562.21,3295.68,1266.53,72.24%,Completado
+1680,2026,Julio,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2786.28,2352.81,433.47,84.44%,Completado
+1681,2026,Julio,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12363.35,11968.45,394.9,96.81%,Completado
+1682,2026,Julio,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2067.29,2159.18,-91.89,104.44%,Completado
+1683,2026,Agosto,Ingresos,Ventas,Ventas de Productos - Línea A,171598.2,179122.69,-7524.49,104.38%,Completado
+1684,2026,Agosto,Ingresos,Ventas,Ventas de Productos - Línea B,97352.02,93180.16,4171.86,95.71%,Completado
+1685,2026,Agosto,Ingresos,Servicios,Consultoría y Soporte Técnico,52764.84,52806.19,-41.35,100.08%,Completado
+1686,2026,Agosto,Ingresos,Servicios,Suscripciones de Software (SaaS),33728.75,36190.54,-2461.79,107.30%,Completado
+1687,2026,Agosto,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9184.47,9500.32,-315.85,103.44%,Completado
+1688,2026,Agosto,Gastos Operativos,Nómina,Sueldos Personal Operativo,74186.9,74840.21,-653.31,100.88%,Completado
+1689,2026,Agosto,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46534.15,44573.01,1961.14,95.79%,Completado
+1690,2026,Agosto,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,20919.97,21132.77,-212.8,101.02%,Completado
+1691,2026,Agosto,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28253.66,28094.98,158.68,99.44%,Completado
+1692,2026,Agosto,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5088.17,5548.95,-460.78,109.06%,Completado
+1693,2026,Agosto,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3669.53,3641.17,28.36,99.23%,Completado
+1694,2026,Agosto,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8638.75,7785.97,852.78,90.13%,Completado
+1695,2026,Agosto,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),15179.67,17905.96,-2726.29,117.96%,Completado
+1696,2026,Agosto,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10108.8,16359.02,-6250.22,161.83%,Completado
+1697,2026,Agosto,Marketing y Ventas,Comisiones,Comisiones por Ventas,13690.11,12452.57,1237.54,90.96%,Completado
+1698,2026,Agosto,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,8057.45,8571.85,-514.4,106.38%,Completado
+1699,2026,Agosto,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4324.85,4173.56,151.29,96.50%,Completado
+1700,2026,Agosto,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5720.96,2503.8,3217.16,43.77%,Completado
+1701,2026,Agosto,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4579.6,5425.63,-846.03,118.47%,Completado
+1702,2026,Agosto,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2848.82,2487.36,361.46,87.31%,Completado
+1703,2026,Agosto,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12625.55,13144.03,-518.48,104.11%,Completado
+1704,2026,Agosto,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2034.22,1953.09,81.13,96.01%,Completado
+1705,2026,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea A,170937.9,181987.29,-11049.39,106.46%,Completado
+1706,2026,Septiembre,Ingresos,Ventas,Ventas de Productos - Línea B,97740.84,87431.58,10309.26,89.45%,Completado
+1707,2026,Septiembre,Ingresos,Servicios,Consultoría y Soporte Técnico,52522.46,49472.82,3049.64,94.19%,Completado
+1708,2026,Septiembre,Ingresos,Servicios,Suscripciones de Software (SaaS),33771.75,32094.42,1677.33,95.03%,Completado
+1709,2026,Septiembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9348.06,9049.04,299.02,96.80%,Completado
+1710,2026,Septiembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,72400.79,72470.17,-69.38,100.10%,Completado
+1711,2026,Septiembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46953.53,46429.38,524.15,98.88%,Completado
+1712,2026,Septiembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,21309.78,21328.24,-18.46,100.09%,Completado
+1713,2026,Septiembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,28262.73,28719.73,-457,101.62%,Completado
+1714,2026,Septiembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5239.03,5549.51,-310.48,105.93%,Completado
+1715,2026,Septiembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3616.53,2323.02,1293.51,64.23%,Completado
+1716,2026,Septiembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8635.21,10346.49,-1711.28,119.82%,Completado
+1717,2026,Septiembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14759.22,13252.87,1506.35,89.79%,Completado
+1718,2026,Septiembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10059.38,3985.75,6073.63,39.62%,Completado
+1719,2026,Septiembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,14016.54,14376.85,-360.31,102.57%,Completado
+1720,2026,Septiembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7991.02,9215.04,-1224.02,115.32%,Completado
+1721,2026,Septiembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4248.71,4229.59,19.12,99.55%,Completado
+1722,2026,Septiembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5854.52,5705.49,149.03,97.45%,Completado
+1723,2026,Septiembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4693.74,4881.61,-187.87,104.00%,Completado
+1724,2026,Septiembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2770.68,2361.22,409.46,85.22%,Completado
+1725,2026,Septiembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12712.01,13420.16,-708.15,105.57%,Completado
+1726,2026,Septiembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2037.37,1969.89,67.48,96.69%,Completado
+1727,2026,Octubre,Ingresos,Ventas,Ventas de Productos - Línea A,167758.98,181337,-13578.02,108.09%,Completado
+1728,2026,Octubre,Ingresos,Ventas,Ventas de Productos - Línea B,95369.65,98348.39,-2978.74,103.12%,Completado
+1729,2026,Octubre,Ingresos,Servicios,Consultoría y Soporte Técnico,51357.23,52718.56,-1361.33,102.65%,Completado
+1730,2026,Octubre,Ingresos,Servicios,Suscripciones de Software (SaaS),33307.07,28239.18,5067.89,84.78%,Completado
+1731,2026,Octubre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,9193.44,9125.66,67.78,99.26%,Completado
+1732,2026,Octubre,Gastos Operativos,Nómina,Sueldos Personal Operativo,75127.75,75032.34,95.41,99.87%,Completado
+1733,2026,Octubre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,46698.18,47790.39,-1092.21,102.34%,Completado
+1734,2026,Octubre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,21354.39,22810.86,-1456.47,106.82%,Completado
+1735,2026,Octubre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,29046.81,28964.84,81.97,99.72%,Completado
+1736,2026,Octubre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5046.4,5118.71,-72.31,101.43%,Completado
+1737,2026,Octubre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,3676.3,4220.5,-544.2,114.80%,Completado
+1738,2026,Octubre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,8724.67,8919.26,-194.59,102.23%,Completado
+1739,2026,Octubre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),14543.78,10222.81,4320.97,70.29%,Completado
+1740,2026,Octubre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",10002.76,9459.63,543.13,94.57%,Completado
+1741,2026,Octubre,Marketing y Ventas,Comisiones,Comisiones por Ventas,13512.55,15229.28,-1716.73,112.70%,Completado
+1742,2026,Octubre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,7998.8,8149.93,-151.13,101.89%,Completado
+1743,2026,Octubre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4321.46,4264.12,57.34,98.67%,Completado
+1744,2026,Octubre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,5672.92,6481.59,-808.67,114.25%,Completado
+1745,2026,Octubre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,4626.77,4809.19,-182.42,103.94%,Completado
+1746,2026,Octubre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,2837,3600.32,-763.32,126.91%,Completado
+1747,2026,Octubre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,12541.34,12028.77,512.57,95.91%,Completado
+1748,2026,Octubre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2034.02,2098.7,-64.68,103.18%,Completado
+1749,2026,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea A,198308.52,199011.26,-702.74,100.35%,Completado
+1750,2026,Noviembre,Ingresos,Ventas,Ventas de Productos - Línea B,110644.43,89966.87,20677.56,81.31%,Completado
+1751,2026,Noviembre,Ingresos,Servicios,Consultoría y Soporte Técnico,57518.03,53970.66,3547.37,93.83%,Completado
+1752,2026,Noviembre,Ingresos,Servicios,Suscripciones de Software (SaaS),38898.22,38206.49,691.73,98.22%,Completado
+1753,2026,Noviembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,10481.87,10328.97,152.9,98.54%,Completado
+1754,2026,Noviembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,84415.87,84012.13,403.74,99.52%,Completado
+1755,2026,Noviembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,53511.09,51999.88,1511.21,97.18%,Completado
+1756,2026,Noviembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,24072.68,24871.66,-798.98,103.32%,Completado
+1757,2026,Noviembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,32677.92,32565.3,112.62,99.66%,Completado
+1758,2026,Noviembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5854.05,6634.97,-780.92,113.34%,Completado
+1759,2026,Noviembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,4274.82,3818.58,456.24,89.33%,Completado
+1760,2026,Noviembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,9814.39,9956.4,-142.01,101.45%,Completado
+1761,2026,Noviembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),17206.24,19168.88,-1962.64,111.41%,Completado
+1762,2026,Noviembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",11588.4,12811.34,-1222.94,110.55%,Completado
+1763,2026,Noviembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,15331.77,15885.62,-553.85,103.61%,Completado
+1764,2026,Noviembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,9218.26,9785.67,-567.41,106.16%,Completado
+1765,2026,Noviembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,5093.62,4846.86,246.76,95.16%,Completado
+1766,2026,Noviembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,6643.14,2144.89,4498.25,32.29%,Completado
+1767,2026,Noviembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,5236.94,6672.75,-1435.81,127.42%,Completado
+1768,2026,Noviembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,3191.37,4527.48,-1336.11,141.87%,Completado
+1769,2026,Noviembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,14380.32,14071.88,308.44,97.86%,Completado
+1770,2026,Noviembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2308.27,2416.96,-108.69,104.71%,Completado
+1771,2026,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea A,192923.45,186318.89,6604.56,96.58%,Completado
+1772,2026,Diciembre,Ingresos,Ventas,Ventas de Productos - Línea B,112496.09,137822.72,-25326.63,122.51%,Completado
+1773,2026,Diciembre,Ingresos,Servicios,Consultoría y Soporte Técnico,57593.67,62588.78,-4995.11,108.67%,Completado
+1774,2026,Diciembre,Ingresos,Servicios,Suscripciones de Software (SaaS),38317.47,32130.32,6187.15,83.85%,Completado
+1775,2026,Diciembre,Ingresos,Otros Ingresos,Rentas y Rendimientos Financieros,10783.49,10299.5,483.99,95.51%,Completado
+1776,2026,Diciembre,Gastos Operativos,Nómina,Sueldos Personal Operativo,85775.26,90967.19,-5191.93,106.05%,Completado
+1777,2026,Diciembre,Gastos Operativos,Nómina,Sueldos Administración y Ventas,54661.99,55595.82,-933.83,101.71%,Completado
+1778,2026,Diciembre,Gastos Operativos,Nómina,Seguridad Social y Prestaciones,23835.24,23741.11,94.13,99.61%,Completado
+1779,2026,Diciembre,Gastos Operativos,Instalaciones,Renta de Oficina y Almacén,31960.37,32060.38,-100.01,100.31%,Completado
+1780,2026,Diciembre,Gastos Operativos,Instalaciones,"Servicios Básicos (Luz, Agua, Internet)",5998.02,5781.03,216.99,96.38%,Completado
+1781,2026,Diciembre,Gastos Operativos,Suministros,Material de Oficina y Consumibles,4137.8,5117.05,-979.25,123.67%,Completado
+1782,2026,Diciembre,Gastos Operativos,Viajes y Viáticos,Transporte y Hospedaje Ejecutivo,9566.23,3811,5755.23,39.84%,Completado
+1783,2026,Diciembre,Marketing y Ventas,Publicidad,Campañas Digitales (Google/Meta Ads),16657.08,13354.61,3302.47,80.17%,Completado
+1784,2026,Diciembre,Marketing y Ventas,Publicidad,"Eventos, Ferias y Patrocinios",11482.48,7901.55,3580.93,68.81%,Completado
+1785,2026,Diciembre,Marketing y Ventas,Comisiones,Comisiones por Ventas,15987.9,17912.38,-1924.48,112.04%,Completado
+1786,2026,Diciembre,Tecnología e Infraestructura,Software,Licencias SaaS y Suscripciones Cloud,9259.22,9745,-485.78,105.25%,Completado
+1787,2026,Diciembre,Tecnología e Infraestructura,Mantenimiento,Soporte de Equipos y Servidores,4851.76,4999.6,-147.84,103.05%,Completado
+1788,2026,Diciembre,Tecnología e Infraestructura,Hardware,Renovación de Equipos e Informática,6472.35,4239.15,2233.2,65.50%,Completado
+1789,2026,Diciembre,Recursos Humanos,Capacitación,Cursos y Certificaciones de Personal,5090.35,4687.22,403.13,92.08%,Completado
+1790,2026,Diciembre,Recursos Humanos,Bienestar,Actividades de Integración y Salud Laboral,3246.58,2855.96,390.62,87.97%,Completado
+1791,2026,Diciembre,Finanzas e Impuestos,Impuestos,Impuestos Locales y Estatales,14784.84,14667.58,117.26,99.21%,Completado
+1792,2026,Diciembre,Finanzas e Impuestos,Servicios Financieros,Comisiones Bancarias y Manejo de Cuenta,2370.87,2484.36,-113.49,104.79%,Completado

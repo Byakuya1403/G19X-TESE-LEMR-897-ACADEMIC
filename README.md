@@ -18,7 +18,6 @@ Sus funciones actuales son:
 
 - Importar y validar un formato definido de CSV empresarial antes de guardarlo.
 - Consultar partidas, presupuestos, resultados reales y alertas mediante filtros de mes, categoría y moneda.
-- Mostrar una estimación del gasto del mes siguiente al último periodo importado.
 - Predecir el presupuesto asignado a egresos del siguiente mes mediante regresión lineal local, cuando existe un histórico suficiente.
 - Simular ajustes de nómina, otros egresos e inflación sobre resultados completados.
 - Administrar cuentas por roles, invitaciones por correo, activación y eliminación de usuarios.
@@ -231,7 +230,7 @@ Al terminar se actualizan listado y datos financieros. El forecast se vuelve a c
 
 **Resumen** muestra únicamente el mes seleccionado, sus categorías, cuatro indicadores de ingresos/egresos presupuestados y reales, resultado del periodo y alertas. **Presupuestos** contiene el detalle por concepto. Los filtros de categoría y moneda acotan la consulta; no se suman monedas diferentes. Si hay partidas pendientes, el total real del grupo se muestra pendiente y se informa por separado lo conocido.
 
-La **media de hasta tres meses de gasto real**, utilizada en entregas anteriores, era una proyección estadística: la expresión «no es un modelo de IA» se refiere exclusivamente a esa media. Ese cálculo fue retirado de `financial.py` y del dashboard. La **predicción de presupuesto sí utiliza aprendizaje automático**, mediante `LinearRegression` de scikit-learn en `forecast.py`, a través de `/api/forecast/budget`. Aprende de los presupuestos asignados guardados en la base de datos. La tarjeta verde y el detalle con gráfica comparten el mismo resultado; no se vuelve a introducir la media anterior.
+La **predicción de presupuesto utiliza `LinearRegression` de scikit-learn** en `forecast.py`, a través de `/api/forecast/budget`. Aprende de los presupuestos asignados guardados en la base de datos. La tarjeta verde y el detalle con gráfica comparten el mismo resultado.
 
 ### Predicción inteligente de presupuesto
 
@@ -466,7 +465,7 @@ La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15
 | `frontend/src/components/BudgetForecast.jsx` | Descripción de la configuración utilizada y explicación de selección/evaluación |
 | `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Patrones anuales, independencia de selección, ausencia de fuga temporal, importación y advertencias |
 | `backend/app/main.py`, `frontend/src/App.jsx` | Versión visible y de API |
-| `README.md`, `CHANGELOG.md` | Distinción entre media de gasto e IA de presupuesto, metodología, límites y verificación |
+| `README.md`, `CHANGELOG.md` | Predicción de presupuesto con regresión lineal, metodología, límites y verificación |
 
 La verificación incluyó el CSV de 792 filas adjunto a la solicitud: importación mediante la API, persistencia en una base SQLite aislada y consulta del forecast para el último mes y varios cortes anteriores. No se modificó ese archivo ni se añadió al repositorio. Las pruebas automáticas versionadas usan datos sintéticos identificados como fixtures, sin copiar presupuestos del archivo del usuario.
 
