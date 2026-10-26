@@ -459,7 +459,7 @@ npm run build
 npm run format:check
 ```
 
-La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. No sustituyen pruebas Docker/PostgreSQL, revisión visual con navegador ni evaluación financiera con datos de producción.
+La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. Además de estas pruebas automatizadas, el autor del proyecto confirmó la prueba de la plataforma con Docker y PostgreSQL y la revisión visual en el navegador. Esta verificación funcional no sustituye la evaluación financiera con datos reales representativos de cada empresa.
 
 ### Archivos de esta actualización
 
