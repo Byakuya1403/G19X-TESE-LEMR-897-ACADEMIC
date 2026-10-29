@@ -8,6 +8,7 @@ La instalación y el uso vigentes se documentan en [README.md](README.md).
 
 ### Corregido
 
+- Retirada la pestaña Power BI del menú de director y analista y eliminado su panel pendiente de configurar, de acuerdo con el alcance de la entrega.
 - Reproducido el fallo con el CSV adjunto de 792 filas: importación correcta y rechazo `referencia_mejor` del modelo de tendencia simple, incapaz de representar los aumentos anuales de determinados meses.
 - Se mantiene `LinearRegression`. Con 24 meses se comparan tendencia y tendencia con indicadores del mes del año. Selección temporal en los meses 19–21 y evaluación independiente en 22–24; cada ajuste utiliza únicamente meses anteriores al objetivo correspondiente. La tendencia simple se conserva con menos de 24 meses o si la configuración estacional no mejora la selección en más de un centavo.
 - El MAE elevado sigue bloqueando la publicación con la política del 30% existente. Una referencia del mes previo mejor que la regresión produce ahora `evaluacion.supera_referencia=false` y una advertencia con comparación de errores, sin un bloqueo automático por diferencias pequeñas. No se sustituye el modelo por una media o por esa referencia.

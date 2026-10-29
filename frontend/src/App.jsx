@@ -152,9 +152,9 @@ export default function App() {
   }, [period, department, refresh, authReady, user, currency, activation]);
   const allowed =
     user?.role === 'director'
-      ? ['Resumen', 'Presupuestos', 'Simulación', 'Power BI']
+      ? ['Resumen', 'Presupuestos', 'Simulación']
       : user?.role === 'analyst'
-        ? ['Resumen', 'Presupuestos', 'Simulación', 'Importaciones', 'Power BI']
+        ? ['Resumen', 'Presupuestos', 'Simulación', 'Importaciones']
         : user?.role === 'admin'
           ? ['Resumen', 'Usuarios']
           : ['Resumen'];
@@ -460,20 +460,6 @@ export default function App() {
             />
           )}
 
-          {page === 'Power BI' && (
-            <article className="panel">
-              <span className="badge">Pendiente de configurar</span>
-              <h2>Reportes corporativos integrados</h2>
-              <p>Primero debemos definir licencias, usuarios y permisos de acceso.</p>
-              <p className="muted">
-                Se necesita una aplicación en Microsoft Entra, un workspace y un reporte publicado.
-                El servidor gestionará los secretos y generará tokens después de verificar permisos.
-              </p>
-              <p className="note">
-                No se incrustan reportes públicos ni se exponen credenciales en React.
-              </p>
-            </article>
-          )}
           {page === 'Usuarios' && user?.role === 'admin' && (
             <Users request={api} roles={roles} currentUser={user} />
           )}

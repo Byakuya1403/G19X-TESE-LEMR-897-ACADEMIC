@@ -423,7 +423,7 @@ Si un servicio falla, revisa `docker compose ps` y `docker compose logs backend 
 
 ## Alcance actual
 
-**Power BI Embedded está fuera del alcance de esta entrega debido al tiempo disponible.** No se incluye la creación, publicación ni incrustación de reportes, la configuración de Microsoft Entra, licencias, capacidad o actualización mediante gateway. La pestaña Power BI y el endpoint `/api/powerbi/status` existentes son marcadores informativos y no constituyen una integración operativa. Las vistas SQL se conservan como base para una posible integración futura.
+**Power BI Embedded está fuera del alcance de esta entrega debido al tiempo disponible.** No se incluye la creación, publicación ni incrustación de reportes, la configuración de Microsoft Entra, licencias, capacidad o actualización mediante gateway. Power BI no aparece en el menú de la plataforma. El endpoint `/api/powerbi/status` se conserva como marcador informativo y no constituye una integración operativa. Las vistas SQL se conservan como base para una posible integración futura.
 
 La recuperación de contraseñas, la asociación de correos a cuentas anteriores, la auditoría completa y el cierre/aprobación mensual permanecen pendientes. La interfaz utiliza el pronóstico de presupuesto por regresión lineal con evaluación temporal cuando la serie es elegible. El dashboard financiero ya no devuelve `prediction`; el frontend consulta exclusivamente `/api/forecast/budget` para obtener el pronóstico. El cierre mensual formal y la validación del modelo con datos representativos de cada empresa siguen pendientes. La solución no ofrece carga universal de CSV ni aislamiento multiempresa.
 
