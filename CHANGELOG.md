@@ -21,6 +21,16 @@ La instalación y el uso vigentes se documentan en [README.md](README.md).
 
 No hay dependencias ni migraciones nuevas. Actualizar frontend y backend juntos y reconstruir con `docker compose up -d --build`, conservando `.env` y volumen. No volver a importar archivos ya guardados. El pie de página indica v0.18. El autor del proyecto confirmó la prueba de la plataforma con Docker y PostgreSQL y la revisión visual en el navegador. Estas comprobaciones complementan las pruebas automatizadas con SQLite y la prueba del CSV en una base SQLite aislada. Los resultados dependen de las otras cargas, el periodo, la categoría y la moneda.
 
+### Archivos de esta actualización
+
+| Archivos | Propósito |
+| --- | --- |
+| `backend/app/forecast.py` | Dos configuraciones de regresión lineal, selección temporal anterior a la evaluación y comparación informativa con la referencia |
+| `frontend/src/components/BudgetForecast.jsx` | Descripción de la configuración utilizada y explicación de selección/evaluación |
+| `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Patrones anuales, independencia de selección, ausencia de fuga temporal, importación y advertencias |
+| `backend/app/main.py`, `frontend/src/App.jsx` | Versión visible y de API |
+| `README.md`, `CHANGELOG.md` | Predicción de presupuesto con regresión lineal, metodología, límites y verificación |
+
 ## v0.17 — Composición variable y retirada de importaciones
 
 ### Corregido

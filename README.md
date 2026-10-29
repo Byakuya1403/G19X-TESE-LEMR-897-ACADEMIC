@@ -4,6 +4,8 @@ Aplicación para comparar el presupuesto estimado con los ingresos y egresos rea
 
 El proyecto utiliza **React, Python, FastAPI y PostgreSQL**. **Power BI Embedded queda fuera del alcance de esta entrega por la limitación de tiempo disponible.** Su integración podrá evaluarse en una fase posterior. El historial de cambios y las notas de actualización están en [CHANGELOG.md](CHANGELOG.md).
 
+**Demostración:** [Verificar la predicción de presupuesto](#verificar-la-predicción-de-presupuesto), con instrucciones para empezar sin cargas previas e importar únicamente el histórico completo.
+
 ## Desarrollo asistido por IA
 
 Durante el desarrollo de este proyecto se utilizó **ChatGPT/Codex de OpenAI** como asistente de programación para implementar y refactorizar componentes del frontend y del backend, preparar pruebas automatizadas y redactar documentación.
@@ -460,16 +462,6 @@ npm run format:check
 ```
 
 La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15 de frontend**; compilación y formato correctos. Las pruebas del forecast incluyen cargas mensuales desordenadas, persistencia comprobada desde otra sesión SQL, suma de partidas complementarias, rechazo de duplicados, consulta sin usar el parser CSV, actualización tras cambios persistidos, filtros y corte temporal. Además de estas pruebas automatizadas, el autor del proyecto confirmó la prueba de la plataforma con Docker y PostgreSQL y la revisión visual en el navegador. Esta verificación funcional no sustituye la evaluación financiera con datos reales representativos de cada empresa.
-
-### Archivos de esta actualización
-
-| Archivos | Propósito |
-| --- | --- |
-| `backend/app/forecast.py` | Dos configuraciones de regresión lineal, selección temporal anterior a la evaluación y comparación informativa con la referencia |
-| `frontend/src/components/BudgetForecast.jsx` | Descripción de la configuración utilizada y explicación de selección/evaluación |
-| `backend/tests/test_forecast.py`, `frontend/tests/budgetForecast.test.js` | Patrones anuales, independencia de selección, ausencia de fuga temporal, importación y advertencias |
-| `backend/app/main.py`, `frontend/src/App.jsx` | Versión visible y de API |
-| `README.md`, `CHANGELOG.md` | Predicción de presupuesto con regresión lineal, metodología, límites y verificación |
 
 La verificación incluyó el CSV sintético de 792 registros [presupuesto_historico_completo_2024_2026-v4.csv](examples/presupuesto_historico_completo_2024_2026-v4.csv), incluido en `examples/`: importación mediante la API, persistencia en una base SQLite aislada y consulta del forecast para el último mes y varios cortes anteriores. Se conserva el contenido del archivo original. Las pruebas automáticas versionadas usan sus propios datos sintéticos identificados como fixtures. Esta verificación comprueba el funcionamiento con datos de prueba; no sustituye la evaluación con datos reales representativos de cada empresa.
 
