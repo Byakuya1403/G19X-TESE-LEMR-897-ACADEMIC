@@ -4,7 +4,6 @@ export const descriptions = {
   Simulación:
     'Explora cómo cambiaría el gasto real del mes al ajustar nómina, otros egresos y precios.',
   Importaciones: 'Carga archivos CSV para incorporar y validar el histórico financiero.',
-  'Power BI': 'Consulta el estado de la integración de reportes corporativos con Power BI.',
   Usuarios:
     'Invita por correo, consulta el estado de las cuentas y elimina usuarios que ya no necesitan acceso.',
 };
