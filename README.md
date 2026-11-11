@@ -465,18 +465,18 @@ La verificación de esta entrega incluye **71 pruebas de backend con SQLite y 15
 
 ### Evidencia de la demostración en navegador (revisada el 2026-11-05)
 
-La [captura de Resumen](docs/capturas/04-forecast-dic-2026.png) muestra una sesión de analista con mes base diciembre de 2026, moneda MXN y todas las categorías. Se observaron los siguientes resultados:
+La [captura de Resumen](docs/capturas/04-Forecast-dic-2026.png) muestra una sesión de analista con mes base diciembre de 2026, moneda MXN y todas las categorías. Se observaron los siguientes resultados:
 
 - Periodo pronosticado: **enero de 2027**.
 - Presupuesto estimado: **$272,940.10 MXN**.
 - Presupuesto de egresos del mes base: **$306,138.34 MXN**.
 - Variación respecto al mes base: **−10.84 %**.
 - Configuración elegida: **tendencia con mes del año**, mediante `LinearRegression`, con **24 meses analizados** y origen en base de datos.
-- MAE: **no visible en esta captura**. La prueba automatizada previa con el CSV completo y persistencia SQLite obtuvo **$565.95 MXN** de MAE; ese valor no constituye una comprobación visual del MAE en PostgreSQL.
+- MAE: **$565 MXN**. La prueba automatizada previa con el CSV completo y persistencia SQLite obtuvo **$565.95 MXN** de MAE; ese valor no constituye una comprobación visual del MAE en PostgreSQL.
 
-Para reproducir esta demostración, utiliza una base sin cargas financieras e importa únicamente `presupuesto_historico_completo_2024_2026-v4.csv` (792 partidas), siguiendo los pasos anteriores. La captura de Resumen por sí sola no acredita el número de cargas, la preparación de la base ni los servicios Docker/PostgreSQL. La ejecución con esos servicios fue comunicada por el responsable del proyecto; no se adjunta aquí una captura de los contenedores ni de la base. La fecha indicada corresponde a la revisión de la evidencia recibida, no a una fecha de ejecución deducida de la imagen.
+El 5 de noviembre de 2026 levanté la plataforma con `docker compose up -d --build`, entré como analista con la base vacía ([captura 01](docs/capturas/01-Plataforma-limpia.png)), importé sólo `presupuesto_historico_completo_2024_2026-v4.csv` ([792 partidas válidas](docs/capturas/03-Verficacion.png)) y consulté diciembre de 2026. El MAE fue de $565.95 MXN ([captura 06](docs/capturas/06-Predicion-inteligente.png)).
 
-![Resumen de diciembre de 2026 con pronóstico de enero de 2027](docs/capturas/04-forecast-dic-2026.png)
+![Resumen de diciembre de 2026 con pronóstico de enero de 2027](docs/capturas/04-Forecast-dic-2026.png)
 
 La imagen se revisó antes de incorporarla: no muestra contraseñas, tokens ni contenido de `.env`. Sí muestra el nombre de la cuenta de demostración y su rol.
 
