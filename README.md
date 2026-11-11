@@ -121,17 +121,21 @@ docker compose ps
 
 Abre la dirección de la plataforma en el navegador. Abrir `frontend/index.html` con doble clic no ejecuta React ni el backend.
 
-### 4. Crear el primer administrador
+### 4. Crear las cuentas iniciales
 
-No existen usuarios ni contraseñas predeterminados. Crea la cuenta inicial desde la terminal:
+No existen usuarios predeterminados. Para preparar la demostración, crea una cuenta por rol desde la terminal. Cada comando te pide escribir y confirmar una contraseña de 12 a 128 caracteres, que no se muestra al introducirla:
 
 ```bash
 docker compose exec backend python -m app.create_user administrador admin
+docker compose exec backend python -m app.create_user analista analyst
+docker compose exec backend python -m app.create_user director director
 ```
 
-Escribe y confirma una contraseña de 12 a 128 caracteres; no se muestra mientras la introduces. En la plataforma pulsa **Iniciar sesión** y utiliza `administrador` y esa contraseña.
+- `analista`: importa el CSV de `examples/` y consulta la predicción de presupuesto.
+- `director`: consulta Resumen, Presupuestos y Simulación.
+- `administrador`: invita y elimina usuarios.
 
-Esta cuenta inicial utiliza un nombre de usuario, sin correo asociado. Para administrar con un correo, invita tu dirección desde **Usuarios**, selecciona **Administrador** y completa la activación. Esto crea una cuenta independiente: no modifica la inicial. Si deseas eliminar la cuenta inicial, primero inicia sesión con el nuevo administrador por correo.
+Para entrar, pulsa **Iniciar sesión** y usa el nombre de usuario y la contraseña de la cuenta que creaste.
 
 ## Configuración
 
